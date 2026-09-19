@@ -5,6 +5,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
+from .business import ConsumerMemorySnapshot
 from .evidence import Evidence
 from .gaps import EvidenceGap, GapType
 
@@ -124,9 +125,10 @@ class InvestigationState(BaseModel):
     tool_calls: list[ToolCallRecord] = Field(default_factory=list)
     transition_events: list[TransitionEvent] = Field(default_factory=list)
     investigation_result: InvestigationResult | None = None
+    consumer_memory: ConsumerMemorySnapshot | None = None
     question_count: int = Field(default=0, ge=0)
     step_count: int = Field(default=0, ge=0)
-    max_steps: int = Field(default=12, gt=0)
+    max_steps: int = Field(default=30, gt=0)
     max_questions: int = Field(default=6, gt=0)
     current_action: AgentAction | None = None
     status: AgentStatus = AgentStatus.INVESTIGATING
@@ -139,6 +141,21 @@ class InvestigationState(BaseModel):
 
     @model_validator(mode="after")
     def validate_state(self) -> "InvestigationState":
+        evidence_ids = {item.id for item in self.evidence}
+        for call in self.tool_calls:
+            if not set(call.result_evidence_ids) <= evidence_ids:
+                raise ValueError("tool result_evidence_ids must reference State evidence")
+        if self.consumer_memory is not None:
+            if self.consumer_memory.consumer_id != self.consumer_id:
+                raise ValueError("consumer memory must belong to the State consumer")
+            memory_facts = (
+                self.consumer_memory.repeat_purchase_products
+                + self.consumer_memory.recent_orders
+                + self.consumer_memory.previous_service_contacts
+                + self.consumer_memory.explicit_preferences
+            )
+            if any(not set(fact.evidence_ids) <= evidence_ids for fact in memory_facts):
+                raise ValueError("consumer memory facts must reference State evidence")
         sent_ids = {
             question.id
             for question in self.asked_questions

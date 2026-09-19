@@ -10,7 +10,7 @@ from backend.app.domain.agent import (
     InvestigationState,
     ToolCallStatus,
 )
-from backend.app.domain.gaps import GapStatus, GapType
+from backend.app.domain.gaps import EvidenceGap, GapStatus, GapType
 
 
 class NextActionDecision(BaseModel):
@@ -70,6 +70,25 @@ class DeterministicDecisionPolicy:
                 reason="Order history has not been retrieved.",
                 tool_name="get_order_history",
             )
+        actual_first_use = self._gap(state, GapType.ACTUAL_FIRST_USE_TIME)
+        if actual_first_use is None or actual_first_use.status is GapStatus.OPEN:
+            return self._question_or_human(state, GapType.ACTUAL_FIRST_USE_TIME)
+        if not self._has_service_history(state) and not self._completed_tool(
+            state, "get_service_history"
+        ):
+            return self._tool_or_terminate(
+                state,
+                tool_name="get_service_history",
+                reason="Service history context has not been retrieved.",
+            )
+        if state.consumer_memory is None and not self._completed_tool(
+            state, "get_consumer_memory"
+        ):
+            return self._tool_or_terminate(
+                state,
+                tool_name="get_consumer_memory",
+                reason="Evidence-backed consumer memory has not been assembled.",
+            )
         if self._boolean_evidence(state, "policy_required") and not any(
             item.key == "policy_retrieved" for item in state.evidence
         ):
@@ -87,21 +106,11 @@ class DeterministicDecisionPolicy:
 
         gaps = {gap.gap_type: gap for gap in state.evidence_gaps}
         for gap_type in self.GAP_PRIORITY:
+            if gap_type is GapType.ACTUAL_FIRST_USE_TIME:
+                continue
             gap = gaps.get(gap_type)
             if gap is None or gap.status is GapStatus.OPEN:
-                candidate = self.questions.create(state, gap_type)
-                if can_ask_question(state, candidate.text):
-                    return NextActionDecision(
-                        action=AgentAction.ASK_USER,
-                        reason=f"Required evidence gap {gap_type.value} remains open.",
-                        target_gap=gap_type,
-                        question_intent=gap_type.value,
-                    )
-                return NextActionDecision(
-                    action=AgentAction.WAIT_FOR_HUMAN,
-                    reason="The required gap cannot be asked again within deterministic guards.",
-                    target_gap=gap_type,
-                )
+                return self._question_or_human(state, gap_type)
         if self._has_undated_regimen_change(state):
             gap_type = GapType.RECENT_REGIMEN_CHANGES
             candidate = self.questions.create(
@@ -126,7 +135,13 @@ class DeterministicDecisionPolicy:
 
     @staticmethod
     def _has_order_fact(state: InvestigationState) -> bool:
-        return any(item.key == "first_purchase" for item in state.evidence)
+        return any(
+            item.key in {"first_purchase", "repeat_purchase"} for item in state.evidence
+        )
+
+    @staticmethod
+    def _has_service_history(state: InvestigationState) -> bool:
+        return any(item.key == "previous_service_contact" for item in state.evidence)
 
     @staticmethod
     def _completed_tool(state: InvestigationState, tool_name: str) -> bool:
@@ -161,4 +176,41 @@ class DeterministicDecisionPolicy:
             and item.value.get("effective_at") is None
             and item.value.get("product_id") not in dated_products
             for item in state.evidence
+        )
+
+    @staticmethod
+    def _gap(state: InvestigationState, gap_type: GapType) -> EvidenceGap | None:
+        return next((gap for gap in state.evidence_gaps if gap.gap_type is gap_type), None)
+
+    def _question_or_human(
+        self, state: InvestigationState, gap_type: GapType
+    ) -> NextActionDecision:
+        candidate = self.questions.create(state, gap_type)
+        if can_ask_question(state, candidate.text):
+            return NextActionDecision(
+                action=AgentAction.ASK_USER,
+                reason=f"Required evidence gap {gap_type.value} remains open.",
+                target_gap=gap_type,
+                question_intent=gap_type.value,
+            )
+        return NextActionDecision(
+            action=AgentAction.WAIT_FOR_HUMAN,
+            reason="The required gap cannot be asked again within deterministic guards.",
+            target_gap=gap_type,
+        )
+
+    @staticmethod
+    def _tool_or_terminate(
+        state: InvestigationState, *, tool_name: str, reason: str
+    ) -> NextActionDecision:
+        if state.max_steps - state.step_count < 3:
+            return NextActionDecision(
+                action=None,
+                reason=f"Not enough transition budget remains for {tool_name}.",
+                terminate=True,
+            )
+        return NextActionDecision(
+            action=AgentAction.CALL_TOOL,
+            reason=reason,
+            tool_name=tool_name,
         )

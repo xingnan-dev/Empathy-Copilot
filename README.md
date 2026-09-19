@@ -2,11 +2,12 @@
 
 Evidence-first, stateful investigation foundations for beauty-service support.
 
-Current phase: **Phase 2 — Stateful Investigation Agent Loop**.
+Current phase: **Phase 3 — Business Tools + Evidence Grounding**.
 
-The repository contains the evidence-first domain foundation and a deterministic LangGraph
-workflow with development-only in-memory checkpoints and stub tools. It deliberately contains
-no frontend, database, real external tool, or real LLM integration.
+The repository contains the evidence-first domain foundation, a deterministic LangGraph
+workflow, development-only in-memory checkpoints, local demo business repositories, typed
+business tools, and an explicit Evidence grounding boundary. It deliberately contains no
+frontend, database, network business API, or real LLM integration.
 
 ## Development
 

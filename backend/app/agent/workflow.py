@@ -22,8 +22,11 @@ from backend.app.domain.evidence import Evidence
 from backend.app.domain.gaps import GapType, evaluate_p0_gaps
 from backend.app.domain.regimen import build_regimen_changes
 from backend.app.services.checkpoints import InMemoryCheckpointStore
+from backend.app.services.context_passport import ContextPassport, ContextPassportService
+from backend.app.services.grounding import EvidenceGroundingService
+from backend.app.services.memory import ConsumerMemoryService
 from backend.app.services.tools import (
-    StubToolExecutionService,
+    BusinessToolExecutionService,
     ToolRegistry,
     default_tool_registry,
 )
@@ -66,7 +69,13 @@ class InvestigationWorkflow:
         self.questions = QuestionTemplateRegistry()
         self.policy = DeterministicDecisionPolicy(self.questions)
         self.tools = tool_registry or default_tool_registry()
-        self.tool_execution = StubToolExecutionService(self.tools, self.transitions)
+        self.tool_execution = BusinessToolExecutionService(
+            self.tools,
+            self.transitions,
+            EvidenceGroundingService(),
+            ConsumerMemoryService(),
+        )
+        self.passports = ContextPassportService()
         self.graph: CompiledStateGraph[WorkflowState, None, WorkflowState, WorkflowState] = (
             self._build_graph()
         )
@@ -181,6 +190,12 @@ class InvestigationWorkflow:
     def resume_case(self, case_id: str, new_evidence: list[Evidence]) -> InvestigationState:
         return self.resume_with_evidence(self.checkpoints.load(case_id), new_evidence)
 
+    def restore_case(self, case_id: str) -> InvestigationState:
+        return self.checkpoints.load(case_id)
+
+    def context_passport(self, case_id: str) -> ContextPassport:
+        return self.passports.build(self.restore_case(case_id))
+
     def _evaluate_state(self, graph_state: WorkflowState) -> WorkflowState:
         refreshed = self.transitions.refresh_derived_gaps(graph_state["investigation"])
         return {"investigation": refreshed, "decision": graph_state.get("decision")}
@@ -241,9 +256,14 @@ class InvestigationWorkflow:
         decision = self._required_decision(graph_state)
         if decision.tool_name is None or decision.action is None:
             raise ValueError("tool decision requires tool_name and action")
+        business_tools = {
+            "get_order_history",
+            "get_service_history",
+            "get_consumer_memory",
+        }
         arguments = (
             {"consumer_id": state.consumer_id}
-            if decision.tool_name == "get_order_history"
+            if decision.tool_name in business_tools
             else {"policy_id": "beauty_service_default"}
         )
         result = self.tool_execution.execute_once(

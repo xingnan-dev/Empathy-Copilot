@@ -148,7 +148,8 @@ def test_new_instance_resume_preserves_completed_tool_history() -> None:
     assert waiting.tool_calls[-1].status is ToolCallStatus.COMPLETED
     second = InvestigationWorkflow(checkpoint_store=store, tool_registry=registry)
     resumed = second.resume_case(CASE_ID, [first_use_evidence()])
-    assert resumed.tool_calls == waiting.tool_calls
+    original_call = waiting.tool_calls[-1]
+    assert original_call in resumed.tool_calls
     assert registry.execution_counts["get_order_history"] == 1
 
 
@@ -163,7 +164,9 @@ def test_retrieve_policy_uses_tool_style_stub_route() -> None:
     )
     base = initial_state()
     data = base.model_dump()
-    data["evidence"] = [*base.evidence, policy_required]
+    evidence = [*base.evidence, first_use_evidence(), policy_required]
+    data["evidence"] = evidence
+    data["evidence_gaps"] = evaluate_p0_gaps(CASE_ID, evidence)
     result = InvestigationWorkflow().run(InvestigationState.model_validate(data))
     policy_call = next(
         call for call in result.tool_calls if call.tool_name == "retrieve_service_policy"

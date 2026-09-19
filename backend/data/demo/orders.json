@@ -1,0 +1,29 @@
+[
+  {
+    "order_id": "A1001",
+    "consumer_id": "consumer_001",
+    "product_id": "a_serum",
+    "product_name": "A Serum",
+    "ordered_at": "2026-07-10T10:00:00Z",
+    "quantity": 1,
+    "first_purchase": true
+  },
+  {
+    "order_id": "A1010",
+    "consumer_id": "consumer_001",
+    "product_id": "a_serum",
+    "product_name": "A Serum",
+    "ordered_at": "2026-08-15T10:00:00Z",
+    "quantity": 1,
+    "first_purchase": false
+  },
+  {
+    "order_id": "A1024",
+    "consumer_id": "consumer_001",
+    "product_id": "c_serum",
+    "product_name": "C Serum",
+    "ordered_at": "2026-09-10T10:00:00Z",
+    "quantity": 1,
+    "first_purchase": true
+  }
+]

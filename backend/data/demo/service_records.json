@@ -1,0 +1,11 @@
+[
+  {
+    "service_record_id": "SR1001",
+    "consumer_id": "consumer_001",
+    "case_id": "case_historical_001",
+    "issue_type": "DELIVERY_QUESTION",
+    "contact_time": "2026-08-20T09:30:00Z",
+    "resolution_status": "RESOLVED",
+    "summary": "Consumer asked when order A1010 would arrive."
+  }
+]

@@ -139,3 +139,27 @@ A matching completed call is never executed again. These stubs make no network r
 Conclusion stores only an `InvestigationResult` containing attribution decision and reason.
 The Phase 2 attribution guard still has no automatic `SUPPORTED` path. An explicit SEVERE
 consumer report escalates to human service without diagnosis or medical advice.
+
+## Phase 3 business grounding
+
+Phase 3 replaces the order lookup stub with repository-backed local demo tools and adds
+service-history and consumer-memory tools. Repository protocols isolate data access; only the
+demo repository implementation reads JSON. Tool results are typed raw records and cannot be
+inserted into State directly.
+
+`EvidenceGroundingService` is the single conversion boundary from raw tool results to
+Evidence. Order records retain exact order provenance and prove purchase only. Historical
+service records retain exact service-record provenance and remain historical context.
+Neither source can prove actual use, regimen membership, symptoms, concurrent changes, or
+causality. Unknown consumers produce empty results and no placeholder Evidence.
+
+`ConsumerMemorySnapshot` and `ContextPassport` are deterministic Evidence projections. Every
+memory fact references existing Evidence ids. Passport confirmed facts exclude AI inference
+and explicit unknowns; it also carries open gaps, question history, completed tools,
+historical service summary, lifecycle status, and current action for repeat-contact handoff.
+The checkpointed `InvestigationState` remains authoritative.
+
+The decision policy acquires order context before asking about actual first use, then acquires
+historical service and memory context before continuing with remaining consumer-experience
+gaps. A completed empty lookup is not retried. The existing attribution guard remains in
+force and has no automatic `SUPPORTED` path.
