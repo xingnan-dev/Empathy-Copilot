@@ -22,6 +22,7 @@ from backend.app.domain.evidence import Evidence
 from backend.app.domain.gaps import evaluate_p0_gaps
 from backend.app.repositories import DemoRepositoryBundle
 from backend.app.repositories.interfaces import (
+    BusinessRepositoryBundle,
     ConsumerRepository,
     OrderRepository,
     ServiceHistoryRepository,
@@ -230,7 +231,7 @@ class BusinessToolExecutionService:
 
 
 def default_tool_registry(
-    repositories: DemoRepositoryBundle | None = None,
+    repositories: BusinessRepositoryBundle | None = None,
 ) -> ToolRegistry:
     bundle = repositories or DemoRepositoryBundle()
     tools = BusinessToolSet(bundle.consumers, bundle.orders, bundle.service_history)

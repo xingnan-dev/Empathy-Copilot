@@ -163,3 +163,23 @@ The decision policy acquires order context before asking about actual first use,
 historical service and memory context before continuing with remaining consumer-experience
 gaps. A completed empty lookup is not retried. The existing attribution guard remains in
 force and has no automatic `SUPPORTED` path.
+
+## Phase 4 durable persistence
+
+Phase 4 keeps the Phase 3 boundaries while replacing runtime demo adapters with optional
+PostgreSQL implementations:
+
+```text
+Business Tool -> Repository -> PostgreSQL -> typed record -> Grounding -> Evidence
+InvestigationState -> PostgresCheckpointStore -> JSONB -> validate -> restore -> resume
+```
+
+Business tables are relational; workflow internals remain one versioned JSONB State snapshot.
+Consumer Memory, Context Passport, and regimen changes remain Evidence-derived projections,
+not independently persisted truth. The domain model is still authoritative.
+
+`PostgresCheckpointStore` writes snapshot and revision metadata atomically. Updates require an
+expected revision and raise `StateConflictError` when stale. Restore runs full Pydantic/domain
+validation and cross-checks relational metadata, including Evidence references and consumer
+identity. A newly constructed engine, session factory, repository bundle, and workflow can
+continue the same checkpoint without repeating answered questions or completed tools.

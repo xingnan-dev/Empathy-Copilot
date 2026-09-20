@@ -142,6 +142,17 @@ class InvestigationState(BaseModel):
     @model_validator(mode="after")
     def validate_state(self) -> "InvestigationState":
         evidence_ids = {item.id for item in self.evidence}
+        if any(item.case_id != self.case_id for item in self.evidence):
+            raise ValueError("all evidence must belong to the State case")
+        if any(
+            isinstance(item.value, dict)
+            and item.value.get("consumer_id") not in {None, self.consumer_id}
+            for item in self.evidence
+        ):
+            raise ValueError("business evidence must belong to the State consumer")
+        for question in self.asked_questions:
+            if not set(question.answered_by_evidence_ids) <= evidence_ids:
+                raise ValueError("question evidence ids must reference State evidence")
         for call in self.tool_calls:
             if not set(call.result_evidence_ids) <= evidence_ids:
                 raise ValueError("tool result_evidence_ids must reference State evidence")

@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: empathy
+      POSTGRES_PASSWORD: empathy_local
+      POSTGRES_DB: empathy_copilot
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U empathy -d empathy_copilot"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    volumes:
+      - empathy_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  empathy_postgres_data:

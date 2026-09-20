@@ -16,3 +16,13 @@ class OrderRepository(Protocol):
 class ServiceHistoryRepository(Protocol):
     def list_for_consumer(self, consumer_id: str) -> list[ServiceRecord]: ...
 
+
+class BusinessRepositoryBundle(Protocol):
+    @property
+    def consumers(self) -> ConsumerRepository: ...
+
+    @property
+    def orders(self) -> OrderRepository: ...
+
+    @property
+    def service_history(self) -> ServiceHistoryRepository: ...

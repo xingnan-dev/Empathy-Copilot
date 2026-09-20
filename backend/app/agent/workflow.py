@@ -21,7 +21,7 @@ from backend.app.domain.agent import (
 from backend.app.domain.evidence import Evidence
 from backend.app.domain.gaps import GapType, evaluate_p0_gaps
 from backend.app.domain.regimen import build_regimen_changes
-from backend.app.services.checkpoints import InMemoryCheckpointStore
+from backend.app.services.checkpoints import CheckpointStore, InMemoryCheckpointStore
 from backend.app.services.context_passport import ContextPassport, ContextPassportService
 from backend.app.services.grounding import EvidenceGroundingService
 from backend.app.services.memory import ConsumerMemoryService
@@ -61,7 +61,7 @@ class InvestigationWorkflow:
     def __init__(
         self,
         *,
-        checkpoint_store: InMemoryCheckpointStore | None = None,
+        checkpoint_store: CheckpointStore | None = None,
         tool_registry: ToolRegistry | None = None,
     ) -> None:
         self.checkpoints = checkpoint_store or InMemoryCheckpointStore()
@@ -136,10 +136,12 @@ class InvestigationWorkflow:
             builder.add_edge(terminal_node, END)
         return builder.compile()
 
-    def run(self, state: InvestigationState) -> InvestigationState:
+    def run(
+        self, state: InvestigationState, *, expected_revision: int | None = None
+    ) -> InvestigationState:
         output = self.graph.invoke({"investigation": state, "decision": None})
         result = cast(InvestigationState, output["investigation"])
-        self.checkpoints.save(result)
+        self.checkpoints.save(result, expected_revision=expected_revision)
         return result
 
     def resume_with_evidence(
@@ -185,7 +187,7 @@ class InvestigationWorkflow:
                 "next_question": None,
             },
         )
-        return self.run(resumed)
+        return self.run(resumed, expected_revision=current.state_revision)
 
     def resume_case(self, case_id: str, new_evidence: list[Evidence]) -> InvestigationState:
         return self.resume_with_evidence(self.checkpoints.load(case_id), new_evidence)

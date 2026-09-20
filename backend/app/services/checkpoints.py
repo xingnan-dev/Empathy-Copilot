@@ -1,6 +1,22 @@
-"""Development-only in-memory checkpoint storage."""
+"""Checkpoint persistence contract and development in-memory implementation."""
+
+from typing import Protocol
 
 from backend.app.domain.agent import InvestigationState
+
+
+class StateConflictError(RuntimeError):
+    """A stale state attempted to overwrite a newer persisted revision."""
+
+
+class CheckpointStore(Protocol):
+    def save(
+        self, state: InvestigationState, *, expected_revision: int | None = None
+    ) -> None: ...
+
+    def load(self, case_id: str) -> InvestigationState: ...
+
+    def exists(self, case_id: str) -> bool: ...
 
 
 class InMemoryCheckpointStore:
@@ -9,7 +25,16 @@ class InMemoryCheckpointStore:
     def __init__(self) -> None:
         self._states: dict[str, str] = {}
 
-    def save(self, state: InvestigationState) -> None:
+    def save(
+        self, state: InvestigationState, *, expected_revision: int | None = None
+    ) -> None:
+        if expected_revision is not None and state.case_id in self._states:
+            current = InvestigationState.model_validate_json(self._states[state.case_id])
+            if current.state_revision != expected_revision:
+                raise StateConflictError(
+                    f"case {state.case_id} expected revision {expected_revision}, "
+                    f"found {current.state_revision}"
+                )
         self._states[state.case_id] = state.model_dump_json()
 
     def load(self, case_id: str) -> InvestigationState:
@@ -21,4 +46,3 @@ class InMemoryCheckpointStore:
 
     def exists(self, case_id: str) -> bool:
         return case_id in self._states
-

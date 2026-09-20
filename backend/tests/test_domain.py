@@ -229,7 +229,15 @@ def test_waiting_for_user_accepts_pending_question() -> None:
 def test_answered_question_links_to_evidence_and_counts_once() -> None:
     record = question(QuestionStatus.ANSWERED)
     data = initial_state().model_dump()
-    data.update({"asked_questions": [record.model_dump()], "question_count": 1})
+    evidence = [*initial_state().evidence, first_use_evidence()]
+    data.update(
+        {
+            "evidence": evidence,
+            "evidence_gaps": evaluate_p0_gaps(CASE_ID, evidence),
+            "asked_questions": [record.model_dump()],
+            "question_count": 1,
+        }
+    )
     state = InvestigationState.model_validate(data)
     assert state.asked_questions[0].answered_by_evidence_ids == ["ev_m102_first_use"]
     assert state.question_count == 1
