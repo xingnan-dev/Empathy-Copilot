@@ -1,0 +1,15 @@
+.resonique-plugin {
+  min-width: 0;
+  background: var(--ivory);
+  border-left: 1px solid var(--hairline-strong);
+  box-shadow: -18px 0 45px rgba(54, 45, 39, 0.07);
+}
+
+.plugin-section {
+  position: relative;
+  border-top: 1px solid var(--hairline);
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.plugin-section:hover { background: rgba(255, 255, 255, 0.34); }
+.plugin-section--attention { background: linear-gradient(135deg, rgba(217, 109, 92, 0.055), transparent 65%); }

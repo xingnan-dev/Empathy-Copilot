@@ -1,0 +1,25 @@
+:root {
+  --pearl: #f4f0e9;
+  --ivory: #faf8f3;
+  --porcelain: #fdfbf7;
+  --bone: #e9e1d6;
+  --ink: #19191b;
+  --warm: #69655f;
+  --mist: #918b83;
+  --coral: #d96d5c;
+  --coral-soft: #f8e8e4;
+  --iris: #7068b5;
+  --iris-soft: #efedf7;
+  --cyan: #438f91;
+  --cyan-soft: #e6f1f0;
+  --unknown: #77736e;
+  --unknown-soft: #efede9;
+  --hairline: rgba(65, 59, 52, 0.13);
+  --hairline-strong: rgba(65, 59, 52, 0.21);
+  --shadow-soft: 0 18px 50px rgba(46, 40, 35, 0.08);
+  color: var(--ink);
+  background: var(--pearl);
+  font-family: Inter, "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
