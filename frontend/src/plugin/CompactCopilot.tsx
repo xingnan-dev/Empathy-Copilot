@@ -7,7 +7,7 @@ import { MeaningSection } from './sections/MeaningSection'
 import { PersonSection } from './sections/PersonSection'
 import { SignalSection } from './sections/SignalSection'
 
-export function CompactCopilot() {
+export function CompactCopilot({ onExpand }: { onExpand: () => void }) {
   const [evidenceOpen, setEvidenceOpen] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -18,13 +18,13 @@ export function CompactCopilot() {
 
   return (
     <div className="compact-copilot">
-      <PluginHeader onExpand={() => notify('Expanded intelligence is planned for UI P1.')} />
+      <PluginHeader onExpand={onExpand} />
       <main className="plugin-content">
         <div className="case-intro"><span>Current case</span><strong>Adverse reaction · Medical attention</strong><p>Understand before answer.</p></div>
         <PersonSection />
         <SignalSection />
         <MeaningSection expanded={evidenceOpen} onToggle={() => setEvidenceOpen((value) => !value)} />
-        <ActionSection onReview={() => setEvidenceOpen(true)} onPrepare={() => notify('Response preparation is gated until human review.')} />
+        <ActionSection onReview={onExpand} onPrepare={() => notify('Response preparation is gated until human review.')} />
         <SafetyBoundary />
       </main>
       <footer className="plugin-footer"><span><Check size={12} />Evidence boundary active</span><em>AI assists · Human decides</em></footer>
