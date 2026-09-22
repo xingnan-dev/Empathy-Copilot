@@ -1,6 +1,6 @@
-import { AlertTriangle, Check, CircleDashed, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Check, CircleDashed, ShieldCheck } from 'lucide-react'
 
-export function WhyThisAction() {
+export function WhyThisAction({ onPrepare }: { onPrepare: () => void }) {
   return (
     <section className="why-this-action" aria-labelledby="why-action-title">
       <header><span><AlertTriangle size={15} />Recommended action</span><h2 id="why-action-title">Why escalate?</h2><strong>Escalate</strong></header>
@@ -9,6 +9,7 @@ export function WhyThisAction() {
         <div><h3>Unresolved</h3><ul><li><CircleDashed size={12} />Exact product usage unverified</li><li><CircleDashed size={12} />Actual first-use time unknown</li><li><CircleDashed size={12} />Recent routine changes unknown</li></ul></div>
         <div><h3>Boundary</h3><ul><li><ShieldCheck size={12} />Causality is not established</li><li><ShieldCheck size={12} />Not a medical diagnosis</li><li><ShieldCheck size={12} />Human approval required</li></ul></div>
       </div>
+      <button className="why-this-action__prepare" type="button" onClick={onPrepare}>Prepare human-reviewed response<ArrowRight size={14} /></button>
     </section>
   )
 }

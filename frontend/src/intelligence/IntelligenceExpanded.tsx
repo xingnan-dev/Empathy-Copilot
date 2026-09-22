@@ -9,7 +9,7 @@ import { IntelligenceNavigation, type IntelligenceView } from './IntelligenceNav
 import { ServiceTimeline } from './ServiceTimeline'
 import { WhyThisAction } from './WhyThisAction'
 
-export function IntelligenceExpanded({ onCollapse }: { onCollapse: () => void }) {
+export function IntelligenceExpanded({ onCollapse, onPrepare }: { onCollapse: () => void; onPrepare: () => void }) {
   const [view, setView] = useState<IntelligenceView>('evidence')
   const collapseRef = useRef<HTMLButtonElement>(null)
 
@@ -32,7 +32,7 @@ export function IntelligenceExpanded({ onCollapse }: { onCollapse: () => void })
           {view === 'memory' && <ConsumerMemory />}
           {view === 'activity' && <AgentActivity />}
         </div>
-        <WhyThisAction />
+        <WhyThisAction onPrepare={onPrepare} />
       </div>
       <footer className="expanded-footer"><span>No evidence → No attribution</span><em>Based on consumer report and service records · Not a medical diagnosis</em></footer>
     </div>
