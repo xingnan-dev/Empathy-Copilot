@@ -2,12 +2,12 @@
 
 Evidence-first, stateful investigation foundations for beauty-service support.
 
-Current phase: **Phase 4 — PostgreSQL Persistence + Durable Agent State**.
+Current phase: **Phase 5 — Product Integration**.
 
 The repository contains the evidence-first domain foundation, a deterministic LangGraph
 workflow, local demo and PostgreSQL business repositories, typed business tools, an explicit
-Evidence grounding boundary, and durable PostgreSQL checkpoints. It deliberately contains no
-frontend integration, network business API, or real LLM integration.
+Evidence grounding boundary, durable PostgreSQL checkpoints, and a thin FastAPI projection
+used by the React UI. It deliberately contains no real LLM or official dataset integration.
 
 ## Development
 

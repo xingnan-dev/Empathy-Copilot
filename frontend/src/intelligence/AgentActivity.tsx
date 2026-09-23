@@ -1,7 +1,8 @@
 import { Check, Circle, Pause } from 'lucide-react'
-import { s00154 } from '../demo/cases/S00154'
+import { useCaseRuntime } from '../runtime/CaseRuntime'
 
 export function AgentActivity() {
+  const { presentation: s00154 } = useCaseRuntime()
   return (
     <div className="intelligence-view activity-view">
       <div className="view-intro"><span>Investigation activity</span><h2>How Resonique reached this action</h2><p>Business-readable progress with technical state kept secondary.</p></div>

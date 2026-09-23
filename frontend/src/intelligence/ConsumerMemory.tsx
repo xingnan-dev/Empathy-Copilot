@@ -1,7 +1,8 @@
 import { Check, CircleDashed, History, PackageCheck, TicketCheck } from 'lucide-react'
-import { s00154 } from '../demo/cases/S00154'
+import { useCaseRuntime } from '../runtime/CaseRuntime'
 
 export function ConsumerMemory() {
+  const { presentation: s00154 } = useCaseRuntime()
   return (
     <div className="intelligence-view memory-view">
       <div className="view-intro"><span>Context passport</span><h2>Current case context, restored</h2><p>Use what is already grounded. Do not ask the consumer to repeat it.</p></div>

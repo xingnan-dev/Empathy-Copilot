@@ -1,11 +1,12 @@
 import { ChevronDown, ChevronUp, Eye } from 'lucide-react'
-import { s00154 } from '../../demo/cases/S00154'
+import { useCaseRuntime } from '../../runtime/CaseRuntime'
 import { EvidenceGap } from '../../evidence/EvidenceGap'
 import { EvidenceSummary } from '../../evidence/EvidenceSummary'
 import { EvidenceTypeBadge } from '../../evidence/EvidenceTypeBadge'
 import { SectionFrame } from './SectionFrame'
 
 export function MeaningSection({ expanded, onToggle }: { expanded: boolean; onToggle: () => void }) {
+  const { presentation: s00154 } = useCaseRuntime()
   return (
     <SectionFrame index="03" label="MEANING" question="What do we actually know?">
       <div className="meaning-label"><span>Known</span><small>Type and source remain separate</small></div>

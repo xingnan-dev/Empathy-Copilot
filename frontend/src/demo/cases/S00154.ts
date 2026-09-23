@@ -31,6 +31,14 @@ export interface TimelineRecord {
   source: string
 }
 
+export interface CasePresentation {
+  caseId: string; consumer: string; scenario: string; orderId: string; product: string; paid: string; ticketId: string
+  lifecycle: string; currentAction: string; safetyPath: string; attributionStatus: string
+  signals: readonly string[]; evidence: EvidenceRecord[]; unknowns: string[]; gaps: EvidenceGapRecord[]; timeline: readonly TimelineRecord[]
+  activity: { id: string; label: string; status: string; technical: string }[]
+  response: { nextBestAction: string; secondaryActions: readonly string[]; nextBestQuestion: string; questionResolvesGap: string; questionWhy: string; drafts: readonly string[]; evidenceUsedIds: readonly string[]; retainedUncertainty: readonly string[]; avoidedClaims: readonly string[] }
+}
+
 export const s00154 = {
   caseId: 'S00154',
   consumer: '蒋a**',
@@ -39,6 +47,10 @@ export const s00154 = {
   product: 'Firming Gift Set',
   paid: '¥1,398',
   ticketId: 'BLFY27898314',
+  lifecycle: 'WAITING_FOR_HUMAN',
+  currentAction: 'ESCALATE',
+  safetyPath: 'ESCALATION',
+  attributionStatus: 'INSUFFICIENT_EVIDENCE',
   signals: [
     'Medical attention reported',
     'Consumer reports facial swelling',

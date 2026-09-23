@@ -8,6 +8,14 @@ body { margin: 0; min-width: 320px; min-height: 100vh; }
 button { color: inherit; }
 button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--iris); outline-offset: 3px; }
 
+.runtime-shell { height:100%; min-width:0; }
+.fixture-banner { position:absolute; z-index:12; top:4px; left:50%; transform:translateX(-50%); padding:4px 9px; border:1px solid rgba(217,109,92,.25); background:var(--coral-soft); color:#984b40; font-size:8px; font-weight:700; letter-spacing:.04em; }
+.runtime-state { height:100%; padding:42px 34px; display:flex; flex-direction:column; justify-content:center; background:radial-gradient(ellipse at 85% 12%,rgba(112,104,181,.07),transparent 30%),var(--ivory); }
+.runtime-state>span { color:var(--iris); font-size:9px; font-weight:750; letter-spacing:.1em; text-transform:uppercase; }.runtime-state h2 { margin-top:10px; font:500 24px/1.15 serif; }.runtime-state p { margin-top:10px; color:#77716a; font-size:10px; line-height:1.5; }
+.runtime-state>div { margin-top:22px; display:flex; gap:8px; }.runtime-state button { min-height:36px; padding:0 12px; border:1px solid var(--hairline); background:rgba(255,255,255,.6); font-size:9px; cursor:pointer; }.runtime-state--error>span { color:var(--coral); }
+.runtime-conflict { margin:24px 42px -18px; padding:11px 14px; border:1px solid rgba(217,109,92,.22); background:var(--coral-soft); color:#91463c; font-size:9px; }
+.human-checkpoint button:disabled { opacity:.55; cursor:wait; }
+
 .demo-page { min-height: 100vh; padding: 16px; background: radial-gradient(circle at 88% 9%, rgba(112, 104, 181, 0.06), transparent 24%), var(--pearl); }
 .demo-topbar { height: 48px; max-width: 1408px; margin: 0 auto; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; color: #75716b; border: 1px solid rgba(65,59,52,.09); border-bottom: 0; background: rgba(251,249,245,.58); font-size: 10px; letter-spacing: .06em; }
 .demo-topbar div { display: flex; align-items: center; gap: 9px; }.demo-topbar strong { color: #5f5b56; font-weight: 550; }.host-logo { width: 23px; height: 23px; display: grid; place-items: center; border-radius: 6px; background: #e1e5e5; color: #6e7676; font: 600 11px serif; }

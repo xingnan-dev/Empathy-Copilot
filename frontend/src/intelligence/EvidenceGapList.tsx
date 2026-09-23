@@ -1,7 +1,8 @@
 import { ArrowRight, CircleDashed } from 'lucide-react'
-import { s00154 } from '../demo/cases/S00154'
+import { useCaseRuntime } from '../runtime/CaseRuntime'
 
 export function EvidenceGapList() {
+  const { presentation: s00154 } = useCaseRuntime()
   return (
     <section className="expanded-gaps" aria-labelledby="open-gaps-title">
       <div className="intelligence-section-heading"><div><span>Unknown is useful</span><h2 id="open-gaps-title">Open evidence gaps</h2></div><em>{s00154.gaps.length} open</em></div>

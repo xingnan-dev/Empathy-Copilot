@@ -1,0 +1,51 @@
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { approveCase, getCase } from '../api/cases'
+import { CaseApiError } from '../api/client'
+import type { CaseView } from '../api/types'
+import { s00154, type CasePresentation } from '../demo/cases/S00154'
+
+interface RuntimeValue { caseView: CaseView; presentation: CasePresentation; approving: boolean; approve: () => Promise<void> }
+const RuntimeContext = createContext<RuntimeValue | null>(null)
+
+function present(view: CaseView): CasePresentation {
+  const evidence = view.evidence.map((item) => ({ ...item, timestamp: new Date(item.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }))
+  const openGaps = view.gaps.filter((gap) => gap.status === 'OPEN')
+  const timeline = view.evidence.map((item) => {
+    const date = new Date(item.timestamp)
+    const type = item.type === 'CONSUMER_REPORTED' ? 'CONSUMER_MESSAGE' : item.type === 'AI_OBSERVATION' ? 'MATERIAL_UPLOAD' : item.provenance.startsWith('Order') ? 'ORDER' : 'SERVICE_RECORD'
+    return { id: `timeline-${item.id}`, date: date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }), time: date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), type, title: item.fact, detail: item.type === 'VERIFIED_BUSINESS_FACT' ? 'Verified source record; no usage or causality inference.' : 'Source semantics retained from the backend Evidence.', source: item.provenance } as CasePresentation['timeline'][number]
+  }).sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`))
+  return {
+    ...s00154,
+    caseId: view.case_id,
+    consumer: view.consumer,
+    lifecycle: view.lifecycle,
+    currentAction: view.current_action,
+    safetyPath: view.safety_path,
+    attributionStatus: view.attribution_status,
+    evidence,
+    timeline,
+    gaps: openGaps,
+    unknowns: openGaps.map((gap) => gap.label),
+    activity: view.tool_activity.map((item) => ({ ...item, status: item.status === 'CURRENT' ? 'CURRENT' : 'COMPLETED' })),
+    response: { ...s00154.response, nextBestQuestion: view.response_context.next_best_question ?? s00154.response.nextBestQuestion, questionResolvesGap: view.response_context.question_resolves_gap ?? s00154.response.questionResolvesGap, evidenceUsedIds: view.response_context.evidence_used_ids },
+  }
+}
+
+export function CaseRuntime({ children }: { children: ReactNode }) {
+  const [caseView, setCaseView] = useState<CaseView | null>(null)
+  const [error, setError] = useState<CaseApiError | null>(null)
+  const [fixtureMode, setFixtureMode] = useState(false)
+  const [approving, setApproving] = useState(false)
+  const load = async () => { setError(null); try { setCaseView(await getCase('S00154')) } catch (reason) { setError(reason instanceof CaseApiError ? reason : new CaseApiError('BACKEND_UNAVAILABLE', 'Unable to load live case state.', 0)) } }
+  useEffect(() => { void load() }, [])
+  const fixtureView = useMemo<CaseView>(() => ({ case_id: s00154.caseId, consumer: s00154.consumer, lifecycle: 'WAITING_FOR_HUMAN', current_action: 'ESCALATE', safety_path: 'ESCALATION', attribution_status: 'INSUFFICIENT_EVIDENCE', evidence: s00154.evidence.map((item) => ({ ...item, timestamp: new Date().toISOString() })), gaps: s00154.gaps.map((item) => ({ ...item, status: 'OPEN' })), questions: [], tool_activity: [...s00154.activity], context_passport: {}, human_checkpoint: { state: 'REQUIRED', can_approve: false }, response_context: { evidence_used_ids: [...s00154.response.evidenceUsedIds], next_best_question: s00154.response.nextBestQuestion, question_resolves_gap: s00154.response.questionResolvesGap }, updated_at: new Date().toISOString(), revision: 0 }), [])
+  if (!caseView && !fixtureMode && !error) return <div className="runtime-state"><span>Live agent state</span><h2>Loading case intelligence…</h2><p>Restoring evidence and checkpoint context.</p></div>
+  if (!caseView && !fixtureMode && error) return <div className="runtime-state runtime-state--error" role="alert"><span>{error.code}</span><h2>Unable to load live case state.</h2><p>{error.message}</p><div><button type="button" onClick={() => void load()}>Retry</button><button type="button" onClick={() => setFixtureMode(true)}>Enter Demo Fixture Mode</button></div></div>
+  const active = caseView ?? fixtureView
+  const approve = async () => { if (fixtureMode) return; setApproving(true); try { setCaseView(await approveCase(active.case_id, active.revision)) } catch (reason) { setError(reason instanceof CaseApiError ? reason : null); throw reason } finally { setApproving(false) } }
+  return <RuntimeContext.Provider value={{ caseView: active, presentation: present(active), approving, approve }}><div className={`runtime-shell ${fixtureMode ? 'runtime-shell--fixture' : ''}`}>{fixtureMode && <div className="fixture-banner">Demo Fixture Mode · Backend state unavailable</div>}{children}</div></RuntimeContext.Provider>
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useCaseRuntime() { const value = useContext(RuntimeContext); if (!value) throw new Error('CaseRuntime is required'); return value }

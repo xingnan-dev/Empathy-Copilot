@@ -1,9 +1,10 @@
 import { Bot, FileImage, MessageSquareText, PackageCheck, TicketCheck } from 'lucide-react'
-import { s00154 } from '../demo/cases/S00154'
+import { useCaseRuntime } from '../runtime/CaseRuntime'
 
 const icons = { ORDER: PackageCheck, CONSUMER_MESSAGE: MessageSquareText, MATERIAL_UPLOAD: FileImage, SERVICE_RECORD: TicketCheck, AGENT_ACTION: Bot }
 
 export function ServiceTimeline() {
+  const { presentation: s00154 } = useCaseRuntime()
   return (
     <div className="intelligence-view timeline-view">
       <div className="view-intro"><span>Service timeline</span><h2>What happened, in source order</h2><p>Events preserve their original source and available time precision.</p></div>

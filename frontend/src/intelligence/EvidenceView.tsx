@@ -1,9 +1,10 @@
-import { s00154 } from '../demo/cases/S00154'
+import { useCaseRuntime } from '../runtime/CaseRuntime'
 import { AttributionBoundary } from './AttributionBoundary'
 import { EvidenceGapList } from './EvidenceGapList'
 import { EvidenceRecord } from './EvidenceRecord'
 
 export function EvidenceView() {
+  const { presentation: s00154 } = useCaseRuntime()
   return (
     <div className="intelligence-view evidence-view">
       <section aria-labelledby="evidence-map-title">

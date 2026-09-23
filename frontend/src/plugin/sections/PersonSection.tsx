@@ -1,8 +1,9 @@
 import { History, PackageCheck } from 'lucide-react'
-import { s00154 } from '../../demo/cases/S00154'
+import { useCaseRuntime } from '../../runtime/CaseRuntime'
 import { SectionFrame } from './SectionFrame'
 
 export function PersonSection() {
+  const { presentation: s00154 } = useCaseRuntime()
   return (
     <SectionFrame index="01" label="PERSON" question="Who is this consumer?">
       <div className="person-line"><div><strong>{s00154.consumer}</strong><span>Returning consumer</span></div><span className="case-id">{s00154.caseId}</span></div>

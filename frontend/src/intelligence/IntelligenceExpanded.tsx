@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle, Minimize2, Waves } from 'lucide-react'
-import { s00154 } from '../demo/cases/S00154'
+import { useCaseRuntime } from '../runtime/CaseRuntime'
 import { AgentActivity } from './AgentActivity'
 import { ConsumerMemory } from './ConsumerMemory'
 import { EvidenceView } from './EvidenceView'
@@ -10,6 +10,7 @@ import { ServiceTimeline } from './ServiceTimeline'
 import { WhyThisAction } from './WhyThisAction'
 
 export function IntelligenceExpanded({ onCollapse, onPrepare }: { onCollapse: () => void; onPrepare: () => void }) {
+  const { presentation: s00154 } = useCaseRuntime()
   const [view, setView] = useState<IntelligenceView>('evidence')
   const collapseRef = useRef<HTMLButtonElement>(null)
 
@@ -19,7 +20,7 @@ export function IntelligenceExpanded({ onCollapse, onPrepare }: { onCollapse: ()
     <div className="intelligence-expanded">
       <header className="expanded-header">
         <div className="brand-lockup"><span className="brand-mark" aria-hidden="true"><i /><i /></span><div><strong>RESONIQUE</strong><small>Intelligence Expanded</small></div></div>
-        <div className="expanded-header__context"><div><span>Case</span><strong>{s00154.caseId}</strong></div><div><span>Lifecycle</span><strong className="expanded-state"><Waves size={12} />Investigating</strong></div><div><span>Safety path</span><strong className="expanded-safety"><AlertTriangle size={12} />Escalation</strong></div></div>
+        <div className="expanded-header__context"><div><span>Case</span><strong>{s00154.caseId}</strong></div><div><span>Lifecycle</span><strong className="expanded-state"><Waves size={12} />{s00154.lifecycle.replaceAll('_', ' ')}</strong></div><div><span>Safety path</span><strong className="expanded-safety"><AlertTriangle size={12} />{s00154.safetyPath}</strong></div></div>
         <button ref={collapseRef} className="collapse-button" type="button" onClick={onCollapse} aria-label="Collapse intelligence view"><Minimize2 size={17} /><span>Collapse</span></button>
       </header>
       <div className="expanded-scroll">

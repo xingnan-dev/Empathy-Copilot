@@ -9,6 +9,8 @@ from sqlalchemy import Engine, func, inspect, select, text, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from backend.app.agent.guardrails import AttributionDecision, assess_attribution
+from backend.app.api.fixtures import s00154_waiting_for_human
+from backend.app.api.services.case_application_service import CaseApplicationService
 from backend.app.domain.agent import AgentStatus, InvestigationState, QuestionStatus, ToolCallStatus
 from backend.app.domain.gaps import GapStatus, GapType, evaluate_p0_gaps
 from backend.app.domain.regimen import build_regimen_changes
@@ -271,3 +273,22 @@ def test_repeat_contact_regenerates_passport_and_safe_attribution(
         state, "c_serum", build_regimen_changes(CASE_ID, state.evidence)
     )
     assert decision.decision is AttributionDecision.INSUFFICIENT_EVIDENCE
+
+
+@pytest.mark.postgres
+def test_phase5_approval_survives_new_service_and_postgres_session(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    store = PostgresCheckpointStore(postgres_sessions)
+    initial = s00154_waiting_for_human()
+    store.save(initial)
+    first = CaseApplicationService(build_postgres_workflow(postgres_sessions), store)
+    approved = first.approve(initial.case_id, initial.state_revision)
+    assert approved.human_checkpoint.state == "APPROVED"
+
+    restarted_store = PostgresCheckpointStore(postgres_sessions)
+    restarted = CaseApplicationService(build_postgres_workflow(postgres_sessions), restarted_store)
+    restored = restarted.get_case(initial.case_id)
+    assert restored.revision == approved.revision
+    assert restored.lifecycle == "ESCALATED"
+    assert restored.human_checkpoint.state == "APPROVED"
