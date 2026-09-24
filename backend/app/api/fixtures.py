@@ -102,6 +102,15 @@ def s00154_waiting_for_human() -> InvestigationState:
             "Uploaded image",
             datetime(2026, 5, 11, 16, 21, tzinfo=UTC),
         ),
+        _evidence(
+            "human-review-required",
+            "human_review_required",
+            True,
+            EvidenceType.VERIFIED_BUSINESS_FACT,
+            SourceType.SERVICE_SYSTEM,
+            "adverse-reaction-policy",
+            "Adverse-reaction policy",
+        ),
     ]
     initial = InvestigationState(
         case_id="S00154",

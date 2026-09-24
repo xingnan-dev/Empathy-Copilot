@@ -1,9 +1,16 @@
 import { MessageSquareText, Search, ShoppingBag } from 'lucide-react'
+import { useState } from 'react'
 import { ResoniquePlugin } from '../plugin/ResoniquePlugin'
+import { useCaseRuntime } from '../runtime/CaseRuntime'
 
 const contacts = ['蒋a**', '林c**', '周e**', '杨c**']
 
 export function DemoHostShell() {
+  const { ingestMessage, processingMessage } = useCaseRuntime()
+  const [message, setMessage] = useState('')
+  const [sentMessage, setSentMessage] = useState<string | null>(null)
+  const [messageError, setMessageError] = useState<string | null>(null)
+  const send = async () => { const content = message.trim(); if (!content) return; setMessageError(null); try { await ingestMessage(content); setSentMessage(content); setMessage('') } catch { setMessageError('Model understanding unavailable. Please retry.') } }
   return (
     <div className="demo-page antialiased">
       <header className="demo-topbar"><div><span className="host-logo">Q</span><strong>Customer Service Workspace</strong></div><span>Demo host context</span></header>
@@ -23,7 +30,9 @@ export function DemoHostShell() {
           <div className="message message--consumer message--attachment"><span><MessageSquareText size={18} /></span><div><strong>Medical material uploaded</strong><small>Image attachment · consumer provided</small></div></div>
           <div className="host-event"><i /><span>Service record linked to this conversation</span><time>16:22</time></div>
           <div className="message message--agent message--compact"><p>资料已收到，正在为您升级至专项处理。</p><time>16:22</time></div>
-          <div className="host-composer"><span>Reply in the host workspace…</span><button type="button">Send</button></div>
+          {sentMessage && <div className="message message--consumer"><p>{sentMessage}</p><time>Now</time></div>}
+          {messageError && <div className="host-event"><i /><span>{messageError}</span><time>Now</time></div>}
+          <div className="host-composer"><input aria-label="Consumer message" value={message} onChange={(event) => setMessage(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void send() }} placeholder="Consumer message for understanding…" /><button type="button" disabled={processingMessage} onClick={() => void send()}>{processingMessage ? 'Reading…' : 'Send'}</button></div>
         </main>
         <ResoniquePlugin />
       </div>

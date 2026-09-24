@@ -22,3 +22,4 @@ export interface CaseView {
 }
 
 export interface ApiError { code: string; message: string }
+export interface ResponseDraft { text: string; kind: 'GENERATED' | 'FALLBACK'; fallback_reason?: string }

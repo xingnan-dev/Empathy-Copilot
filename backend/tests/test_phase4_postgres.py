@@ -14,6 +14,9 @@ from backend.app.api.services.case_application_service import CaseApplicationSer
 from backend.app.domain.agent import AgentStatus, InvestigationState, QuestionStatus, ToolCallStatus
 from backend.app.domain.gaps import GapStatus, GapType, evaluate_p0_gaps
 from backend.app.domain.regimen import build_regimen_changes
+from backend.app.llm.providers.fake import FakeModelProvider
+from backend.app.llm.schemas import CandidateFact, CandidateField, UnderstandingResult
+from backend.app.llm.service import ModelService
 from backend.app.persistence.checkpoints import PostgresCheckpointStore
 from backend.app.persistence.config import DatabaseSettings
 from backend.app.persistence.database import create_database_engine, create_session_factory
@@ -102,6 +105,42 @@ def test_migration_from_empty_database_created_phase4_schema(
 
 
 @pytest.mark.postgres
+def test_phase6_model_evidence_and_gap_survive_service_restart(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    workflow = build_postgres_workflow(postgres_sessions)
+    provider = FakeModelProvider(
+        UnderstandingResult(
+            candidate_facts=[
+                CandidateFact(
+                    field=CandidateField.EXACT_PRODUCT_USED,
+                    value="Firming Cream",
+                    source_text="礼盒里的面霜",
+                )
+            ]
+        )
+    )
+    service = CaseApplicationService(workflow, workflow.checkpoints, ModelService(provider))
+    service.ensure_integration_fixture()
+    before = service.get_case("S00154")
+    changed = service.ingest_message(
+        "S00154",
+        message="我实际用的是礼盒里的面霜。",
+        message_id="M-PG-P6",
+        expected_revision=before.revision,
+    )
+
+    restarted_workflow = build_postgres_workflow(postgres_sessions)
+    restarted = CaseApplicationService(restarted_workflow, restarted_workflow.checkpoints)
+    restored = restarted.get_case("S00154")
+
+    assert restored.revision == changed.revision
+    assert any(item.source == "Consumer message · M-PG-P6" for item in restored.evidence)
+    assert next(gap for gap in restored.gaps if gap.id == "EXACT_PRODUCT_USED").status == "RESOLVED"
+    assert restored.attribution_status == "INSUFFICIENT_EVIDENCE"
+
+
+@pytest.mark.postgres
 def test_demo_seed_is_idempotent(postgres_sessions: sessionmaker[Session]) -> None:
     _seed(postgres_sessions)
     _seed(postgres_sessions)
@@ -138,8 +177,7 @@ def test_postgres_tool_path_preserves_purchase_usage_boundary(
     assert all(item.key != "actual_first_use_time" for item in waiting.evidence)
     assert build_regimen_changes(CASE_ID, waiting.evidence) == []
     gap = next(
-        item for item in waiting.evidence_gaps
-        if item.gap_type is GapType.ACTUAL_FIRST_USE_TIME
+        item for item in waiting.evidence_gaps if item.gap_type is GapType.ACTUAL_FIRST_USE_TIME
     )
     assert gap.status is GapStatus.OPEN
 
@@ -226,9 +264,7 @@ def test_golden_demo_survives_new_engine_session_and_workflow(
     waiting = workflow_a.run(_initial_state())
     assert waiting.status is AgentStatus.WAITING_FOR_USER
 
-    second_engine = create_database_engine(
-        DatabaseSettings(os.environ["TEST_DATABASE_URL"])
-    )
+    second_engine = create_database_engine(DatabaseSettings(os.environ["TEST_DATABASE_URL"]))
     try:
         second_sessions = create_session_factory(second_engine)
         workflow_b = build_postgres_workflow(second_sessions)
@@ -237,14 +273,16 @@ def test_golden_demo_survives_new_engine_session_and_workflow(
         assert restored.tool_calls[0].status is ToolCallStatus.COMPLETED
         resumed = workflow_b.resume_case(CASE_ID, [first_use_evidence()])
         assert resumed.asked_questions[0].status is QuestionStatus.ANSWERED
-        assert sum(
-            question.gap_type is GapType.ACTUAL_FIRST_USE_TIME
-            for question in resumed.asked_questions
-        ) == 1
+        assert (
+            sum(
+                question.gap_type is GapType.ACTUAL_FIRST_USE_TIME
+                for question in resumed.asked_questions
+            )
+            == 1
+        )
         assert workflow_b.tools.execution_counts.get("get_order_history", 0) == 0
         resolved = next(
-            gap for gap in resumed.evidence_gaps
-            if gap.gap_type is GapType.ACTUAL_FIRST_USE_TIME
+            gap for gap in resumed.evidence_gaps if gap.gap_type is GapType.ACTUAL_FIRST_USE_TIME
         )
         assert resolved.status is GapStatus.RESOLVED
     finally:
@@ -269,9 +307,7 @@ def test_repeat_contact_regenerates_passport_and_safe_attribution(
     assert {"get_order_history", "get_service_history", "get_consumer_memory"} <= set(
         passport.completed_tools
     )
-    decision = assess_attribution(
-        state, "c_serum", build_regimen_changes(CASE_ID, state.evidence)
-    )
+    decision = assess_attribution(state, "c_serum", build_regimen_changes(CASE_ID, state.evidence))
     assert decision.decision is AttributionDecision.INSUFFICIENT_EVIDENCE
 
 

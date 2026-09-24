@@ -435,3 +435,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--iris);
 @media (prefers-reduced-motion:reduce) {
   .response-studio { animation:none!important; }.suggested-response,.human-checkpoint { scroll-behavior:auto; }
 }
+
+.host-composer input { min-width:0;flex:1;border:0;outline:0;color:inherit;background:transparent;font:inherit; }
+.host-composer input::placeholder { color:inherit; }
+.host-composer button:disabled { opacity:.58; }

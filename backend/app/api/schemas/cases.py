@@ -41,6 +41,23 @@ class ResponseContextView(BaseModel):
     question_resolves_gap: str | None = None
 
 
+class ResponseDraftView(BaseModel):
+    text: str
+    kind: Literal["GENERATED", "FALLBACK"]
+    fallback_reason: str | None = None
+
+
+class ConsumerMessageRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    message: str = Field(min_length=1, max_length=4000)
+    message_id: str = Field(min_length=1)
+    expected_revision: int = Field(ge=0)
+
+
+class ResponseDraftRequest(BaseModel):
+    expected_revision: int = Field(ge=0)
+
+
 class CaseView(BaseModel):
     case_id: str
     consumer: str

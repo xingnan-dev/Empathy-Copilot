@@ -1,10 +1,10 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { approveCase, getCase } from '../api/cases'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { approveCase, generateResponseDraft, getCase, ingestConsumerMessage } from '../api/cases'
 import { CaseApiError } from '../api/client'
-import type { CaseView } from '../api/types'
+import type { CaseView, ResponseDraft } from '../api/types'
 import { s00154, type CasePresentation } from '../demo/cases/S00154'
 
-interface RuntimeValue { caseView: CaseView; presentation: CasePresentation; approving: boolean; approve: () => Promise<void> }
+interface RuntimeValue { caseView: CaseView; presentation: CasePresentation; approving: boolean; processingMessage: boolean; approve: () => Promise<void>; requestDraft: () => Promise<ResponseDraft>; ingestMessage: (message: string) => Promise<void> }
 const RuntimeContext = createContext<RuntimeValue | null>(null)
 
 function present(view: CaseView): CasePresentation {
@@ -37,14 +37,17 @@ export function CaseRuntime({ children }: { children: ReactNode }) {
   const [error, setError] = useState<CaseApiError | null>(null)
   const [fixtureMode, setFixtureMode] = useState(false)
   const [approving, setApproving] = useState(false)
+  const [processingMessage, setProcessingMessage] = useState(false)
   const load = async () => { setError(null); try { setCaseView(await getCase('S00154')) } catch (reason) { setError(reason instanceof CaseApiError ? reason : new CaseApiError('BACKEND_UNAVAILABLE', 'Unable to load live case state.', 0)) } }
   useEffect(() => { void load() }, [])
   const fixtureView = useMemo<CaseView>(() => ({ case_id: s00154.caseId, consumer: s00154.consumer, lifecycle: 'WAITING_FOR_HUMAN', current_action: 'ESCALATE', safety_path: 'ESCALATION', attribution_status: 'INSUFFICIENT_EVIDENCE', evidence: s00154.evidence.map((item) => ({ ...item, timestamp: new Date().toISOString() })), gaps: s00154.gaps.map((item) => ({ ...item, status: 'OPEN' })), questions: [], tool_activity: [...s00154.activity], context_passport: {}, human_checkpoint: { state: 'REQUIRED', can_approve: false }, response_context: { evidence_used_ids: [...s00154.response.evidenceUsedIds], next_best_question: s00154.response.nextBestQuestion, question_resolves_gap: s00154.response.questionResolvesGap }, updated_at: new Date().toISOString(), revision: 0 }), [])
+  const active = caseView ?? fixtureView
+  const requestDraft = useCallback(async () => fixtureMode ? { text: s00154.response.drafts[0], kind: 'FALLBACK' as const, fallback_reason: 'FIXTURE_MODE' } : generateResponseDraft(active.case_id, active.revision), [active.case_id, active.revision, fixtureMode])
   if (!caseView && !fixtureMode && !error) return <div className="runtime-state"><span>Live agent state</span><h2>Loading case intelligence…</h2><p>Restoring evidence and checkpoint context.</p></div>
   if (!caseView && !fixtureMode && error) return <div className="runtime-state runtime-state--error" role="alert"><span>{error.code}</span><h2>Unable to load live case state.</h2><p>{error.message}</p><div><button type="button" onClick={() => void load()}>Retry</button><button type="button" onClick={() => setFixtureMode(true)}>Enter Demo Fixture Mode</button></div></div>
-  const active = caseView ?? fixtureView
   const approve = async () => { if (fixtureMode) return; setApproving(true); try { setCaseView(await approveCase(active.case_id, active.revision)) } catch (reason) { setError(reason instanceof CaseApiError ? reason : null); throw reason } finally { setApproving(false) } }
-  return <RuntimeContext.Provider value={{ caseView: active, presentation: present(active), approving, approve }}><div className={`runtime-shell ${fixtureMode ? 'runtime-shell--fixture' : ''}`}>{fixtureMode && <div className="fixture-banner">Demo Fixture Mode · Backend state unavailable</div>}{children}</div></RuntimeContext.Provider>
+  const ingestMessage = async (message: string) => { if (fixtureMode) throw new CaseApiError('MODEL_UNAVAILABLE', 'Model unavailable in fixture mode.', 503); setProcessingMessage(true); try { setCaseView(await ingestConsumerMessage(active.case_id, message, `web-${crypto.randomUUID()}`, active.revision)) } finally { setProcessingMessage(false) } }
+  return <RuntimeContext.Provider value={{ caseView: active, presentation: present(active), approving, processingMessage, approve, requestDraft, ingestMessage }}><div className={`runtime-shell ${fixtureMode ? 'runtime-shell--fixture' : ''}`}>{fixtureMode && <div className="fixture-banner">Demo Fixture Mode · Backend state unavailable</div>}{children}</div></RuntimeContext.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

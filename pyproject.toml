@@ -32,7 +32,10 @@ packages = ["backend/app"]
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
 addopts = "-q"
-markers = ["postgres: requires an isolated TEST_DATABASE_URL PostgreSQL database"]
+markers = [
+    "postgres: requires an isolated TEST_DATABASE_URL PostgreSQL database",
+    "qwen: requires explicit Qwen credentials and network access",
+]
 
 [tool.ruff]
 target-version = "py312"

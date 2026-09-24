@@ -1,5 +1,6 @@
 """FastAPI application factory for the Phase 5 vertical slice."""
 
+import os
 from collections.abc import Callable
 
 from fastapi import FastAPI, Request
@@ -8,6 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
+from backend.app.llm.provider import ModelProviderError
+from backend.app.llm.providers.qwen import QwenProvider
+from backend.app.llm.service import ModelService
 from backend.app.persistence.config import DatabaseSettings
 from backend.app.persistence.database import create_database_engine, create_session_factory
 from backend.app.persistence.factory import build_postgres_workflow
@@ -23,7 +27,18 @@ def build_runtime_service() -> CaseApplicationService:
     engine = create_database_engine(DatabaseSettings.from_environment())
     sessions = create_session_factory(engine)
     workflow = build_postgres_workflow(sessions)
-    service = CaseApplicationService(workflow, workflow.checkpoints)
+    model_service = None
+    if os.getenv("LLM_PROVIDER", "").casefold() == "qwen" and all(
+        os.getenv(name) for name in ("LLM_API_KEY", "LLM_MODEL", "LLM_BASE_URL")
+    ):
+        model_service = ModelService(
+            QwenProvider(
+                api_key=os.environ["LLM_API_KEY"],
+                model=os.environ["LLM_MODEL"],
+                base_url=os.environ["LLM_BASE_URL"],
+            )
+        )
+    service = CaseApplicationService(workflow, workflow.checkpoints, model_service)
     service.ensure_integration_fixture()
     return service
 
@@ -55,6 +70,10 @@ def create_app(
     @app.exception_handler(StateConflictError)
     async def conflict(_request: Request, _exc: StateConflictError) -> JSONResponse:
         return error("STATE_CONFLICT", "Case updated elsewhere. Refresh current state.", 409)
+
+    @app.exception_handler(ModelProviderError)
+    async def model_error(_request: Request, exc: ModelProviderError) -> JSONResponse:
+        return error("MODEL_UNAVAILABLE", f"Model operation unavailable ({exc.category}).", 503)
 
     @app.exception_handler(InvalidStateTransitionError)
     async def invalid_transition(
