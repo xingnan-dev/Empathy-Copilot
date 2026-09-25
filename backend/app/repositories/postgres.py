@@ -5,7 +5,7 @@ from collections.abc import Callable
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.domain.business import ConsumerRecord, OrderRecord, ServiceRecord
+from backend.app.domain.business import ConsumerRecord, LogisticsRecord, OrderRecord, ServiceRecord
 from backend.app.persistence.models import ConsumerRow, OrderRow, ServiceRecordRow
 
 SessionFactory = Callable[[], Session]
@@ -76,8 +76,36 @@ class PostgresServiceHistoryRepository:
             ]
 
 
+class PostgresLogisticsRepository:
+    def __init__(self, sessions: SessionFactory) -> None:
+        self._sessions = sessions
+
+    def get_for_case(self, case_id: str) -> LogisticsRecord | None:
+        with self._sessions() as session:
+            row = session.scalar(
+                select(ServiceRecordRow).where(ServiceRecordRow.case_id == case_id)
+            )
+            if row is None or "物流工单" not in row.summary:
+                return None
+            completed = row.resolution_status in {"已关闭", "已完成", "已完结"}
+            return LogisticsRecord(
+                service_record_id=row.service_record_id,
+                consumer_id=row.consumer_id,
+                case_id=row.case_id,
+                delivery_status=(
+                    "SYSTEM_MARKED_DELIVERED"
+                    if "签收" in row.issue_type
+                    else "SYSTEM_STATUS_RECORDED"
+                ),
+                investigation_result=row.summary if completed else None,
+                resolution_status=row.resolution_status,
+                observed_at=row.contact_time,
+            )
+
+
 class PostgresRepositoryBundle:
     def __init__(self, sessions: SessionFactory) -> None:
         self.consumers = PostgresConsumerRepository(sessions)
         self.orders = PostgresOrderRepository(sessions)
         self.service_history = PostgresServiceHistoryRepository(sessions)
+        self.logistics = PostgresLogisticsRepository(sessions)

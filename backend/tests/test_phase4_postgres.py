@@ -12,24 +12,35 @@ from backend.app.agent.guardrails import AttributionDecision, assess_attribution
 from backend.app.api.fixtures import s00154_waiting_for_human
 from backend.app.api.services.case_application_service import CaseApplicationService
 from backend.app.domain.agent import AgentStatus, InvestigationState, QuestionStatus, ToolCallStatus
+from backend.app.domain.business import LogisticsStatusToolResult
 from backend.app.domain.gaps import GapStatus, GapType, evaluate_p0_gaps
 from backend.app.domain.regimen import build_regimen_changes
 from backend.app.llm.providers.fake import FakeModelProvider
 from backend.app.llm.schemas import CandidateFact, CandidateField, UnderstandingResult
 from backend.app.llm.service import ModelService
+from backend.app.official_dataset.adapter import OfficialDatasetAdapter
+from backend.app.official_dataset.cases import OfficialCaseFactory
+from backend.app.official_dataset.persistence import (
+    OfficialConversationRepository,
+    OfficialDatasetImporter,
+)
 from backend.app.persistence.checkpoints import PostgresCheckpointStore
 from backend.app.persistence.config import DatabaseSettings
 from backend.app.persistence.database import create_database_engine, create_session_factory
 from backend.app.persistence.factory import build_postgres_workflow
 from backend.app.persistence.models import (
     ConsumerRow,
+    ConversationSessionRow,
     InvestigationCheckpointRow,
+    MessageRow,
     OrderRow,
     ServiceRecordRow,
 )
 from backend.app.persistence.seed import seed_demo_data_transactionally
 from backend.app.repositories.postgres import PostgresRepositoryBundle
 from backend.app.services.checkpoints import StateConflictError
+from backend.app.services.grounding import EvidenceGroundingService
+from backend.app.services.tools import default_tool_registry
 from backend.tests.fixtures import CASE_ID, CONSUMER_ID, NOW, first_use_evidence
 
 
@@ -77,6 +88,8 @@ def postgres_sessions(
     with postgres_engine.begin() as connection:
         for table in (
             "investigation_checkpoints",
+            "messages",
+            "conversation_sessions",
             "service_records",
             "orders",
             "consumers",
@@ -101,7 +114,55 @@ def test_migration_from_empty_database_created_phase4_schema(
         "orders",
         "service_records",
         "investigation_checkpoints",
+        "conversation_sessions",
+        "messages",
     } <= tables
+
+
+@pytest.mark.postgres
+@pytest.mark.official_dataset
+def test_official_import_is_idempotent_and_reconstructs_after_restart(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    path = os.getenv("OFFICIAL_DATASET_PATH")
+    if not path:
+        pytest.skip("OFFICIAL_DATASET_PATH is not configured")
+    dataset = OfficialDatasetAdapter().read(path)
+    importer = OfficialDatasetImporter()
+    importer.import_dataset(dataset, postgres_sessions)
+    importer.import_dataset(dataset, postgres_sessions)
+
+    workflow = build_postgres_workflow(postgres_sessions)
+    service = CaseApplicationService(workflow, workflow.checkpoints)
+    service.register_official_cases(dataset, ["S00154"])
+    restarted_workflow = build_postgres_workflow(postgres_sessions)
+    restored = CaseApplicationService(restarted_workflow, restarted_workflow.checkpoints).get_case(
+        "S00154"
+    )
+    conversations = OfficialConversationRepository(postgres_sessions)
+    session = conversations.get_session("S00154")
+    messages = conversations.list_messages("S00154")
+    with postgres_sessions() as database:
+        assert database.scalar(select(func.count()).select_from(ConversationSessionRow)) == 138
+        assert database.scalar(select(func.count()).select_from(MessageRow)) == 998
+    assert session is not None and session.consumer_id == restored.consumer
+    assert len(messages) == 9
+    assert restored.official_data is True
+    assert restored.human_checkpoint.state == "REQUIRED"
+
+    repositories = PostgresRepositoryBundle(postgres_sessions)
+    registry = default_tool_registry(repositories)
+    logistics_state = OfficialCaseFactory().build(dataset, "S00009")
+    raw = registry.execute("get_logistics_status", logistics_state, {"case_id": "S00009"})
+    assert isinstance(raw, LogisticsStatusToolResult)
+    assert raw.record is not None and raw.record.service_record_id == "WL991067160"
+    grounded = EvidenceGroundingService().ground_logistics_status(raw, "S00009")
+    assert {item.key for item in grounded} == {
+        "logistics_status",
+        "logistics_investigation_result",
+        "resolution_status",
+    }
+    assert all(item.metadata["grounding_method"] == "BUSINESS_TOOL" for item in grounded)
 
 
 @pytest.mark.postgres

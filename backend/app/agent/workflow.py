@@ -19,7 +19,7 @@ from backend.app.domain.agent import (
     QuestionStatus,
 )
 from backend.app.domain.evidence import Evidence
-from backend.app.domain.gaps import GapType, evaluate_p0_gaps
+from backend.app.domain.gaps import GapType, evaluate_p0_gaps, evaluate_scenario_gaps
 from backend.app.domain.regimen import build_regimen_changes
 from backend.app.services.checkpoints import CheckpointStore, InMemoryCheckpointStore
 from backend.app.services.context_passport import ContextPassport, ContextPassportService
@@ -50,10 +50,28 @@ RouteName = Literal[
 
 
 EVIDENCE_KEY_TO_GAP: dict[str, GapType] = {
+    "exact_product_used": GapType.EXACT_PRODUCT_USED,
     "actual_first_use_time": GapType.ACTUAL_FIRST_USE_TIME,
     "feedback_onset_time": GapType.FEEDBACK_ONSET_TIME,
     "recent_regimen_changes": GapType.RECENT_REGIMEN_CHANGES,
     "reported_severity": GapType.REPORTED_SEVERITY,
+    "current_symptom_status": GapType.CURRENT_SYMPTOM_STATUS,
+    "reported_medical_attention": GapType.MEDICAL_ATTENTION_STATUS,
+    "affected_item": GapType.AFFECTED_ITEM,
+    "damage_description": GapType.DAMAGE_DESCRIPTION,
+    "image_evidence_available": GapType.VISUAL_EVIDENCE,
+    "order_match": GapType.ORDER_MATCH,
+    "replacement_eligibility": GapType.REPLACEMENT_ELIGIBILITY,
+    "logistics_status": GapType.LOGISTICS_STATUS,
+    "consumer_receipt_status": GapType.CONSUMER_RECEIPT_STATUS,
+    "delivery_evidence": GapType.DELIVERY_EVIDENCE,
+    "logistics_investigation_result": GapType.INVESTIGATION_RESULT,
+    "resolution_status": GapType.RESOLUTION_STATUS,
+    "after_sales_request_type": GapType.REQUEST_TYPE,
+    "after_sales_status": GapType.AFTER_SALES_STATUS,
+    "after_sales_eligibility": GapType.ELIGIBILITY,
+    "required_evidence": GapType.REQUIRED_EVIDENCE,
+    "resolution_path": GapType.RESOLUTION_PATH,
 }
 
 
@@ -155,9 +173,7 @@ class InvestigationWorkflow:
         existing_ids = {item.id for item in current.evidence}
         additions = [item for item in new_evidence if item.id not in existing_ids]
         answered_gaps = {
-            EVIDENCE_KEY_TO_GAP[item.key]
-            for item in additions
-            if item.key in EVIDENCE_KEY_TO_GAP
+            EVIDENCE_KEY_TO_GAP[item.key] for item in additions if item.key in EVIDENCE_KEY_TO_GAP
         }
         questions = [
             self._answer_question(
@@ -174,6 +190,11 @@ class InvestigationWorkflow:
             for record in current.asked_questions
         ]
         evidence = [*current.evidence, *additions]
+        gaps = (
+            evaluate_scenario_gaps(current.case_id, current.scenario, evidence)
+            if current.scenario
+            else evaluate_p0_gaps(current.case_id, evidence)
+        )
         resumed = self.transitions.transition(
             current,
             to_status=AgentStatus.INVESTIGATING,
@@ -181,7 +202,7 @@ class InvestigationWorkflow:
             reason="Ingested consumer evidence and resumed investigation.",
             updates={
                 "evidence": evidence,
-                "evidence_gaps": evaluate_p0_gaps(current.case_id, evidence),
+                "evidence_gaps": gaps,
                 "asked_questions": questions,
                 "current_action": None,
                 "next_question": None,
@@ -229,9 +250,7 @@ class InvestigationWorkflow:
         decision = self._required_decision(graph_state)
         if decision.target_gap is None:
             raise ValueError("ASK_USER decision requires target_gap")
-        pending = self.questions.create(
-            state, decision.target_gap, intent=decision.question_intent
-        )
+        pending = self.questions.create(state, decision.target_gap, intent=decision.question_intent)
         asked = AskedQuestion(
             id=pending.id,
             gap_type=pending.gap_type,
@@ -263,11 +282,12 @@ class InvestigationWorkflow:
             "get_service_history",
             "get_consumer_memory",
         }
-        arguments = (
-            {"consumer_id": state.consumer_id}
-            if decision.tool_name in business_tools
-            else {"policy_id": "beauty_service_default"}
-        )
+        if decision.tool_name in business_tools:
+            arguments = {"consumer_id": state.consumer_id}
+        elif decision.tool_name == "get_logistics_status":
+            arguments = {"case_id": state.case_id}
+        else:
+            arguments = {"policy_id": "beauty_service_default"}
         result = self.tool_execution.execute_once(
             state,
             tool_name=decision.tool_name,

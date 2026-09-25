@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 from .business import ConsumerMemorySnapshot
 from .evidence import Evidence
 from .gaps import EvidenceGap, GapType
+from .scenarios import InvestigationScenario
 
 
 class AgentAction(StrEnum):
@@ -119,6 +120,7 @@ class InvestigationState(BaseModel):
     case_id: str = Field(min_length=1)
     consumer_id: str = Field(min_length=1)
     current_issue: str = Field(min_length=1)
+    scenario: InvestigationScenario | None = None
     evidence: list[Evidence] = Field(default_factory=list)
     evidence_gaps: list[EvidenceGap] = Field(default_factory=list)
     asked_questions: list[AskedQuestion] = Field(default_factory=list)
@@ -174,11 +176,15 @@ class InvestigationState(BaseModel):
         }
         if self.question_count != len(sent_ids):
             raise ValueError("question_count must equal unique ASKED + ANSWERED question ids")
-        if self.status in {
-            AgentStatus.CONCLUDED,
-            AgentStatus.TERMINATED,
-            AgentStatus.ESCALATED,
-        } and self.current_action is not None:
+        if (
+            self.status
+            in {
+                AgentStatus.CONCLUDED,
+                AgentStatus.TERMINATED,
+                AgentStatus.ESCALATED,
+            }
+            and self.current_action is not None
+        ):
             raise ValueError(f"{self.status.value} state cannot have a current action")
         if (
             self.status is AgentStatus.WAITING_FOR_HUMAN

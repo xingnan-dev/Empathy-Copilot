@@ -70,6 +70,28 @@ class DeterministicDecisionPolicy:
                 reason="Order history has not been retrieved.",
                 tool_name="get_order_history",
             )
+        if state.scenario is not None:
+            investigation = self._gap(state, GapType.INVESTIGATION_RESULT)
+            if (
+                state.scenario.value == "LOGISTICS_EXCEPTION"
+                and investigation is not None
+                and investigation.status is GapStatus.OPEN
+                and not self._completed_tool(state, "get_logistics_status")
+            ):
+                return self._tool_or_terminate(
+                    state,
+                    tool_name="get_logistics_status",
+                    reason="Logistics investigation evidence must be retrieved.",
+                )
+            first_open = next(
+                (gap for gap in state.evidence_gaps if gap.status is GapStatus.OPEN), None
+            )
+            if first_open is not None:
+                return self._question_or_human(state, first_open.gap_type)
+            return NextActionDecision(
+                action=AgentAction.CONCLUDE,
+                reason="All deterministic scenario evidence gaps are resolved.",
+            )
         actual_first_use = self._gap(state, GapType.ACTUAL_FIRST_USE_TIME)
         if actual_first_use is None or actual_first_use.status is GapStatus.OPEN:
             return self._question_or_human(state, GapType.ACTUAL_FIRST_USE_TIME)
@@ -81,9 +103,7 @@ class DeterministicDecisionPolicy:
                 tool_name="get_service_history",
                 reason="Service history context has not been retrieved.",
             )
-        if state.consumer_memory is None and not self._completed_tool(
-            state, "get_consumer_memory"
-        ):
+        if state.consumer_memory is None and not self._completed_tool(state, "get_consumer_memory"):
             return self._tool_or_terminate(
                 state,
                 tool_name="get_consumer_memory",
@@ -113,9 +133,7 @@ class DeterministicDecisionPolicy:
                 return self._question_or_human(state, gap_type)
         if self._has_undated_regimen_change(state):
             gap_type = GapType.RECENT_REGIMEN_CHANGES
-            candidate = self.questions.create(
-                state, gap_type, intent="REGIMEN_CHANGE_EFFECTIVE_AT"
-            )
+            candidate = self.questions.create(state, gap_type, intent="REGIMEN_CHANGE_EFFECTIVE_AT")
             if can_ask_question(state, candidate.text):
                 return NextActionDecision(
                     action=AgentAction.ASK_USER,
@@ -135,9 +153,7 @@ class DeterministicDecisionPolicy:
 
     @staticmethod
     def _has_order_fact(state: InvestigationState) -> bool:
-        return any(
-            item.key in {"first_purchase", "repeat_purchase"} for item in state.evidence
-        )
+        return any(item.key in {"first_purchase", "repeat_purchase"} for item in state.evidence)
 
     @staticmethod
     def _has_service_history(state: InvestigationState) -> bool:
@@ -157,8 +173,7 @@ class DeterministicDecisionPolicy:
     @staticmethod
     def _is_severe(state: InvestigationState) -> bool:
         return any(
-            item.key == "reported_severity" and item.value == "SEVERE"
-            for item in state.evidence
+            item.key == "reported_severity" and item.value == "SEVERE" for item in state.evidence
         )
 
     @staticmethod

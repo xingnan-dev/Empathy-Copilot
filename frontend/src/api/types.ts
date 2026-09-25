@@ -19,6 +19,11 @@ export interface CaseView {
   response_context: { evidence_used_ids: string[]; next_best_question?: string; question_resolves_gap?: string }
   updated_at: string
   revision: number
+  scenario?: 'ADVERSE_REACTION' | 'PRODUCT_DAMAGE' | 'LOGISTICS_EXCEPTION' | 'AFTER_SALES'
+  official_data?: boolean
+  restored_context?: boolean
+  previous_service_history?: Record<string, unknown>[]
+  evidence_conflicts?: Record<string, unknown>[]
 }
 
 export interface ApiError { code: string; message: string }

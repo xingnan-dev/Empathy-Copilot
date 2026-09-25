@@ -25,9 +25,7 @@ def load_demo_orders() -> list[OrderRecord]:
 
 
 def load_demo_service_records() -> list[ServiceRecord]:
-    return TypeAdapter(list[ServiceRecord]).validate_python(
-        _load_json("service_records.json")
-    )
+    return TypeAdapter(list[ServiceRecord]).validate_python(_load_json("service_records.json"))
 
 
 class DemoConsumerRepository:
@@ -55,8 +53,15 @@ class DemoServiceHistoryRepository:
         return [record for record in self._records if record.consumer_id == consumer_id]
 
 
+class DemoLogisticsRepository:
+    def get_for_case(self, case_id: str) -> None:
+        del case_id
+        return None
+
+
 class DemoRepositoryBundle:
     def __init__(self) -> None:
         self.consumers = DemoConsumerRepository()
         self.orders = DemoOrderRepository()
         self.service_history = DemoServiceHistoryRepository()
+        self.logistics = DemoLogisticsRepository()

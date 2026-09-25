@@ -9,7 +9,7 @@ from backend.app.domain.agent import (
     InvestigationState,
     TransitionEvent,
 )
-from backend.app.domain.gaps import evaluate_p0_gaps
+from backend.app.domain.gaps import evaluate_p0_gaps, evaluate_scenario_gaps
 
 
 class InvalidStateTransitionError(ValueError):
@@ -55,7 +55,11 @@ class StateTransitionService:
         """Refresh deterministic derived data without creating a lifecycle transition."""
 
         data = state.model_dump()
-        data["evidence_gaps"] = evaluate_p0_gaps(state.case_id, state.evidence)
+        data["evidence_gaps"] = (
+            evaluate_scenario_gaps(state.case_id, state.scenario, state.evidence)
+            if state.scenario
+            else evaluate_p0_gaps(state.case_id, state.evidence)
+        )
         return InvestigationState.model_validate(data)
 
     def transition(
@@ -109,4 +113,3 @@ class StateTransitionService:
             }
         )
         return InvestigationState.model_validate(data)
-

@@ -74,6 +74,11 @@ class CaseView(BaseModel):
     response_context: ResponseContextView
     updated_at: datetime
     revision: int
+    scenario: str | None = None
+    official_data: bool = False
+    restored_context: bool = False
+    previous_service_history: list[dict[str, Any]] = Field(default_factory=list)
+    evidence_conflicts: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class HumanApprovalRequest(BaseModel):

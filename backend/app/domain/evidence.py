@@ -34,7 +34,9 @@ ALLOWED_SOURCE_TYPES: dict[EvidenceType, frozenset[SourceType]] = {
             SourceType.POLICY_DATABASE,
         }
     ),
-    EvidenceType.CONSUMER_REPORTED: frozenset({SourceType.CONSUMER_MESSAGE}),
+    EvidenceType.CONSUMER_REPORTED: frozenset(
+        {SourceType.CONSUMER_MESSAGE, SourceType.SERVICE_SYSTEM}
+    ),
     EvidenceType.AI_OBSERVATION: frozenset({SourceType.UPLOADED_IMAGE}),
     EvidenceType.AI_INFERENCE: frozenset({SourceType.AI_REASONING}),
     EvidenceType.UNKNOWN: frozenset(
@@ -85,4 +87,3 @@ class Evidence(BaseModel):
         if not isfinite(self.extraction_confidence):
             raise ValueError("extraction_confidence must be finite")
         return self
-

@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from backend.app.domain.business import ConsumerRecord, OrderRecord, ServiceRecord
+from backend.app.domain.business import ConsumerRecord, LogisticsRecord, OrderRecord, ServiceRecord
 
 
 class ConsumerRepository(Protocol):
@@ -17,6 +17,10 @@ class ServiceHistoryRepository(Protocol):
     def list_for_consumer(self, consumer_id: str) -> list[ServiceRecord]: ...
 
 
+class LogisticsRepository(Protocol):
+    def get_for_case(self, case_id: str) -> LogisticsRecord | None: ...
+
+
 class BusinessRepositoryBundle(Protocol):
     @property
     def consumers(self) -> ConsumerRepository: ...
@@ -26,3 +30,6 @@ class BusinessRepositoryBundle(Protocol):
 
     @property
     def service_history(self) -> ServiceHistoryRepository: ...
+
+    @property
+    def logistics(self) -> LogisticsRepository: ...

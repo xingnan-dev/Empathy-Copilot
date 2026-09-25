@@ -36,6 +36,18 @@ class ServiceRecord(BaseModel):
     summary: str = Field(min_length=1)
 
 
+class LogisticsRecord(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    service_record_id: str = Field(min_length=1)
+    consumer_id: str = Field(min_length=1)
+    case_id: str = Field(min_length=1)
+    delivery_status: str = Field(min_length=1)
+    investigation_result: str | None = None
+    resolution_status: str = Field(min_length=1)
+    observed_at: datetime
+
+
 class OrderHistoryToolResult(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -48,6 +60,13 @@ class ServiceHistoryToolResult(BaseModel):
 
     consumer_id: str = Field(min_length=1)
     records: list[ServiceRecord] = Field(default_factory=list)
+
+
+class LogisticsStatusToolResult(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    case_id: str = Field(min_length=1)
+    record: LogisticsRecord | None = None
 
 
 class ConsumerMemoryToolResult(BaseModel):

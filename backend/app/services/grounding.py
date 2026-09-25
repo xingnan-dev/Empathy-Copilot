@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from backend.app.domain.business import (
     ConsumerMemoryToolResult,
     ConsumerRecord,
+    LogisticsStatusToolResult,
     OrderHistoryToolResult,
     OrderRecord,
     PolicyToolResult,
@@ -17,9 +18,7 @@ from backend.app.domain.evidence import Evidence, EvidenceSource, EvidenceType, 
 class EvidenceGroundingService:
     """Ground typed raw records without inferring usage, regimen, or causality."""
 
-    def ground_order_history(
-        self, result: OrderHistoryToolResult, case_id: str
-    ) -> list[Evidence]:
+    def ground_order_history(self, result: OrderHistoryToolResult, case_id: str) -> list[Evidence]:
         return [self._ground_order(record, case_id) for record in result.records]
 
     def ground_service_history(
@@ -60,6 +59,56 @@ class EvidenceGroundingService:
                 extraction_confidence=1.0,
             )
         ]
+
+    def ground_logistics_status(
+        self, result: LogisticsStatusToolResult, case_id: str
+    ) -> list[Evidence]:
+        record = result.record
+        if record is None:
+            return []
+        source = EvidenceSource(
+            source_type=SourceType.SERVICE_SYSTEM,
+            source_id=record.service_record_id,
+            source_label=f"Logistics record {record.service_record_id}",
+        )
+
+        def evidence(evidence_id: str, key: str, value: str) -> Evidence:
+            return Evidence(
+                id=evidence_id,
+                case_id=case_id,
+                key=key,
+                value=value,
+                evidence_type=EvidenceType.VERIFIED_BUSINESS_FACT,
+                source=source,
+                observed_at=record.observed_at,
+                created_at=datetime.now(UTC),
+                extraction_confidence=1.0,
+                metadata={"grounding_method": "BUSINESS_TOOL"},
+            )
+
+        grounded = [
+            evidence(
+                f"ev-logistics-status-{record.service_record_id}",
+                "logistics_status",
+                record.delivery_status,
+            )
+        ]
+        if record.investigation_result is not None:
+            grounded.extend(
+                [
+                    evidence(
+                        f"ev-logistics-result-{record.service_record_id}",
+                        "logistics_investigation_result",
+                        record.investigation_result,
+                    ),
+                    evidence(
+                        f"ev-logistics-resolution-{record.service_record_id}",
+                        "resolution_status",
+                        record.resolution_status,
+                    ),
+                ]
+            )
+        return grounded
 
     @staticmethod
     def _ground_order(record: OrderRecord, case_id: str) -> Evidence:

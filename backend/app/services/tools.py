@@ -14,16 +14,18 @@ from backend.app.domain.agent import (
 )
 from backend.app.domain.business import (
     ConsumerMemoryToolResult,
+    LogisticsStatusToolResult,
     OrderHistoryToolResult,
     PolicyToolResult,
     ServiceHistoryToolResult,
 )
 from backend.app.domain.evidence import Evidence
-from backend.app.domain.gaps import evaluate_p0_gaps
+from backend.app.domain.gaps import evaluate_p0_gaps, evaluate_scenario_gaps
 from backend.app.repositories import DemoRepositoryBundle
 from backend.app.repositories.interfaces import (
     BusinessRepositoryBundle,
     ConsumerRepository,
+    LogisticsRepository,
     OrderRepository,
     ServiceHistoryRepository,
 )
@@ -38,10 +40,17 @@ class ConsumerLookupInput(BaseModel):
     consumer_id: str = Field(min_length=1)
 
 
+class CaseLookupInput(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    case_id: str = Field(min_length=1)
+
+
 ToolResult = (
     OrderHistoryToolResult
     | ServiceHistoryToolResult
     | ConsumerMemoryToolResult
+    | LogisticsStatusToolResult
     | PolicyToolResult
 )
 BusinessTool = Callable[[InvestigationState, dict[str, str]], ToolResult]
@@ -53,10 +62,12 @@ class BusinessToolSet:
         consumers: ConsumerRepository,
         orders: OrderRepository,
         service_history: ServiceHistoryRepository,
+        logistics: LogisticsRepository,
     ) -> None:
         self.consumers = consumers
         self.orders = orders
         self.service_history = service_history
+        self.logistics = logistics
 
     def get_order_history(
         self, state: InvestigationState, arguments: dict[str, str]
@@ -87,9 +98,17 @@ class BusinessToolSet:
             consumer_id=request.consumer_id,
             consumer=self.consumers.get(request.consumer_id),
             recent_orders=self.orders.list_for_consumer(request.consumer_id),
-            previous_service_contacts=self.service_history.list_for_consumer(
-                request.consumer_id
-            ),
+            previous_service_contacts=self.service_history.list_for_consumer(request.consumer_id),
+        )
+
+    def get_logistics_status(
+        self, state: InvestigationState, arguments: dict[str, str]
+    ) -> LogisticsStatusToolResult:
+        del state
+        request = CaseLookupInput.model_validate(arguments)
+        return LogisticsStatusToolResult(
+            case_id=request.case_id,
+            record=self.logistics.get_for_case(request.case_id),
         )
 
 
@@ -197,10 +216,15 @@ class BusinessToolExecutionService:
             completed_at=datetime.now(UTC),
             result_evidence_ids=[item.id for item in grounded],
         )
+        gaps = (
+            evaluate_scenario_gaps(current.case_id, current.scenario, evidence)
+            if current.scenario
+            else evaluate_p0_gaps(current.case_id, evidence)
+        )
         updates: dict[str, object] = {
             "tool_calls": self._replace_call(current, completed_call),
             "evidence": evidence,
-            "evidence_gaps": evaluate_p0_gaps(current.case_id, evidence),
+            "evidence_gaps": gaps,
         }
         if isinstance(raw_result, ConsumerMemoryToolResult):
             updates["consumer_memory"] = self.memory.build(current.consumer_id, evidence)
@@ -219,26 +243,29 @@ class BusinessToolExecutionService:
             return self.grounding.ground_service_history(result, case_id)
         if isinstance(result, ConsumerMemoryToolResult):
             return self.grounding.ground_consumer_memory(result, case_id)
+        if isinstance(result, LogisticsStatusToolResult):
+            return self.grounding.ground_logistics_status(result, case_id)
         return self.grounding.ground_policy(result, case_id)
 
     @staticmethod
     def _replace_call(
         state: InvestigationState, replacement: ToolCallRecord
     ) -> list[ToolCallRecord]:
-        return [
-            replacement if call.id == replacement.id else call for call in state.tool_calls
-        ]
+        return [replacement if call.id == replacement.id else call for call in state.tool_calls]
 
 
 def default_tool_registry(
     repositories: BusinessRepositoryBundle | None = None,
 ) -> ToolRegistry:
     bundle = repositories or DemoRepositoryBundle()
-    tools = BusinessToolSet(bundle.consumers, bundle.orders, bundle.service_history)
+    tools = BusinessToolSet(
+        bundle.consumers, bundle.orders, bundle.service_history, bundle.logistics
+    )
     registry = ToolRegistry()
     registry.register("get_order_history", tools.get_order_history)
     registry.register("get_service_history", tools.get_service_history)
     registry.register("get_consumer_memory", tools.get_consumer_memory)
+    registry.register("get_logistics_status", tools.get_logistics_status)
     # Retained from Phase 2; it is not a Phase 3 P0 business tool.
     registry.register("retrieve_service_policy", retrieve_service_policy_stub)
     return registry

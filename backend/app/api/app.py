@@ -12,6 +12,8 @@ from pydantic import ValidationError
 from backend.app.llm.provider import ModelProviderError
 from backend.app.llm.providers.qwen import QwenProvider
 from backend.app.llm.service import ModelService
+from backend.app.official_dataset import OfficialDatasetAdapter
+from backend.app.official_dataset.persistence import OfficialDatasetImporter
 from backend.app.persistence.config import DatabaseSettings
 from backend.app.persistence.database import create_database_engine, create_session_factory
 from backend.app.persistence.factory import build_postgres_workflow
@@ -39,6 +41,11 @@ def build_runtime_service() -> CaseApplicationService:
             )
         )
     service = CaseApplicationService(workflow, workflow.checkpoints, model_service)
+    official_path = os.getenv("OFFICIAL_DATASET_PATH")
+    if official_path:
+        official = OfficialDatasetAdapter().read(official_path)
+        OfficialDatasetImporter().import_dataset(official, sessions)
+        service.register_official_cases(official)
     service.ensure_integration_fixture()
     return service
 

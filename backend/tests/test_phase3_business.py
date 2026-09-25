@@ -46,6 +46,7 @@ def business_tools() -> tuple[DemoRepositoryBundle, BusinessToolSet]:
         repositories.consumers,
         repositories.orders,
         repositories.service_history,
+        repositories.logistics,
     )
 
 

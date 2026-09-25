@@ -23,9 +23,7 @@ class OrderRow(Base):
     __tablename__ = "orders"
 
     order_id: Mapped[str] = mapped_column(String(128), primary_key=True)
-    consumer_id: Mapped[str] = mapped_column(
-        ForeignKey("consumers.consumer_id"), index=True
-    )
+    consumer_id: Mapped[str] = mapped_column(ForeignKey("consumers.consumer_id"), index=True)
     product_id: Mapped[str] = mapped_column(String(128))
     product_name: Mapped[str] = mapped_column(String(255))
     ordered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -37,9 +35,7 @@ class ServiceRecordRow(Base):
     __tablename__ = "service_records"
 
     service_record_id: Mapped[str] = mapped_column(String(128), primary_key=True)
-    consumer_id: Mapped[str] = mapped_column(
-        ForeignKey("consumers.consumer_id"), index=True
-    )
+    consumer_id: Mapped[str] = mapped_column(ForeignKey("consumers.consumer_id"), index=True)
     case_id: Mapped[str] = mapped_column(String(128), index=True)
     issue_type: Mapped[str] = mapped_column(String(128))
     contact_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -58,3 +54,36 @@ class InvestigationCheckpointRow(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+
+class ConversationSessionRow(Base):
+    __tablename__ = "conversation_sessions"
+
+    session_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    consumer_id: Mapped[str] = mapped_column(ForeignKey("consumers.consumer_id"), index=True)
+    shop: Mapped[str] = mapped_column(String(255))
+    scene_major: Mapped[str] = mapped_column(String(128))
+    scene_minor: Mapped[str] = mapped_column(String(128))
+    scenario: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    order_ids: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    ticket_ids: Mapped[list[str]] = mapped_column(JSONB, default=list)
+
+
+class MessageRow(Base):
+    __tablename__ = "messages"
+
+    message_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    session_id: Mapped[str] = mapped_column(
+        ForeignKey("conversation_sessions.session_id"), index=True
+    )
+    sequence: Mapped[int] = mapped_column(Integer)
+    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    consumer_id: Mapped[str] = mapped_column(ForeignKey("consumers.consumer_id"), index=True)
+    role: Mapped[str] = mapped_column(String(64))
+    sender: Mapped[str] = mapped_column(String(255))
+    text: Mapped[str] = mapped_column(Text)
+    content_type: Mapped[str] = mapped_column(String(64))
+    image_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    order_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    ticket_id: Mapped[str | None] = mapped_column(String(128), nullable=True)

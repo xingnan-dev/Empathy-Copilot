@@ -7,11 +7,13 @@ from backend.app.agent.guardrails import assess_attribution
 from backend.app.agent.workflow import InvestigationWorkflow
 from backend.app.domain.agent import AgentAction, AgentStatus, InvestigationState
 from backend.app.domain.evidence import Evidence, EvidenceType, SourceType
-from backend.app.domain.gaps import evaluate_p0_gaps
+from backend.app.domain.gaps import GapType, evaluate_p0_gaps, evaluate_scenario_gaps
 from backend.app.domain.regimen import build_regimen_changes
 from backend.app.llm.provider import ModelProviderError
 from backend.app.llm.schemas import GeneratedDraft
 from backend.app.llm.service import ModelService
+from backend.app.official_dataset.cases import OfficialCaseFactory
+from backend.app.official_dataset.models import OfficialDataset
 from backend.app.services.checkpoints import CheckpointStore, StateConflictError
 from backend.app.services.context_passport import ContextPassportService
 from backend.app.services.transitions import InvalidStateTransitionError, StateTransitionService
@@ -44,6 +46,15 @@ class CaseApplicationService:
     def ensure_integration_fixture(self) -> None:
         if not self.checkpoints.exists("S00154"):
             self.checkpoints.save(s00154_waiting_for_human())
+
+    def register_official_cases(
+        self, dataset: OfficialDataset, case_ids: list[str] | None = None
+    ) -> None:
+        factory = OfficialCaseFactory()
+        selected = case_ids or [item.session_id for item in dataset.sessions if item.scenario]
+        for case_id in selected:
+            if not self.checkpoints.exists(case_id):
+                self.checkpoints.save(factory.build(dataset, case_id))
 
     def get_case(self, case_id: str) -> CaseView:
         return self._project(self.checkpoints.load(case_id))
@@ -114,6 +125,11 @@ class CaseApplicationService:
         if current.status is AgentStatus.WAITING_FOR_USER:
             return self._project(self.workflow.resume_with_evidence(current, evidence))
         all_evidence = [*current.evidence, *evidence]
+        gaps = (
+            evaluate_scenario_gaps(case_id, current.scenario, all_evidence)
+            if current.scenario
+            else evaluate_p0_gaps(case_id, all_evidence)
+        )
         resumed = self.transitions.transition(
             current,
             to_status=AgentStatus.INVESTIGATING,
@@ -121,7 +137,7 @@ class CaseApplicationService:
             reason="Validated model candidates from consumer message.",
             updates={
                 "evidence": all_evidence,
-                "evidence_gaps": evaluate_p0_gaps(case_id, all_evidence),
+                "evidence_gaps": gaps,
                 "next_question": None,
             },
         )
@@ -223,6 +239,17 @@ class CaseApplicationService:
             ),
             updated_at=state.updated_at,
             revision=state.state_revision,
+            scenario=state.scenario.value if state.scenario else None,
+            official_data=any(
+                item.metadata.get("official_data") is True for item in state.evidence
+            ),
+            restored_context=any(item.key == "previous_service_contact" for item in state.evidence),
+            previous_service_history=[
+                item.value
+                for item in state.evidence
+                if item.key == "previous_service_contact" and isinstance(item.value, dict)
+            ],
+            evidence_conflicts=self._evidence_conflicts(state),
         )
 
     @staticmethod
@@ -250,6 +277,18 @@ class CaseApplicationService:
 
     @staticmethod
     def _presentation_gaps(state: InvestigationState) -> list[GapView]:
+        if state.scenario is not None:
+            labels = {gap.value: gap.value.replace("_", " ").title() for gap in GapType}
+            return [
+                GapView(
+                    id=item.gap_type.value,
+                    label=labels[item.gap_type.value],
+                    why="Required by the deterministic scenario gap policy.",
+                    resolve="Ground supporting evidence",
+                    status=item.status.value,
+                )
+                for item in state.evidence_gaps
+            ]
         first_use_open = not any(item.key == "actual_first_use_time" for item in state.evidence)
         regimen_open = not any(item.key == "recent_regimen_changes" for item in state.evidence)
         specs = [
@@ -294,6 +333,29 @@ class CaseApplicationService:
         ]
 
     @staticmethod
+    def _evidence_conflicts(state: InvestigationState) -> list[dict[str, object]]:
+        system_delivered = [
+            item.id
+            for item in state.evidence
+            if item.key == "logistics_status" and item.value == "SYSTEM_MARKED_DELIVERED"
+        ]
+        consumer_not_received = [
+            item.id
+            for item in state.evidence
+            if item.key == "consumer_receipt_status" and item.value == "NOT_RECEIVED"
+        ]
+        if not system_delivered or not consumer_not_received:
+            return []
+        return [
+            {
+                "type": "DELIVERY_STATUS_CONFLICT",
+                "verified_evidence_ids": system_delivered,
+                "consumer_reported_evidence_ids": consumer_not_received,
+                "status": "RETAINED",
+            }
+        ]
+
+    @staticmethod
     def _next_question(
         gaps: list[GapView], agent_question: str | None
     ) -> tuple[str | None, str | None]:
@@ -310,4 +372,4 @@ class CaseApplicationService:
             "RECENT_REGIMEN_CHANGES": "近期是否还新增或更换过其他护肤产品？",
             "CURRENT_SYMPTOM_PROGRESSION": "目前症状是在缓解、稳定，还是仍在加重？",
         }
-        return open_gap, fallbacks[open_gap]
+        return open_gap, fallbacks.get(open_gap)
