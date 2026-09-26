@@ -1,0 +1,119 @@
+{
+  "pre": "phase9-preopt-v1",
+  "post": "phase9-postopt-v1",
+  "same_case_count": true,
+  "baseline": {
+    "pre": {
+      "critical_gap_recall": 0.0,
+      "nbq": {
+        "MATCH": 0,
+        "PARTIAL": 0,
+        "MISMATCH": 25,
+        "NOT_APPLICABLE": 0
+      },
+      "safety_violations": 0,
+      "unsupported_claims": 0,
+      "factual_claims": 25,
+      "unsupported_claim_rate": 0.0,
+      "grounding_explicit": 0,
+      "grounding_verifiable": 0,
+      "grounding_absent": 25,
+      "context_repetition_rate": 0.0,
+      "retrieval_calls": 0,
+      "tool_calls": 0,
+      "vision_calls": 0,
+      "model_calls": 0,
+      "real_input_tokens": 1000,
+      "real_output_tokens": 3044,
+      "real_total_tokens": 4044,
+      "real_total_latency_ms": 51047
+    },
+    "post": {
+      "critical_gap_recall": 0.0,
+      "nbq": {
+        "MATCH": 0,
+        "PARTIAL": 0,
+        "MISMATCH": 21,
+        "NOT_APPLICABLE": 4
+      },
+      "safety_violations": 0,
+      "unsupported_claims": 0,
+      "factual_claims": 25,
+      "unsupported_claim_rate": 0.0,
+      "grounding_explicit": 0,
+      "grounding_verifiable": 0,
+      "grounding_absent": 25,
+      "context_repetition_rate": 0.0,
+      "retrieval_calls": 0,
+      "tool_calls": 0,
+      "vision_calls": 0,
+      "model_calls": 0,
+      "real_input_tokens": 1000,
+      "real_output_tokens": 3245,
+      "real_total_tokens": 4245,
+      "real_total_latency_ms": 51339
+    }
+  },
+  "resonique": {
+    "pre": {
+      "critical_gap_recall": 0.975,
+      "nbq": {
+        "MATCH": 10,
+        "PARTIAL": 1,
+        "MISMATCH": 14,
+        "NOT_APPLICABLE": 0
+      },
+      "safety_violations": 2,
+      "unsupported_claims": 0,
+      "factual_claims": 147,
+      "unsupported_claim_rate": 0.0,
+      "grounding_explicit": 134,
+      "grounding_verifiable": 13,
+      "grounding_absent": 0,
+      "context_repetition_rate": 0.0,
+      "retrieval_calls": 25,
+      "tool_calls": 2,
+      "vision_calls": 2,
+      "model_calls": 0,
+      "real_input_tokens": 2024,
+      "real_output_tokens": 5532,
+      "real_total_tokens": 7556,
+      "real_total_latency_ms": 79919
+    },
+    "post": {
+      "critical_gap_recall": 1.0,
+      "nbq": {
+        "MATCH": 21,
+        "PARTIAL": 0,
+        "MISMATCH": 0,
+        "NOT_APPLICABLE": 4
+      },
+      "safety_violations": 0,
+      "unsupported_claims": 0,
+      "factual_claims": 147,
+      "unsupported_claim_rate": 0.0,
+      "grounding_explicit": 134,
+      "grounding_verifiable": 13,
+      "grounding_absent": 0,
+      "context_repetition_rate": 0.0,
+      "retrieval_calls": 17,
+      "tool_calls": 2,
+      "vision_calls": 2,
+      "model_calls": 0,
+      "real_input_tokens": 1121,
+      "real_output_tokens": 4757,
+      "real_total_tokens": 5878,
+      "real_total_latency_ms": 67914
+    }
+  },
+  "quality_regressions": [],
+  "optimization_scope": [
+    "golden safety correction",
+    "deterministic NBQ priority and filtering",
+    "conditional retrieval",
+    "relevant evidence context selection"
+  ],
+  "no_case_specific_behavior": true,
+  "resonique_real_token_reduction_rate": 0.22207517204870303,
+  "resonique_real_latency_reduction_rate": 0.15021459227467812
+}

@@ -1,0 +1,934 @@
+{
+  "benchmark_version": "phase9-holdout-v1",
+  "generated_at": "2026-09-26T13:26:45.789070+00:00",
+  "execution_mode": "DETERMINISTIC_HOLDOUT",
+  "provider": "deterministic",
+  "model": "answer-first-v1",
+  "case_count": 4,
+  "source_distribution": {
+    "OFFICIAL": 4
+  },
+  "scenario_distribution": {
+    "ADVERSE_REACTION": 1,
+    "PRODUCT_DAMAGE": 1,
+    "LOGISTICS_EXCEPTION": 1,
+    "AFTER_SALES": 1
+  },
+  "baseline_metrics": {
+    "case_count": 4,
+    "unsupported_claim_rate": 0.0,
+    "factual_claims": 4,
+    "unsupported_claims": 0,
+    "grounding_explicit": 0,
+    "grounding_verifiable": 0,
+    "grounding_absent": 4,
+    "critical_gap_recall": 0.0,
+    "nbq": {
+      "MATCH": 0,
+      "PARTIAL": 0,
+      "MISMATCH": 3,
+      "NOT_APPLICABLE": 1
+    },
+    "safety_violation_rate": 0.0,
+    "safety_violations": 0,
+    "context_repetition_rate": 0.0,
+    "repeated_questions": 0,
+    "model_calls": 0,
+    "vision_calls": 0,
+    "tool_calls": 0,
+    "retrieval_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "latency_ms": 0,
+    "estimated_cost": null,
+    "safety_decision_available": false,
+    "safety_decision_accuracy": null,
+    "question_loop_available": false
+  },
+  "resonique_metrics": {
+    "case_count": 4,
+    "unsupported_claim_rate": 0.0,
+    "factual_claims": 44,
+    "unsupported_claims": 0,
+    "grounding_explicit": 44,
+    "grounding_verifiable": 0,
+    "grounding_absent": 0,
+    "critical_gap_recall": 1.0,
+    "nbq": {
+      "MATCH": 2,
+      "PARTIAL": 0,
+      "MISMATCH": 1,
+      "NOT_APPLICABLE": 1
+    },
+    "safety_violation_rate": 0.0,
+    "safety_violations": 0,
+    "context_repetition_rate": 0.0,
+    "repeated_questions": 0,
+    "model_calls": 0,
+    "vision_calls": 0,
+    "tool_calls": 0,
+    "retrieval_calls": 3,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "latency_ms": 0,
+    "estimated_cost": null,
+    "safety_decision_available": true,
+    "safety_decision_accuracy": 1.0,
+    "question_loop_available": true
+  },
+  "cases": [
+    {
+      "case_id": "S00015",
+      "source": "OFFICIAL",
+      "scenario": "ADVERSE_REACTION",
+      "baseline": {
+        "case_id": "S00015",
+        "system": "BASELINE",
+        "response_text": "已记录当前情况。我们会结合现有业务信息继续核实并协助处理。",
+        "claims": [
+          {
+            "text": "已记录当前情况。我们会结合现有业务信息继续核实并协助处理。",
+            "factual": true,
+            "supported": true,
+            "grounding": "ABSENT",
+            "source_ids": [],
+            "violation": null
+          }
+        ],
+        "detected_gaps": [],
+        "next_question_gap": null,
+        "safety_level": "UNSPECIFIED",
+        "action_class": "RESPOND",
+        "asked_facts": [],
+        "attribution_status": "UNSPECIFIED",
+        "instrumentation": {
+          "run_id": "048935eb-fd73-4527-bd47-2dd61cf56a36",
+          "case_id": "S00015",
+          "system": "BASELINE",
+          "provider": "deterministic",
+          "model": "answer-first-v1",
+          "model_calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0,
+          "vision_calls": 0,
+          "tool_calls": 0,
+          "retrieval_calls": 0,
+          "latency_ms": 0,
+          "fallback_count": 0,
+          "error_count": 0,
+          "estimated_cost": null,
+          "model_latency_ms": 0,
+          "retrieval_latency_ms": 0,
+          "tool_latency_ms": 0,
+          "vision_latency_ms": 0,
+          "context_items_before": 11,
+          "context_items_after": 11
+        },
+        "safety_decision_available": false,
+        "question_loop_available": false
+      },
+      "resonique": {
+        "case_id": "S00015",
+        "system": "RESONIQUE",
+        "response_text": "已记录您提供的信息；当前结论仅基于可追溯证据，仍需继续核实未确认事项。",
+        "claims": [
+          {
+            "text": "order_match",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "6920797553890280371"
+            ],
+            "violation": null
+          },
+          {
+            "text": "first_purchase",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "6920797553890280371"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "94931577622383.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "reported_severity",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "94931577622383.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "reported_medical_attention",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "94931577622383.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "84946246895939.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "58084149505666.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "reported_medical_attention",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "58084149505666.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "38009213175911.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "80552347036463.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "resolution_status",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "BLFY61738711"
+            ],
+            "violation": null
+          },
+          {
+            "text": "reported_symptom",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "BLFY61738711"
+            ],
+            "violation": null
+          },
+          {
+            "text": "reported_medical_attention",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "BLFY61738711"
+            ],
+            "violation": null
+          }
+        ],
+        "detected_gaps": [
+          "EXACT_PRODUCT_USED",
+          "ACTUAL_FIRST_USE_TIME",
+          "FEEDBACK_ONSET_TIME",
+          "RECENT_REGIMEN_CHANGES",
+          "REPORTED_SEVERITY",
+          "CURRENT_SYMPTOM_STATUS",
+          "MEDICAL_ATTENTION_STATUS"
+        ],
+        "next_question_gap": "EXACT_PRODUCT_USED",
+        "safety_level": "SAFETY",
+        "action_class": "WAIT_FOR_HUMAN",
+        "asked_facts": [],
+        "attribution_status": "INSUFFICIENT_EVIDENCE",
+        "instrumentation": {
+          "run_id": "4c340fc5-9229-4c7c-88d7-4a4705600c28",
+          "case_id": "S00015",
+          "system": "RESONIQUE",
+          "provider": "deterministic",
+          "model": "production-path-v1",
+          "model_calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0,
+          "vision_calls": 0,
+          "tool_calls": 0,
+          "retrieval_calls": 1,
+          "latency_ms": 0,
+          "fallback_count": 0,
+          "error_count": 0,
+          "estimated_cost": null,
+          "model_latency_ms": 0,
+          "retrieval_latency_ms": 0,
+          "tool_latency_ms": 0,
+          "vision_latency_ms": 0,
+          "context_items_before": 20,
+          "context_items_after": 11
+        },
+        "safety_decision_available": true,
+        "question_loop_available": true
+      }
+    },
+    {
+      "case_id": "S00031",
+      "source": "OFFICIAL",
+      "scenario": "PRODUCT_DAMAGE",
+      "baseline": {
+        "case_id": "S00031",
+        "system": "BASELINE",
+        "response_text": "已记录当前情况。我们会结合现有业务信息继续核实并协助处理。",
+        "claims": [
+          {
+            "text": "已记录当前情况。我们会结合现有业务信息继续核实并协助处理。",
+            "factual": true,
+            "supported": true,
+            "grounding": "ABSENT",
+            "source_ids": [],
+            "violation": null
+          }
+        ],
+        "detected_gaps": [],
+        "next_question_gap": null,
+        "safety_level": "UNSPECIFIED",
+        "action_class": "RESPOND",
+        "asked_facts": [],
+        "attribution_status": "UNSPECIFIED",
+        "instrumentation": {
+          "run_id": "7a7651e6-f73b-4496-ab51-445721ac3eac",
+          "case_id": "S00031",
+          "system": "BASELINE",
+          "provider": "deterministic",
+          "model": "answer-first-v1",
+          "model_calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0,
+          "vision_calls": 0,
+          "tool_calls": 0,
+          "retrieval_calls": 0,
+          "latency_ms": 0,
+          "fallback_count": 0,
+          "error_count": 0,
+          "estimated_cost": null,
+          "model_latency_ms": 0,
+          "retrieval_latency_ms": 0,
+          "tool_latency_ms": 0,
+          "vision_latency_ms": 0,
+          "context_items_before": 10,
+          "context_items_after": 10
+        },
+        "safety_decision_available": false,
+        "question_loop_available": false
+      },
+      "resonique": {
+        "case_id": "S00031",
+        "system": "RESONIQUE",
+        "response_text": "已记录您提供的信息；当前结论仅基于可追溯证据，仍需继续核实未确认事项。",
+        "claims": [
+          {
+            "text": "order_match",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "6920724864492688525"
+            ],
+            "violation": null
+          },
+          {
+            "text": "first_purchase",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "6920724864492688525"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "91194971277884.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "75606022703245.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "99056572731984.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "13609022560223.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "image_reference",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "75606022703245.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "resolution_status",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "BH695419716917"
+            ],
+            "violation": null
+          },
+          {
+            "text": "replacement_eligibility",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "BH695419716917"
+            ],
+            "violation": null
+          }
+        ],
+        "detected_gaps": [
+          "AFFECTED_ITEM",
+          "DAMAGE_DESCRIPTION",
+          "VISUAL_EVIDENCE",
+          "ORDER_MATCH",
+          "REPLACEMENT_ELIGIBILITY"
+        ],
+        "next_question_gap": "AFFECTED_ITEM",
+        "safety_level": "INVESTIGATION",
+        "action_class": "INVESTIGATE",
+        "asked_facts": [],
+        "attribution_status": "INSUFFICIENT_EVIDENCE",
+        "instrumentation": {
+          "run_id": "b1e83f82-f792-4616-9f25-647904ffba2d",
+          "case_id": "S00031",
+          "system": "RESONIQUE",
+          "provider": "deterministic",
+          "model": "production-path-v1",
+          "model_calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0,
+          "vision_calls": 0,
+          "tool_calls": 0,
+          "retrieval_calls": 1,
+          "latency_ms": 0,
+          "fallback_count": 0,
+          "error_count": 0,
+          "estimated_cost": null,
+          "model_latency_ms": 0,
+          "retrieval_latency_ms": 0,
+          "tool_latency_ms": 0,
+          "vision_latency_ms": 0,
+          "context_items_before": 14,
+          "context_items_after": 7
+        },
+        "safety_decision_available": true,
+        "question_loop_available": true
+      }
+    },
+    {
+      "case_id": "S00023",
+      "source": "OFFICIAL",
+      "scenario": "LOGISTICS_EXCEPTION",
+      "baseline": {
+        "case_id": "S00023",
+        "system": "BASELINE",
+        "response_text": "已记录当前情况。我们会结合现有业务信息继续核实并协助处理。",
+        "claims": [
+          {
+            "text": "已记录当前情况。我们会结合现有业务信息继续核实并协助处理。",
+            "factual": true,
+            "supported": true,
+            "grounding": "ABSENT",
+            "source_ids": [],
+            "violation": null
+          }
+        ],
+        "detected_gaps": [],
+        "next_question_gap": null,
+        "safety_level": "UNSPECIFIED",
+        "action_class": "RESPOND",
+        "asked_facts": [],
+        "attribution_status": "UNSPECIFIED",
+        "instrumentation": {
+          "run_id": "c2c7e512-2e49-4eff-b484-0c83d231b63c",
+          "case_id": "S00023",
+          "system": "BASELINE",
+          "provider": "deterministic",
+          "model": "answer-first-v1",
+          "model_calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0,
+          "vision_calls": 0,
+          "tool_calls": 0,
+          "retrieval_calls": 0,
+          "latency_ms": 0,
+          "fallback_count": 0,
+          "error_count": 0,
+          "estimated_cost": null,
+          "model_latency_ms": 0,
+          "retrieval_latency_ms": 0,
+          "tool_latency_ms": 0,
+          "vision_latency_ms": 0,
+          "context_items_before": 10,
+          "context_items_after": 10
+        },
+        "safety_decision_available": false,
+        "question_loop_available": false
+      },
+      "resonique": {
+        "case_id": "S00023",
+        "system": "RESONIQUE",
+        "response_text": "已记录您提供的信息；当前结论仅基于可追溯证据，仍需继续核实未确认事项。",
+        "claims": [
+          {
+            "text": "order_match",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "6920381227503627930"
+            ],
+            "violation": null
+          },
+          {
+            "text": "first_purchase",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "6920381227503627930"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "93591189567742.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "64956040246937.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "46955161163524.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "15152352129545.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "image_reference",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "64956040246937.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "resolution_status",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "WL698348054"
+            ],
+            "violation": null
+          },
+          {
+            "text": "logistics_status",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "WL698348054"
+            ],
+            "violation": null
+          },
+          {
+            "text": "logistics_investigation_result",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "WL698348054"
+            ],
+            "violation": null
+          },
+          {
+            "text": "delivery_evidence",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "WL698348054"
+            ],
+            "violation": null
+          }
+        ],
+        "detected_gaps": [
+          "ORDER_MATCH",
+          "LOGISTICS_STATUS",
+          "CONSUMER_RECEIPT_STATUS",
+          "DELIVERY_EVIDENCE",
+          "INVESTIGATION_RESULT",
+          "RESOLUTION_STATUS"
+        ],
+        "next_question_gap": "CONSUMER_RECEIPT_STATUS",
+        "safety_level": "INVESTIGATION",
+        "action_class": "CALL_TOOL",
+        "asked_facts": [],
+        "attribution_status": "INSUFFICIENT_EVIDENCE",
+        "instrumentation": {
+          "run_id": "08856482-95c1-455e-bb2a-9538a94286f8",
+          "case_id": "S00023",
+          "system": "RESONIQUE",
+          "provider": "deterministic",
+          "model": "production-path-v1",
+          "model_calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0,
+          "vision_calls": 0,
+          "tool_calls": 0,
+          "retrieval_calls": 0,
+          "latency_ms": 0,
+          "fallback_count": 0,
+          "error_count": 0,
+          "estimated_cost": null,
+          "model_latency_ms": 0,
+          "retrieval_latency_ms": 0,
+          "tool_latency_ms": 0,
+          "vision_latency_ms": 0,
+          "context_items_before": 14,
+          "context_items_after": 7
+        },
+        "safety_decision_available": true,
+        "question_loop_available": true
+      }
+    },
+    {
+      "case_id": "S00026",
+      "source": "OFFICIAL",
+      "scenario": "AFTER_SALES",
+      "baseline": {
+        "case_id": "S00026",
+        "system": "BASELINE",
+        "response_text": "已记录当前情况。我们会结合现有业务信息继续核实并协助处理。",
+        "claims": [
+          {
+            "text": "已记录当前情况。我们会结合现有业务信息继续核实并协助处理。",
+            "factual": true,
+            "supported": true,
+            "grounding": "ABSENT",
+            "source_ids": [],
+            "violation": null
+          }
+        ],
+        "detected_gaps": [],
+        "next_question_gap": null,
+        "safety_level": "UNSPECIFIED",
+        "action_class": "RESPOND",
+        "asked_facts": [],
+        "attribution_status": "UNSPECIFIED",
+        "instrumentation": {
+          "run_id": "5d741fc9-bab8-4b86-920f-0d32fb281313",
+          "case_id": "S00026",
+          "system": "BASELINE",
+          "provider": "deterministic",
+          "model": "answer-first-v1",
+          "model_calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0,
+          "vision_calls": 0,
+          "tool_calls": 0,
+          "retrieval_calls": 0,
+          "latency_ms": 0,
+          "fallback_count": 0,
+          "error_count": 0,
+          "estimated_cost": null,
+          "model_latency_ms": 0,
+          "retrieval_latency_ms": 0,
+          "tool_latency_ms": 0,
+          "vision_latency_ms": 0,
+          "context_items_before": 11,
+          "context_items_after": 11
+        },
+        "safety_decision_available": false,
+        "question_loop_available": false
+      },
+      "resonique": {
+        "case_id": "S00026",
+        "system": "RESONIQUE",
+        "response_text": "已记录您提供的信息；当前结论仅基于可追溯证据，仍需继续核实未确认事项。",
+        "claims": [
+          {
+            "text": "order_match",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "6920288797534357965"
+            ],
+            "violation": null
+          },
+          {
+            "text": "first_purchase",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "6920288797534357965"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "11402985818046.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "29516868823318.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "83794808313422.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "consumer_message",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "91807773976542.PNM"
+            ],
+            "violation": null
+          },
+          {
+            "text": "resolution_status",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "KOC2683305"
+            ],
+            "violation": null
+          },
+          {
+            "text": "after_sales_status",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "KOC2683305"
+            ],
+            "violation": null
+          },
+          {
+            "text": "after_sales_eligibility",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "KOC2683305"
+            ],
+            "violation": null
+          },
+          {
+            "text": "required_evidence",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "KOC2683305"
+            ],
+            "violation": null
+          },
+          {
+            "text": "resolution_path",
+            "factual": true,
+            "supported": true,
+            "grounding": "EXPLICIT",
+            "source_ids": [
+              "KOC2683305"
+            ],
+            "violation": null
+          }
+        ],
+        "detected_gaps": [
+          "ORDER_MATCH",
+          "REQUEST_TYPE",
+          "AFTER_SALES_STATUS",
+          "ELIGIBILITY",
+          "REQUIRED_EVIDENCE",
+          "RESOLUTION_PATH"
+        ],
+        "next_question_gap": "REQUEST_TYPE",
+        "safety_level": "INVESTIGATION",
+        "action_class": "INVESTIGATE",
+        "asked_facts": [],
+        "attribution_status": "INSUFFICIENT_EVIDENCE",
+        "instrumentation": {
+          "run_id": "dca2023f-3436-49a5-a75d-4fd877d343cd",
+          "case_id": "S00026",
+          "system": "RESONIQUE",
+          "provider": "deterministic",
+          "model": "production-path-v1",
+          "model_calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0,
+          "vision_calls": 0,
+          "tool_calls": 0,
+          "retrieval_calls": 1,
+          "latency_ms": 0,
+          "fallback_count": 0,
+          "error_count": 0,
+          "estimated_cost": null,
+          "model_latency_ms": 0,
+          "retrieval_latency_ms": 0,
+          "tool_latency_ms": 0,
+          "vision_latency_ms": 0,
+          "context_items_before": 14,
+          "context_items_after": 7
+        },
+        "safety_decision_available": true,
+        "question_loop_available": true
+      }
+    }
+  ],
+  "failures": [],
+  "pricing_status": "UNAVAILABLE",
+  "limitations": [
+    "Deterministic benchmark measures architecture behavior, not language quality.",
+    "Official image assets are unavailable; the multimodal fixture is synthetic.",
+    "Baseline grounding is reported as absent rather than assumed incorrect.",
+    "No optimization was performed before or after this benchmark."
+  ],
+  "headline_metrics": {
+    "baseline_unsupported_claim_rate": 0.0,
+    "resonique_unsupported_claim_rate": 0.0,
+    "baseline_gap_recall": 0.0,
+    "resonique_gap_recall": 1.0,
+    "baseline_safety_violation_rate": 0.0,
+    "resonique_safety_violation_rate": 0.0
+  },
+  "real_model_subset": [],
+  "real_baseline_metrics": null,
+  "real_resonique_metrics": null
+}
