@@ -207,7 +207,7 @@ GAP_EVIDENCE_KEYS: dict[GapType, frozenset[str]] = {
     GapType.MEDICAL_ATTENTION_STATUS: frozenset({"reported_medical_attention"}),
     GapType.AFFECTED_ITEM: frozenset({"affected_item"}),
     GapType.DAMAGE_DESCRIPTION: frozenset({"damage_description"}),
-    GapType.VISUAL_EVIDENCE: frozenset({"image_evidence_available"}),
+    GapType.VISUAL_EVIDENCE: frozenset({"image_reference"}),
     GapType.ORDER_MATCH: frozenset({"order_match"}),
     GapType.REPLACEMENT_ELIGIBILITY: frozenset({"replacement_eligibility"}),
     GapType.LOGISTICS_STATUS: frozenset({"logistics_status"}),
@@ -232,7 +232,16 @@ def evaluate_scenario_gaps(
 
     gaps = []
     for gap_type in SCENARIO_GAPS[scenario]:
-        if gap_type in P0_RESOLUTION_POLICIES:
+        if gap_type is GapType.VISUAL_EVIDENCE:
+            matches = [
+                item.id
+                for item in evidence
+                if item.case_id == case_id
+                and item.key == "visual_observation"
+                and item.evidence_type is EvidenceType.AI_OBSERVATION
+                and item.source.source_type is SourceType.UPLOADED_IMAGE
+            ]
+        elif gap_type in P0_RESOLUTION_POLICIES:
             policy = P0_RESOLUTION_POLICIES[gap_type]
             matches = [item.id for item in evidence if item.case_id == case_id and policy(item)]
         else:

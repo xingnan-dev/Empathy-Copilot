@@ -92,13 +92,16 @@ def test_s00001_grounds_damage_and_image_metadata_without_vision(
     for gap in (
         GapType.AFFECTED_ITEM,
         GapType.DAMAGE_DESCRIPTION,
-        GapType.VISUAL_EVIDENCE,
         GapType.ORDER_MATCH,
         GapType.REPLACEMENT_ELIGIBILITY,
     ):
         assert _gap(state, gap).status is GapStatus.RESOLVED
-    image = next(item for item in state.evidence if item.key == "image_evidence_available")
+    assert _gap(state, GapType.VISUAL_EVIDENCE).status is GapStatus.OPEN
+    image = next(item for item in state.evidence if item.key == "image_reference")
+    assert isinstance(image.value, dict)
     assert image.metadata["vision_analyzed"] is False
+    assert image.value["reference_exists"] is True
+    assert image.value["asset_available"] is False
     assert "S00001_03.jpg" in str(image.value)
 
 

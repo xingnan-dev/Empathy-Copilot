@@ -19,6 +19,8 @@ from backend.app.persistence.database import create_database_engine, create_sess
 from backend.app.persistence.factory import build_postgres_workflow
 from backend.app.services.checkpoints import StateConflictError
 from backend.app.services.transitions import InvalidStateTransitionError
+from backend.app.vision import VisionService
+from backend.app.vision.qwen import QwenVisionProvider
 
 from .routes.cases import router, unavailable_service
 from .schemas.cases import ErrorView
@@ -30,6 +32,7 @@ def build_runtime_service() -> CaseApplicationService:
     sessions = create_session_factory(engine)
     workflow = build_postgres_workflow(sessions)
     model_service = None
+    vision_service = None
     if os.getenv("LLM_PROVIDER", "").casefold() == "qwen" and all(
         os.getenv(name) for name in ("LLM_API_KEY", "LLM_MODEL", "LLM_BASE_URL")
     ):
@@ -40,7 +43,17 @@ def build_runtime_service() -> CaseApplicationService:
                 base_url=os.environ["LLM_BASE_URL"],
             )
         )
-    service = CaseApplicationService(workflow, workflow.checkpoints, model_service)
+    if os.getenv("VISION_PROVIDER", "").casefold() == "qwen" and all(
+        os.getenv(name) for name in ("LLM_API_KEY", "VISION_MODEL", "LLM_BASE_URL")
+    ):
+        vision_service = VisionService(
+            QwenVisionProvider(
+                api_key=os.environ["LLM_API_KEY"],
+                model=os.environ["VISION_MODEL"],
+                base_url=os.environ["LLM_BASE_URL"],
+            )
+        )
+    service = CaseApplicationService(workflow, workflow.checkpoints, model_service, vision_service)
     official_path = os.getenv("OFFICIAL_DATASET_PATH")
     if official_path:
         official = OfficialDatasetAdapter().read(official_path)

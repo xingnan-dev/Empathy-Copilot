@@ -1,0 +1,32 @@
+[
+  {
+    "document_id": "DEMO-POLICY-DAMAGE-001",
+    "title": "Demo damaged-product handling policy",
+    "source": "DEMO_FIXTURE",
+    "section": "Visible damage review",
+    "content": "A consumer claim and image observation support investigation. Eligibility still requires an order match and service-policy review.",
+    "knowledge_type": "SERVICE_POLICY",
+    "version": "demo-2026-09-25",
+    "fixture": true
+  },
+  {
+    "document_id": "DEMO-SAFETY-001",
+    "title": "Demo beauty-service safety boundary",
+    "source": "DEMO_FIXTURE",
+    "section": "Adverse reaction",
+    "content": "Visible redness or swelling must not be converted into diagnosis or product causality. Medical attention and severe reports require human-reviewed service escalation.",
+    "knowledge_type": "BEAUTY_SAFETY_KNOWLEDGE",
+    "version": "demo-2026-09-25",
+    "fixture": true
+  },
+  {
+    "document_id": "DEMO-PRODUCT-001",
+    "title": "Demo cream ingredient list",
+    "source": "DEMO_FIXTURE",
+    "section": "INCI",
+    "content": "Demo Cream ingredients: water, glycerin, niacinamide, fragrance.",
+    "knowledge_type": "PRODUCT_KNOWLEDGE",
+    "version": "demo-2026-09-25",
+    "fixture": true
+  }
+]

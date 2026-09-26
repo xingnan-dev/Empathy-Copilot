@@ -24,6 +24,11 @@ export interface CaseView {
   restored_context?: boolean
   previous_service_history?: Record<string, unknown>[]
   evidence_conflicts?: Record<string, unknown>[]
+  visual_observations?: Record<string, unknown>[]
+  knowledge_context?: Record<string, unknown>[]
+  safety_gate?: 'NORMAL' | 'INVESTIGATION' | 'SAFETY'
+  ingredient_context?: Record<string, unknown>[]
+  why_sources?: Record<string, unknown>[]
 }
 
 export interface ApiError { code: string; message: string }

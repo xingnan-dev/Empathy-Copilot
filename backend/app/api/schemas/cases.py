@@ -79,6 +79,11 @@ class CaseView(BaseModel):
     restored_context: bool = False
     previous_service_history: list[dict[str, Any]] = Field(default_factory=list)
     evidence_conflicts: list[dict[str, Any]] = Field(default_factory=list)
+    visual_observations: list[dict[str, Any]] = Field(default_factory=list)
+    knowledge_context: list[dict[str, Any]] = Field(default_factory=list)
+    safety_gate: str = "NORMAL"
+    ingredient_context: list[dict[str, Any]] = Field(default_factory=list)
+    why_sources: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class HumanApprovalRequest(BaseModel):

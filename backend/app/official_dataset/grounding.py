@@ -198,8 +198,12 @@ class OfficialEvidenceGroundingService:
         return self._base(
             evidence_id=f"official-image-{record.message_id}",
             case_id=record.session_id,
-            key="image_evidence_available",
-            value={"available": True, "path": record.image_path},
+            key="image_reference",
+            value={
+                "reference_exists": True,
+                "asset_available": False,
+                "path": record.image_path,
+            },
             evidence_type=EvidenceType.VERIFIED_BUSINESS_FACT,
             source_type=SourceType.SERVICE_SYSTEM,
             source_id=record.message_id,

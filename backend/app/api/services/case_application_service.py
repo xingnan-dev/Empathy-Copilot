@@ -9,6 +9,8 @@ from backend.app.domain.agent import AgentAction, AgentStatus, InvestigationStat
 from backend.app.domain.evidence import Evidence, EvidenceType, SourceType
 from backend.app.domain.gaps import GapType, evaluate_p0_gaps, evaluate_scenario_gaps
 from backend.app.domain.regimen import build_regimen_changes
+from backend.app.domain.safety import SafetyGateService
+from backend.app.knowledge import IngredientContextChecker, KnowledgeItem, LocalKnowledgeRetriever
 from backend.app.llm.provider import ModelProviderError
 from backend.app.llm.schemas import GeneratedDraft
 from backend.app.llm.service import ModelService
@@ -17,6 +19,8 @@ from backend.app.official_dataset.models import OfficialDataset
 from backend.app.services.checkpoints import CheckpointStore, StateConflictError
 from backend.app.services.context_passport import ContextPassportService
 from backend.app.services.transitions import InvalidStateTransitionError, StateTransitionService
+from backend.app.vision import VisionService
+from backend.app.vision.schemas import ImageCategory, VisionSourceIdentity
 
 from ..fixtures import s00154_waiting_for_human
 from ..schemas.cases import (
@@ -36,12 +40,17 @@ class CaseApplicationService:
         workflow: InvestigationWorkflow,
         checkpoints: CheckpointStore,
         model_service: ModelService | None = None,
+        vision_service: VisionService | None = None,
     ) -> None:
         self.workflow = workflow
         self.checkpoints = checkpoints
         self.transitions = StateTransitionService()
         self.passports = ContextPassportService()
         self.model_service = model_service
+        self.vision_service = vision_service
+        self.knowledge = LocalKnowledgeRetriever()
+        self.safety = SafetyGateService()
+        self.ingredients = IngredientContextChecker()
 
     def ensure_integration_fixture(self) -> None:
         if not self.checkpoints.exists("S00154"):
@@ -175,6 +184,109 @@ class CaseApplicationService:
             fallback,
         )
 
+    def analyze_image(
+        self,
+        case_id: str,
+        *,
+        image_uri: str,
+        image_id: str,
+        message_id: str,
+        expected_revision: int,
+    ) -> CaseView:
+        if self.vision_service is None:
+            raise ModelProviderError("UNAVAILABLE", "vision provider is not configured")
+        current = self.checkpoints.load(case_id)
+        if current.state_revision != expected_revision:
+            raise StateConflictError(f"case {case_id} no longer has revision {expected_revision}")
+        image_reference = next(
+            (
+                item
+                for item in current.evidence
+                if item.key == "image_reference"
+                and item.source.source_id == message_id
+                and isinstance(item.value, dict)
+                and item.value.get("asset_available") is True
+                and str(item.value.get("path", "")).endswith(image_id)
+            ),
+            None,
+        )
+        if image_reference is None:
+            raise ValueError("image source is not grounded in the current case")
+        observation = self.vision_service.analyze(
+            case_id=case_id,
+            image_uri=image_uri,
+            image_id=image_id,
+            message_id=message_id,
+            case_context=current.current_issue,
+            observed_at=datetime.now(UTC),
+        )
+        return self._record_visual_observation(current, observation, expected_revision)
+
+    def analyze_demo_fixture(
+        self,
+        case_id: str,
+        *,
+        image_uri: str,
+        asset_id: str,
+        message_id: str,
+        expected_revision: int,
+    ) -> CaseView:
+        """Analyze an independent product-damage fixture, never an official case image."""
+
+        if self.vision_service is None:
+            raise ModelProviderError("UNAVAILABLE", "vision provider is not configured")
+        current = self.checkpoints.load(case_id)
+        if current.state_revision != expected_revision:
+            raise StateConflictError(f"case {case_id} no longer has revision {expected_revision}")
+        if any(item.metadata.get("official_data") is True for item in current.evidence):
+            raise ValueError("demo fixtures cannot be attached to official cases")
+        identity = VisionSourceIdentity(
+            asset_id=asset_id,
+            source="DEMO_FIXTURE",
+            fixture=True,
+            scenario=ImageCategory.PRODUCT_DAMAGE,
+        )
+        observation = self.vision_service.analyze(
+            case_id=case_id,
+            image_uri=image_uri,
+            image_id=asset_id,
+            message_id=message_id,
+            case_context=current.current_issue,
+            observed_at=datetime.now(UTC),
+            source_identity=identity,
+        )
+        return self._record_visual_observation(current, observation, expected_revision)
+
+    def _record_visual_observation(
+        self,
+        current: InvestigationState,
+        observation: Evidence | None,
+        expected_revision: int,
+    ) -> CaseView:
+        if observation is None:
+            return self._project(current)
+        evidence = [*current.evidence, observation]
+        gaps = (
+            evaluate_scenario_gaps(current.case_id, current.scenario, evidence)
+            if current.scenario
+            else evaluate_p0_gaps(current.case_id, evidence)
+        )
+        investigating = self.transitions.transition(
+            current,
+            to_status=AgentStatus.INVESTIGATING,
+            action=None,
+            reason="Validated a bounded visual observation.",
+            updates={"evidence": evidence, "evidence_gaps": gaps},
+        )
+        reviewed = self.transitions.transition(
+            investigating,
+            to_status=AgentStatus.WAITING_FOR_HUMAN,
+            action=AgentAction.WAIT_FOR_HUMAN,
+            reason="Visual observations require human-reviewed service action.",
+        )
+        self.checkpoints.save(reviewed, expected_revision=expected_revision)
+        return self._project(reviewed)
+
     def _project(self, state: InvestigationState) -> CaseView:
         primary_product = next(
             (
@@ -196,6 +308,14 @@ class CaseApplicationService:
         passport = self.passports.build(state)
         projected_gaps = self._presentation_gaps(state)
         question_gap, next_question = self._next_question(projected_gaps, state.next_question)
+        safety = self.safety.assess(state)
+        knowledge_query = {
+            "ADVERSE_REACTION": "adverse reaction safety swelling medical attention",
+            "PRODUCT_DAMAGE": "damaged product policy visible damage eligibility",
+            "LOGISTICS_EXCEPTION": "logistics investigation",
+            "AFTER_SALES": "service policy eligibility",
+        }.get(state.scenario.value if state.scenario else "", state.current_issue)
+        knowledge = self.knowledge.retrieve(knowledge_query)
         return CaseView(
             case_id=state.case_id,
             consumer=state.consumer_id,
@@ -250,7 +370,78 @@ class CaseApplicationService:
                 if item.key == "previous_service_contact" and isinstance(item.value, dict)
             ],
             evidence_conflicts=self._evidence_conflicts(state),
+            visual_observations=[
+                {
+                    **item.value,
+                    "source": item.metadata.get("source"),
+                    "fixture": item.metadata.get("fixture", False),
+                    "asset_id": item.metadata.get("asset_id", item.source.source_id),
+                    "scenario": item.metadata.get("scenario"),
+                    "evidence_type": item.evidence_type.value,
+                }
+                for item in state.evidence
+                if item.evidence_type is EvidenceType.AI_OBSERVATION
+                and isinstance(item.value, dict)
+            ],
+            knowledge_context=[item.model_dump(mode="json") for item in knowledge],
+            safety_gate=safety.gate.value,
+            ingredient_context=self._ingredient_context(state),
+            why_sources=self._why_sources(state, knowledge),
         )
+
+    def _ingredient_context(self, state: InvestigationState) -> list[dict[str, object]]:
+        sensitivities = [
+            item
+            for item in state.evidence
+            if item.key == "known_sensitivity" and isinstance(item.value, str)
+        ]
+        products = [
+            item
+            for item in state.evidence
+            if item.key == "product_ingredients" and isinstance(item.value, dict)
+        ]
+        matches = []
+        for sensitivity in sensitivities:
+            for product in products:
+                product_value = product.value
+                if not isinstance(product_value, dict):
+                    continue
+                ingredients = product_value.get("ingredients")
+                product_id = product_value.get("product_id")
+                if isinstance(ingredients, list) and isinstance(product_id, str):
+                    matches.extend(
+                        self.ingredients.match(
+                            product_id=product_id,
+                            ingredients=[str(item) for item in ingredients],
+                            sensitivity=str(sensitivity.value),
+                            ingredient_source_id=product.source.source_id,
+                            sensitivity_source_id=sensitivity.source.source_id,
+                            fixture=bool(product.metadata.get("fixture")),
+                        )
+                    )
+        return [item.model_dump(mode="json") for item in matches]
+
+    @staticmethod
+    def _why_sources(
+        state: InvestigationState, knowledge: list[KnowledgeItem]
+    ) -> list[dict[str, object]]:
+        sources: list[dict[str, object]] = [
+            {
+                "kind": item.evidence_type.value,
+                "source_id": item.source.source_id,
+                "label": item.source.source_label,
+            }
+            for item in state.evidence
+        ]
+        sources.extend(
+            {
+                "kind": "KNOWLEDGE_CONTEXT",
+                "source_id": item.document_id,
+                "label": item.title,
+            }
+            for item in knowledge
+        )
+        return sources
 
     @staticmethod
     def _project_evidence(item: Evidence) -> EvidenceView:

@@ -59,7 +59,7 @@ EVIDENCE_KEY_TO_GAP: dict[str, GapType] = {
     "reported_medical_attention": GapType.MEDICAL_ATTENTION_STATUS,
     "affected_item": GapType.AFFECTED_ITEM,
     "damage_description": GapType.DAMAGE_DESCRIPTION,
-    "image_evidence_available": GapType.VISUAL_EVIDENCE,
+    "image_reference": GapType.VISUAL_EVIDENCE,
     "order_match": GapType.ORDER_MATCH,
     "replacement_eligibility": GapType.REPLACEMENT_ELIGIBILITY,
     "logistics_status": GapType.LOGISTICS_STATUS,

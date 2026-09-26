@@ -1,6 +1,8 @@
+import base64
 import os
 from collections.abc import Iterator
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 from alembic import command
@@ -13,8 +15,14 @@ from backend.app.api.fixtures import s00154_waiting_for_human
 from backend.app.api.services.case_application_service import CaseApplicationService
 from backend.app.domain.agent import AgentStatus, InvestigationState, QuestionStatus, ToolCallStatus
 from backend.app.domain.business import LogisticsStatusToolResult
-from backend.app.domain.gaps import GapStatus, GapType, evaluate_p0_gaps
+from backend.app.domain.gaps import (
+    GapStatus,
+    GapType,
+    evaluate_p0_gaps,
+    evaluate_scenario_gaps,
+)
 from backend.app.domain.regimen import build_regimen_changes
+from backend.app.domain.scenarios import InvestigationScenario
 from backend.app.llm.providers.fake import FakeModelProvider
 from backend.app.llm.schemas import CandidateFact, CandidateField, UnderstandingResult
 from backend.app.llm.service import ModelService
@@ -41,6 +49,9 @@ from backend.app.repositories.postgres import PostgresRepositoryBundle
 from backend.app.services.checkpoints import StateConflictError
 from backend.app.services.grounding import EvidenceGroundingService
 from backend.app.services.tools import default_tool_registry
+from backend.app.vision.fake import FakeVisionProvider
+from backend.app.vision.schemas import ImageCategory, StructuredVisionObservation, Visibility
+from backend.app.vision.service import VisionService
 from backend.tests.fixtures import CASE_ID, CONSUMER_ID, NOW, first_use_evidence
 
 
@@ -199,6 +210,69 @@ def test_phase6_model_evidence_and_gap_survive_service_restart(
     assert any(item.source == "Consumer message · M-PG-P6" for item in restored.evidence)
     assert next(gap for gap in restored.gaps if gap.id == "EXACT_PRODUCT_USED").status == "RESOLVED"
     assert restored.attribution_status == "INSUFFICIENT_EVIDENCE"
+
+
+@pytest.mark.postgres
+@pytest.mark.official_dataset
+def test_phase8_visual_observation_survives_postgres_restart(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    workflow = build_postgres_workflow(postgres_sessions)
+    scenario = InvestigationScenario.PRODUCT_DAMAGE
+    state = InvestigationState(
+        case_id="DEMO-PG-VISION",
+        consumer_id="DEMO-CONSUMER",
+        current_issue="Synthetic broken pump fixture durability",
+        scenario=scenario,
+    )
+    state.evidence_gaps = evaluate_scenario_gaps(state.case_id, scenario, state.evidence)
+    workflow.checkpoints.save(state)
+    asset_id = "DEMO_BROKEN_PUMP_001"
+    message_id = "DEMO_BROKEN_PUMP_MESSAGE_001"
+    candidate = StructuredVisionObservation(
+        observation_id="pg-demo-broken-pump",
+        source_image_id=asset_id,
+        source_message_id=message_id,
+        image_category=ImageCategory.PRODUCT_DAMAGE,
+        visible_features=["泵头", "部件位移"],
+        visible_condition="泵头部件存在可见位移。",
+        visibility=Visibility.CLEAR,
+        sufficient=True,
+        uncertainty="仅描述可见外观，不能判断原因、质量或换货资格。",
+        extraction_confidence=0.9,
+        provider="fake-vision",
+        model="fake-vision-v1",
+    )
+    service = CaseApplicationService(
+        workflow,
+        workflow.checkpoints,
+        vision_service=VisionService(FakeVisionProvider(candidate)),
+    )
+    asset_path = (
+        Path(__file__).parents[1] / "data" / "demo_assets" / "demo_broken_pump_001.png"
+    )
+    image_uri = "data:image/png;base64," + base64.b64encode(asset_path.read_bytes()).decode()
+    before = service.get_case(state.case_id)
+    changed = service.analyze_demo_fixture(
+        state.case_id,
+        image_uri=image_uri,
+        asset_id=asset_id,
+        message_id=message_id,
+        expected_revision=before.revision,
+    )
+
+    restarted_workflow = build_postgres_workflow(postgres_sessions)
+    restored = CaseApplicationService(restarted_workflow, restarted_workflow.checkpoints).get_case(
+        state.case_id
+    )
+    assert restored.revision == changed.revision
+    assert restored.visual_observations == changed.visual_observations
+    assert any(item.type == "AI_OBSERVATION" for item in restored.evidence)
+    assert restored.visual_observations[0]["source"] == "DEMO_FIXTURE"
+    assert restored.visual_observations[0]["fixture"] is True
+    assert restored.visual_observations[0]["asset_id"] == asset_id
+    assert next(gap for gap in restored.gaps if gap.id == "VISUAL_EVIDENCE").status == "RESOLVED"
+    assert restored.human_checkpoint.state == "REQUIRED"
 
 
 @pytest.mark.postgres
