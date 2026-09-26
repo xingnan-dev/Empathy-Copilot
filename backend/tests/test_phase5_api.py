@@ -19,6 +19,14 @@ def client_for(service: CaseApplicationService) -> TestClient:
     return TestClient(create_app(lambda: service))
 
 
+def test_health_endpoint_exposes_no_runtime_data() -> None:
+    service, _ = service_with_s00154()
+    response = client_for(service).get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_get_case_projection_preserves_evidence_provenance_gaps_and_boundary() -> None:
     service, _ = service_with_s00154()
     response = client_for(service).get("/api/cases/S00154")

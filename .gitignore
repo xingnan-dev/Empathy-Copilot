@@ -11,3 +11,5 @@ venv/
 !.env.example
 dist/
 build/
+competition_data/*
+!competition_data/.gitkeep

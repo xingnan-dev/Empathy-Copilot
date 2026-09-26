@@ -15,5 +15,50 @@ services:
     volumes:
       - empathy_postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://empathy:empathy_local@postgres:5432/empathy_copilot
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      VISION_PROVIDER: ${VISION_PROVIDER:-}
+      VISION_MODEL: ${VISION_MODEL:-}
+      OFFICIAL_DATASET_PATH: ${OFFICIAL_DATASET_PATH:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >-
+      sh -c "alembic upgrade head && python -m backend.app.persistence.seed_cli &&
+      uvicorn backend.app.api.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./competition_data:/competition-data:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  frontend:
+    build:
+      context: frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
 volumes:
   empathy_postgres_data:

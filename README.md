@@ -1,13 +1,13 @@
-# Empathy Copilot
+# Resonique — Empathy Copilot
 
-Evidence-first, stateful investigation foundations for beauty-service support.
+Evidence-first, stateful investigation for beauty-service support. Resonique reconstructs
+context, preserves provenance, identifies evidence gaps, and proposes a safe next action for
+human approval. It does not diagnose or infer causality from timing alone.
 
-Current phase: **Phase 5 — Product Integration**.
-
-The repository contains the evidence-first domain foundation, a deterministic LangGraph
-workflow, local demo and PostgreSQL business repositories, typed business tools, an explicit
-Evidence grounding boundary, durable PostgreSQL checkpoints, and a thin FastAPI projection
-used by the React UI. It deliberately contains no real LLM or official dataset integration.
+The competition runtime is React → FastAPI → deterministic domain/agent workflow → PostgreSQL,
+with optional Qwen language and vision providers. Start with
+[`docs/COMPETITION_RUN_GUIDE.md`](docs/COMPETITION_RUN_GUIDE.md); competition operators should
+use [`docs/DEMO_OPERATOR_GUIDE.md`](docs/DEMO_OPERATOR_GUIDE.md).
 
 ## Development
 
@@ -43,4 +43,17 @@ python -m pytest -m postgres
 The PostgreSQL tests intentionally refuse a `TEST_DATABASE_URL` whose database name does not
 contain `test` before rebuilding its schema.
 
-The detailed product and architecture decisions live under `docs/`.
+## Complete competition runtime
+
+Copy `.env.example` to a local, untracked `.env`, change the database password, and optionally
+configure Qwen. For official cases, place the supplied workbook at
+`competition_data/official.xlsx` and set `OFFICIAL_DATASET_PATH=/competition-data/official.xlsx`.
+Then run:
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:5173/`. The backend health endpoint is
+`http://localhost:8000/health`. See the competition guide for native development, supporting
+demo paths, fixture disclosure, evaluation limitations, and troubleshooting.

@@ -78,6 +78,11 @@ def create_app(
     app.dependency_overrides[unavailable_service] = lambda: service
     app.include_router(router)
 
+    @app.get("/health", tags=["operations"])
+    def health() -> dict[str, str]:
+        """Container and operator readiness probe; no case data or secrets are exposed."""
+        return {"status": "ok"}
+
     def error(code: str, message: str, status: int) -> JSONResponse:
         return JSONResponse(
             status_code=status, content=ErrorView(code=code, message=message).model_dump()
