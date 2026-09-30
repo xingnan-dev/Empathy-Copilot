@@ -9,6 +9,7 @@ from openpyxl import Workbook
 from backend.app.agent.guardrails import AttributionDecision, assess_attribution
 from backend.app.agent.workflow import InvestigationWorkflow
 from backend.app.api.app import create_app
+from backend.app.api.fixtures import s00154_waiting_for_human
 from backend.app.api.services.case_application_service import CaseApplicationService
 from backend.app.domain.agent import (
     AgentAction,
@@ -17,7 +18,13 @@ from backend.app.domain.agent import (
 )
 from backend.app.domain.business import LogisticsRecord, LogisticsStatusToolResult
 from backend.app.domain.evidence import EvidenceType
-from backend.app.domain.gaps import EvidenceGap, GapStatus, GapType, evaluate_scenario_gaps
+from backend.app.domain.gaps import (
+    EvidenceGap,
+    GapStatus,
+    GapType,
+    evaluate_p0_gaps,
+    evaluate_scenario_gaps,
+)
 from backend.app.domain.regimen import build_regimen_changes
 from backend.app.domain.scenarios import InvestigationScenario
 from backend.app.official_dataset.adapter import (
@@ -141,6 +148,41 @@ def test_explicit_product_use_grounding_is_general_and_conservative() -> None:
     )
     purchase_evidence = grounding._message(not_usage, InvestigationScenario.ADVERSE_REACTION)
     assert all(item.key != "exact_product_used" for item in purchase_evidence)
+
+
+@pytest.mark.official_dataset
+def test_official_registration_upgrades_only_the_legacy_integration_fixture(
+    official_dataset: OfficialDataset,
+) -> None:
+    fixture = s00154_waiting_for_human()
+    legacy_evidence = [
+        item
+        for item in fixture.evidence
+        if item.id
+        not in {"consumer-message", "consumer-product-used", "human-review-required"}
+    ]
+    legacy = fixture.model_copy(
+        update={
+            "evidence": legacy_evidence,
+            "evidence_gaps": evaluate_p0_gaps(fixture.case_id, legacy_evidence),
+            "status": AgentStatus.ESCALATED,
+            "current_action": None,
+        }
+    )
+    checkpoints = InMemoryCheckpointStore()
+    checkpoints.save(legacy)
+    service = CaseApplicationService(
+        InvestigationWorkflow(checkpoint_store=checkpoints), checkpoints
+    )
+
+    service.register_official_cases(official_dataset, [fixture.case_id])
+    projected = service.get_case(fixture.case_id)
+
+    assert projected.official_data is True
+    assert next(gap for gap in projected.gaps if gap.id == "EXACT_PRODUCT_USED").status == (
+        "RESOLVED"
+    )
+    assert any(item.fact == "面霜" for item in projected.evidence)
 
 
 @pytest.mark.official_dataset

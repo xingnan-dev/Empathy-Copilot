@@ -59,6 +59,14 @@ export const s00154 = {
   ],
   evidence: [
     {
+      id: 'consumer-product-used',
+      fact: '面霜',
+      type: 'CONSUMER_REPORTED',
+      source: 'Consumer message · S00154',
+      timestamp: '11 May · 16:20',
+      provenance: 'Message 94422222481506.PNM',
+    },
+    {
       id: 'consumer-swelling',
       fact: 'Consumer reports facial swelling after cream use',
       type: 'CONSUMER_REPORTED',
@@ -100,18 +108,11 @@ export const s00154 = {
     },
   ] satisfies EvidenceRecord[],
   unknowns: [
-    'Exact product actually used',
     'Exact first-use time',
     'Other recent routine changes',
     'Current symptom progression',
   ],
   gaps: [
-    {
-      id: 'EXACT_PRODUCT_USED',
-      label: 'Exact product used',
-      why: 'The order contains a gift set; purchase does not identify which item was actually used.',
-      resolve: 'Ask consumer',
-    },
     {
       id: 'ACTUAL_FIRST_USE_TIME',
       label: 'Actual first-use time',
@@ -174,23 +175,21 @@ export const s00154 = {
     { id: 'order', label: 'Retrieved order history', status: 'COMPLETED', technical: 'CALL_TOOL' },
     { id: 'service', label: 'Retrieved service history', status: 'COMPLETED', technical: 'CALL_TOOL' },
     { id: 'ground', label: 'Grounded evidence with provenance', status: 'COMPLETED', technical: 'EVIDENCE' },
-    { id: 'gaps', label: 'Detected four open evidence gaps', status: 'COMPLETED', technical: 'GAP_CHECK' },
+    { id: 'gaps', label: 'Detected three open evidence gaps', status: 'COMPLETED', technical: 'GAP_CHECK' },
     { id: 'safety', label: 'Evaluated escalation safety path', status: 'COMPLETED', technical: 'POLICY' },
     { id: 'approval', label: 'Waiting for human approval', status: 'CURRENT', technical: 'WAIT_FOR_HUMAN' },
   ],
   response: {
     nextBestAction: 'Escalate to adverse-reaction handling path',
     secondaryActions: ['Review uploaded material', 'Continue evidence collection', 'Follow adverse-reaction SOP'],
-    nextBestQuestion: '为了继续帮您处理，想确认一下，您实际使用的是礼盒中的哪一款产品？',
-    questionResolvesGap: 'EXACT_PRODUCT_USED',
-    questionWhy: 'Purchase of a gift set does not prove which product was actually used.',
+    nextBestQuestion: '想再确认一下，您第一次使用这款产品的具体日期是什么时候？',
+    questionResolvesGap: 'ACTUAL_FIRST_USE_TIME',
+    questionWhy: 'The purchase date does not establish when the product was first used.',
     drafts: [
-      '看到您反馈使用后出现面部肿胀，并已就医，我们会优先按不良反应服务流程继续处理。为了准确核对本次情况，想再确认一下，您实际使用的是礼盒中的哪一款产品？',
-      '您反馈的面部肿胀及就医情况我们已经记录，将优先转入不良反应服务流程跟进。为继续核对信息，请问您实际使用的是礼盒中的哪一款产品？',
-      '我们已关注到您反馈的面部肿胀和就医情况，并会按不良反应服务流程优先处理。还需要请您确认：本次实际使用的是礼盒里的哪一款产品？',
+      '看到您反馈使用后出现面部肿胀，并已就医，我们会优先按不良反应服务流程继续处理。想再确认一下，您第一次使用这款产品的具体日期是什么时候？',
     ],
-    evidenceUsedIds: ['consumer-swelling', 'consumer-medical-attention', 'service-ticket', 'uploaded-material'],
-    retainedUncertainty: ['Exact product usage unverified', 'Actual first-use time unknown', 'Recent regimen changes unknown', 'Current symptom progression unknown'],
+    evidenceUsedIds: ['consumer-swelling', 'consumer-product-used', 'consumer-medical-attention', 'service-ticket', 'uploaded-material'],
+    retainedUncertainty: ['Actual first-use time unknown', 'Recent regimen changes unknown', 'Current symptom progression unknown'],
     avoidedClaims: ['Product causality', 'Medical diagnosis', 'Confirmed allergy', 'Product safety conclusion'],
   },
 } as const

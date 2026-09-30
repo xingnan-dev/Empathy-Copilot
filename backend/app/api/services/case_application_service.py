@@ -36,6 +36,17 @@ from ..schemas.cases import (
 
 
 class CaseApplicationService:
+    _LEGACY_INTEGRATION_EVIDENCE_IDS = frozenset(
+        {
+            "consumer-swelling",
+            "consumer-medical-attention",
+            "order-purchase",
+            "service-ticket",
+            "uploaded-material",
+        }
+    )
+    _LEGACY_OPTIONAL_EVIDENCE_IDS = frozenset({"human-review-required"})
+
     def __init__(
         self,
         workflow: InvestigationWorkflow,
@@ -55,8 +66,13 @@ class CaseApplicationService:
         self.ingredients = IngredientContextChecker()
 
     def ensure_integration_fixture(self) -> None:
-        if not self.checkpoints.exists("S00154"):
-            self.checkpoints.save(s00154_waiting_for_human())
+        fixture = s00154_waiting_for_human()
+        if not self.checkpoints.exists(fixture.case_id):
+            self.checkpoints.save(fixture)
+            return
+        current = self.checkpoints.load(fixture.case_id)
+        if self._is_legacy_integration_fixture(current):
+            self._replace_checkpoint(current, fixture)
 
     def register_official_cases(
         self, dataset: OfficialDataset, case_ids: list[str] | None = None
@@ -66,6 +82,31 @@ class CaseApplicationService:
         for case_id in selected:
             if not self.checkpoints.exists(case_id):
                 self.checkpoints.save(factory.build(dataset, case_id))
+                continue
+            current = self.checkpoints.load(case_id)
+            if self._is_legacy_integration_fixture(current):
+                self._replace_checkpoint(current, factory.build(dataset, case_id))
+
+    @classmethod
+    def _is_legacy_integration_fixture(cls, state: InvestigationState) -> bool:
+        evidence_ids = {item.id for item in state.evidence}
+        return (
+            cls._LEGACY_INTEGRATION_EVIDENCE_IDS <= evidence_ids
+            and evidence_ids
+            <= cls._LEGACY_INTEGRATION_EVIDENCE_IDS | cls._LEGACY_OPTIONAL_EVIDENCE_IDS
+            and not any(item.metadata.get("official_data") is True for item in state.evidence)
+        )
+
+    def _replace_checkpoint(
+        self, current: InvestigationState, replacement: InvestigationState
+    ) -> None:
+        upgraded = replacement.model_copy(
+            update={
+                "state_revision": current.state_revision + 1,
+                "updated_at": datetime.now(UTC),
+            }
+        )
+        self.checkpoints.save(upgraded, expected_revision=current.state_revision)
 
     def get_case(self, case_id: str) -> CaseView:
         return self._project(self.checkpoints.load(case_id))
@@ -166,10 +207,11 @@ class CaseApplicationService:
         if state.state_revision != expected_revision:
             raise StateConflictError(f"case {case_id} no longer has revision {expected_revision}")
         projected = self._project(state)
+        question = projected.response_context.next_best_question
         fallback = (
             "看到您反馈使用后出现面部肿胀，并已就医，"
             "我们会优先按不良反应服务流程继续处理。"
-            "为了准确核对本次情况，想再确认一下，您实际使用的是礼盒中的哪一款产品？"
+            + (f"{question}" if question else "我们会基于现有证据继续核对。")
         )
         return self.model_service.response(
             {

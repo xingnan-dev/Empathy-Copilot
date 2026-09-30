@@ -10,6 +10,9 @@ const RuntimeContext = createContext<RuntimeValue | null>(null)
 function present(view: CaseView): CasePresentation {
   const evidence = view.evidence.map((item) => ({ ...item, timestamp: new Date(item.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) }))
   const openGaps = view.gaps.filter((gap) => gap.status === 'OPEN')
+  const questionGap = openGaps.find((gap) => gap.id === view.response_context.question_resolves_gap)
+  const nextQuestion = view.response_context.next_best_question ?? 'No additional question is required.'
+  const fallbackDraft = `看到您反馈使用后出现面部肿胀，并已就医，我们会优先按不良反应服务流程继续处理。${view.response_context.next_best_question ?? '我们会基于现有证据继续核对。'}`
   const timeline = view.evidence.map((item) => {
     const date = new Date(item.timestamp)
     const type = item.type === 'CONSUMER_REPORTED' ? 'CONSUMER_MESSAGE' : item.type === 'AI_OBSERVATION' ? 'MATERIAL_UPLOAD' : item.provenance.startsWith('Order') ? 'ORDER' : 'SERVICE_RECORD'
@@ -28,7 +31,7 @@ function present(view: CaseView): CasePresentation {
     gaps: openGaps,
     unknowns: openGaps.map((gap) => gap.label),
     activity: view.tool_activity.map((item) => ({ ...item, status: item.status === 'CURRENT' ? 'CURRENT' : 'COMPLETED' })),
-    response: { ...s00154.response, nextBestQuestion: view.response_context.next_best_question ?? s00154.response.nextBestQuestion, questionResolvesGap: view.response_context.question_resolves_gap ?? s00154.response.questionResolvesGap, evidenceUsedIds: view.response_context.evidence_used_ids },
+    response: { ...s00154.response, nextBestQuestion: nextQuestion, questionResolvesGap: view.response_context.question_resolves_gap ?? 'NONE', questionWhy: questionGap?.why ?? 'No unresolved critical gap remains.', drafts: [fallbackDraft], evidenceUsedIds: view.response_context.evidence_used_ids, retainedUncertainty: openGaps.map((gap) => `${gap.label} remains unknown`) },
   }
 }
 

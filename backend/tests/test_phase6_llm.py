@@ -185,6 +185,16 @@ def test_response_generation_and_failure_use_safe_fallback_and_records() -> None
     assert timeout.calls[-1].fallback_used is True
 
 
+def test_case_response_fallback_uses_current_deterministic_nbq() -> None:
+    service, _ = service_with_provider(FakeModelProvider(error="TIMEOUT"))
+
+    draft = service.generate_response_draft("S00154", service.get_case("S00154").revision)
+
+    assert draft.kind == "FALLBACK"
+    assert "第一次使用这款产品的具体日期" in draft.text
+    assert "礼盒中的哪一款产品" not in draft.text
+
+
 def test_token_usage_is_captured_when_provider_returns_it() -> None:
     class UsageProvider(FakeModelProvider):
         def generate_response(self, context: dict[str, object]) -> ModelOutput:

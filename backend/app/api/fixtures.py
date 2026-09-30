@@ -43,6 +43,26 @@ def s00154_waiting_for_human() -> InvestigationState:
     report_time = datetime(2026, 5, 11, 16, 20, tzinfo=UTC)
     evidence = [
         _evidence(
+            "consumer-message",
+            "consumer_message",
+            "你们这产品啥情况！我用了面霜整张脸肿了，今天去医院挂了皮肤科，医生说是接触性皮炎！",
+            EvidenceType.CONSUMER_REPORTED,
+            SourceType.CONSUMER_MESSAGE,
+            "94422222481506.PNM",
+            "Consumer message · S00154",
+            report_time,
+        ),
+        _evidence(
+            "consumer-product-used",
+            "exact_product_used",
+            "面霜",
+            EvidenceType.CONSUMER_REPORTED,
+            SourceType.CONSUMER_MESSAGE,
+            "94422222481506.PNM",
+            "Consumer message · S00154",
+            report_time,
+        ),
+        _evidence(
             "consumer-swelling",
             "reported_facial_swelling",
             "Consumer reports facial swelling after cream use",
