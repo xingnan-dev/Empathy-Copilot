@@ -3,6 +3,14 @@ import type { EvidenceType } from '../demo/cases/S00154'
 export interface ApiEvidence { id: string; fact: string; type: EvidenceType; source: string; provenance: string; timestamp: string }
 export interface ApiGap { id: string; label: string; why: string; resolve: string; status: 'OPEN' | 'RESOLVED' }
 export interface ApiActivity { id: string; label: string; status: string; technical: string }
+export interface ServiceStrategy {
+  consumer_signal: { label: string; source: 'LLM_AUXILIARY' | 'DETERMINISTIC_LANGUAGE_CUE' | 'NONE'; semantic_type: 'AI_INFERENCE' | 'AUXILIARY_SIGNAL' }
+  communication: string[]
+  investigation: string[]
+  human_attention: 'NORMAL_HANDLING' | 'PRIORITY_REVIEW' | 'SAFETY_ESCALATION'
+  critical_gap?: string
+  next_question?: string
+}
 export interface CaseView {
   case_id: string
   consumer: string
@@ -29,6 +37,7 @@ export interface CaseView {
   safety_gate?: 'NORMAL' | 'INVESTIGATION' | 'SAFETY'
   ingredient_context?: Record<string, unknown>[]
   why_sources?: Record<string, unknown>[]
+  service_strategy: ServiceStrategy
 }
 
 export interface ApiError { code: string; message: string }

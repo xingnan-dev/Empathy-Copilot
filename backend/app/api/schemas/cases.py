@@ -5,6 +5,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from backend.app.domain.service_strategy import ServiceStrategy
+
 
 class EvidenceView(BaseModel):
     id: str
@@ -84,6 +86,7 @@ class CaseView(BaseModel):
     safety_gate: str = "NORMAL"
     ingredient_context: list[dict[str, Any]] = Field(default_factory=list)
     why_sources: list[dict[str, Any]] = Field(default_factory=list)
+    service_strategy: ServiceStrategy
 
 
 class HumanApprovalRequest(BaseModel):

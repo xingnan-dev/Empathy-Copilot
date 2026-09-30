@@ -10,6 +10,7 @@ from backend.app.domain.evidence import Evidence, EvidenceType, SourceType
 from backend.app.domain.gaps import GapType, evaluate_p0_gaps, evaluate_scenario_gaps
 from backend.app.domain.regimen import build_regimen_changes
 from backend.app.domain.safety import SafetyGateService
+from backend.app.domain.service_strategy import ServiceStrategyPolicy
 from backend.app.knowledge import IngredientContextChecker, KnowledgeItem, LocalKnowledgeRetriever
 from backend.app.llm.provider import ModelProviderError
 from backend.app.llm.schemas import GeneratedDraft
@@ -50,6 +51,7 @@ class CaseApplicationService:
         self.vision_service = vision_service
         self.knowledge = LocalKnowledgeRetriever()
         self.safety = SafetyGateService()
+        self.service_strategy = ServiceStrategyPolicy()
         self.ingredients = IngredientContextChecker()
 
     def ensure_integration_fixture(self) -> None:
@@ -130,9 +132,11 @@ class CaseApplicationService:
             },
         )
         if not evidence:
-            return self._project(current)
+            return self._project(current, emotion=emotion)
         if current.status is AgentStatus.WAITING_FOR_USER:
-            return self._project(self.workflow.resume_with_evidence(current, evidence))
+            return self._project(
+                self.workflow.resume_with_evidence(current, evidence), emotion=emotion
+            )
         all_evidence = [*current.evidence, *evidence]
         gaps = (
             evaluate_scenario_gaps(case_id, current.scenario, all_evidence)
@@ -151,7 +155,7 @@ class CaseApplicationService:
             },
         )
         result = self.workflow.run(resumed, expected_revision=current.state_revision)
-        projected = self._project(result)
+        projected = self._project(result, emotion=emotion)
         projected.context_passport["model_signals"] = {"intent": intent, "emotion": emotion}
         return projected
 
@@ -287,7 +291,7 @@ class CaseApplicationService:
         self.checkpoints.save(reviewed, expected_revision=expected_revision)
         return self._project(reviewed)
 
-    def _project(self, state: InvestigationState) -> CaseView:
+    def _project(self, state: InvestigationState, *, emotion: str | None = None) -> CaseView:
         primary_product = next(
             (
                 item.value.get("product_id")
@@ -309,6 +313,13 @@ class CaseApplicationService:
         projected_gaps = self._presentation_gaps(state)
         question_gap, next_question = self._next_question(projected_gaps, state.next_question)
         safety = self.safety.assess(state)
+        service_strategy = self.service_strategy.project(
+            state,
+            safety=safety,
+            critical_gap=question_gap,
+            next_question=next_question,
+            emotion=emotion,
+        )
         knowledge_query = {
             "ADVERSE_REACTION": "adverse reaction safety swelling medical attention",
             "PRODUCT_DAMAGE": "damaged product policy visible damage eligibility",
@@ -387,6 +398,7 @@ class CaseApplicationService:
             safety_gate=safety.gate.value,
             ingredient_context=self._ingredient_context(state),
             why_sources=self._why_sources(state, knowledge),
+            service_strategy=service_strategy,
         )
 
     def _ingredient_context(self, state: InvestigationState) -> list[dict[str, object]]:

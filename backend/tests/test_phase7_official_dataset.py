@@ -102,6 +102,15 @@ def test_s00154_preserves_usage_and_attribution_boundaries(
     assert "礼盒中的哪一款产品" not in str(projected.response_context.next_best_question)
     assert projected.attribution_status == "INSUFFICIENT_EVIDENCE"
     assert projected.safety_gate == "SAFETY"
+    assert projected.service_strategy.consumer_signal.label == (
+        "Language suggests urgency or distress."
+    )
+    assert projected.service_strategy.consumer_signal.semantic_type == "AI_INFERENCE"
+    assert projected.service_strategy.human_attention.value == "SAFETY_ESCALATION"
+    assert projected.service_strategy.critical_gap == "ACTUAL_FIRST_USE_TIME"
+    assert projected.service_strategy.next_question == (
+        "想再确认一下，您第一次使用这款产品的具体日期是什么时候？"
+    )
 
 
 def test_explicit_product_use_grounding_is_general_and_conservative() -> None:
