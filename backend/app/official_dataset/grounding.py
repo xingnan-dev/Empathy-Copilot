@@ -1,5 +1,6 @@
 """Ground normalized official records without leaking Excel columns into the domain."""
 
+import re
 from datetime import UTC, datetime
 from typing import Any
 
@@ -7,6 +8,27 @@ from backend.app.domain.evidence import Evidence, EvidenceType, SourceType
 from backend.app.domain.scenarios import InvestigationScenario
 
 from .models import MessageRecord, OfficialDataset, OfficialOrderRecord, OfficialServiceRecord
+
+EXPLICIT_USE_PATTERN = re.compile(r"(?:使用了?|用了|用过|涂了|擦了)")
+USE_CLAUSE_END_PATTERN = re.compile(
+    r"[，,。！!？?；;]|之后|以后|后|整张|全脸|脸上|面部|眼周|出现|开始|感觉|觉得|发红|红肿|刺痛|肿|痒|不适"
+)
+BEAUTY_PRODUCT_LABELS = (
+    "护发精油",
+    "粉底液",
+    "洁面乳",
+    "洗面奶",
+    "爽肤水",
+    "精华液",
+    "防晒霜",
+    "面霜",
+    "眼霜",
+    "乳液",
+    "面膜",
+    "精华",
+    "唇釉",
+    "口红",
+)
 
 
 class OfficialEvidenceGroundingService:
@@ -127,6 +149,20 @@ class OfficialEvidenceGroundingService:
         ]
         text = record.text
         if scenario is InvestigationScenario.ADVERSE_REACTION:
+            for index, product_label in enumerate(self._explicitly_used_products(text), start=1):
+                usage_base = dict(base)
+                usage_base["metadata"] = {
+                    "supporting_excerpt": record.text,
+                    "extracted_label": product_label,
+                }
+                items.append(
+                    self._base(
+                        evidence_id=f"official-product-used-{record.message_id}-{index}",
+                        key="exact_product_used",
+                        value=product_label,
+                        **usage_base,
+                    )
+                )
             if any(term in text for term in ("肿", "红肿", "刺痛", "不适")):
                 items.append(
                     self._base(
@@ -193,6 +229,24 @@ class OfficialEvidenceGroundingService:
                     )
                 )
         return items
+
+    @staticmethod
+    def _explicitly_used_products(text: str) -> list[str]:
+        """Return only beauty product labels inside an explicit consumer usage clause."""
+
+        match = EXPLICIT_USE_PATTERN.search(text)
+        if match is None:
+            return []
+        usage_clause = text[match.end() :]
+        clause_end = USE_CLAUSE_END_PATTERN.search(usage_clause)
+        if clause_end is not None:
+            usage_clause = usage_clause[: clause_end.start()]
+        matches = [label for label in BEAUTY_PRODUCT_LABELS if label in usage_clause]
+        return [
+            label
+            for label in matches
+            if not any(label != other and label in other for other in matches)
+        ]
 
     def _image_metadata(self, record: MessageRecord) -> Evidence:
         return self._base(

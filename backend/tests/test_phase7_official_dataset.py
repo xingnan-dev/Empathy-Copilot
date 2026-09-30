@@ -1,4 +1,5 @@
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -24,7 +25,8 @@ from backend.app.official_dataset.adapter import (
     OfficialDatasetValidationError,
 )
 from backend.app.official_dataset.cases import OfficialCaseFactory
-from backend.app.official_dataset.models import OfficialDataset
+from backend.app.official_dataset.grounding import OfficialEvidenceGroundingService
+from backend.app.official_dataset.models import MessageRecord, OfficialDataset
 from backend.app.services.checkpoints import InMemoryCheckpointStore
 from backend.app.services.tools import ToolRegistry
 
@@ -70,9 +72,18 @@ def test_s00154_preserves_usage_and_attribution_boundaries(
 ) -> None:
     state = OfficialCaseFactory().build(official_dataset, "S00154")
     assert state.scenario is InvestigationScenario.ADVERSE_REACTION
-    assert _gap(state, GapType.EXACT_PRODUCT_USED).status is GapStatus.OPEN
+    assert _gap(state, GapType.EXACT_PRODUCT_USED).status is GapStatus.RESOLVED
     assert _gap(state, GapType.MEDICAL_ATTENTION_STATUS).status is GapStatus.RESOLVED
-    assert all(item.key != "exact_product_used" for item in state.evidence)
+    used_product = next(item for item in state.evidence if item.key == "exact_product_used")
+    assert used_product.value == "面霜"
+    assert used_product.evidence_type is EvidenceType.CONSUMER_REPORTED
+    assert used_product.source.source_id == "94422222481506.PNM"
+    assert used_product.source.source_type.value == "CONSUMER_MESSAGE"
+    assert not any(
+        item.key == "exact_product_used"
+        and item.evidence_type is EvidenceType.VERIFIED_BUSINESS_FACT
+        for item in state.evidence
+    )
     medical = [item for item in state.evidence if item.key == "reported_medical_attention"]
     assert medical
     assert all(item.evidence_type is EvidenceType.CONSUMER_REPORTED for item in medical)
@@ -81,6 +92,46 @@ def test_s00154_preserves_usage_and_attribution_boundaries(
         assess_attribution(state, "XL19805", []).decision
         is AttributionDecision.INSUFFICIENT_EVIDENCE
     )
+
+    checkpoints = InMemoryCheckpointStore()
+    checkpoints.save(state)
+    projected = CaseApplicationService(
+        InvestigationWorkflow(checkpoint_store=checkpoints), checkpoints
+    ).get_case("S00154")
+    assert projected.response_context.question_resolves_gap == "ACTUAL_FIRST_USE_TIME"
+    assert "礼盒中的哪一款产品" not in str(projected.response_context.next_best_question)
+    assert projected.attribution_status == "INSUFFICIENT_EVIDENCE"
+    assert projected.safety_gate == "SAFETY"
+
+
+def test_explicit_product_use_grounding_is_general_and_conservative() -> None:
+    grounding = OfficialEvidenceGroundingService()
+    explicit = MessageRecord(
+        message_id="MESSAGE-USE",
+        session_id="ARBITRARY-CASE",
+        sequence=1,
+        sent_at=datetime(2026, 5, 1, tzinfo=UTC),
+        consumer_id="CONSUMER",
+        role="买家",
+        sender="CONSUMER",
+        text="昨晚我用了面霜，后来觉得有点刺痛",
+        content_type="文本",
+    )
+    evidence = grounding._message(explicit, InvestigationScenario.ADVERSE_REACTION)
+    used_product = next(item for item in evidence if item.key == "exact_product_used")
+    assert used_product.case_id == "ARBITRARY-CASE"
+    assert used_product.value == "面霜"
+    assert used_product.evidence_type is EvidenceType.CONSUMER_REPORTED
+    assert used_product.source.source_id == "MESSAGE-USE"
+
+    not_usage = explicit.model_copy(
+        update={
+            "message_id": "MESSAGE-PURCHASE",
+            "text": "我买的是面霜和精华礼盒，还没开始用",
+        }
+    )
+    purchase_evidence = grounding._message(not_usage, InvestigationScenario.ADVERSE_REACTION)
+    assert all(item.key != "exact_product_used" for item in purchase_evidence)
 
 
 @pytest.mark.official_dataset
