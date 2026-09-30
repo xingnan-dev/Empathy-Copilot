@@ -20,8 +20,8 @@ Resonique is an evidence-aware, stateful investigation agent for beauty-service 
 
 - **Version:** V1.0 Technical Freeze
 - **Phase:** Phase 10.2 — Competition PPT & Storytelling
-- **Main HEAD:** `fb534f6b5f56cf611407a4f5a24bba02950f215a`
-- **Technical development:** COMPLETE / FROZEN
+- **Frozen technical baseline:** `44073aca8077e46e187bb4eb7d4f8370a8452c8c`
+- **Technical development:** COMPLETE / PERMANENTLY FROZEN
 
 ## Core innovations
 
@@ -53,9 +53,13 @@ Resonique is an evidence-aware, stateful investigation agent for beauty-service 
 
 Phases 0–9 established and validated the evidence/provenance domain, deterministic safety boundaries, stateful LangGraph investigation, business grounding, durable persistence, API and accepted UI, Qwen integration, official competition data, multimodal handling, and evaluation/optimization. Phase 10.1 completed competition delivery readiness and froze accepted product behavior.
 
+Competition Hotfix 1 is complete. Explicit consumer-reported product usage is grounded as `CONSUMER_REPORTED`; for S00154, `exact_product_used = 面霜` and the deterministic NBQ advances to `ACTUAL_FIRST_USE_TIME`.
+
+Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStrategyPolicy` implements **Consumer Signal → Service Strategy → Action**. Emotion remains an auxiliary `AI_INFERENCE`; it does not change Evidence, Attribution, Safety, Agent routing, or human-approval requirements. No new LLM call was added.
+
 ## Current restrictions
 
-- No new product features or unrelated technical phases.
+- No further feature work unless a blocking competition demo defect is discovered.
 - Only fix demo blockers, critical bugs, or deployment blockers.
 - Do not redesign the accepted UI.
 - Do not modify `ui-prototype/` unless explicitly instructed.
@@ -63,7 +67,7 @@ Phases 0–9 established and validated the evidence/provenance domain, determini
 
 ## Current work
 
-- Competition PPT and storytelling
+- **Next phase:** Phase 10.2 — Competition PPT & Storytelling
 - Demo video preparation
 - Final submission audit
 
