@@ -5,6 +5,30 @@ import { useCaseRuntime } from '../runtime/CaseRuntime'
 
 const contacts = ['蒋a**', '林c**', '周e**', '杨c**']
 
+type OfficialMessageRole = '买家' | '客服'
+
+interface HostMessage {
+  id: string
+  role: OfficialMessageRole
+  sender: string
+  contentType: '文本' | '图片'
+  content: string
+  time: string
+  compact?: boolean
+}
+
+const hostMessages: HostMessage[] = [
+  { id: '94422222481506.PNM', role: '买家', sender: '蒋a**', contentType: '文本', content: '你们这产品啥情况！我用了面霜整张脸肿了，今天去医院挂了皮肤科……', time: '16:20' },
+  { id: '26089175581339.PNM', role: '客服', sender: '测试美妆旗舰店:薇薇', contentType: '文本', content: '非常抱歉，您的情况我们高度重视。请先遵医嘱治疗，方便的话请上传相关材料……', time: '16:21' },
+  { id: '25581855302692.PNM', role: '买家', sender: '蒋a**', contentType: '图片', content: 'Medical material uploaded', time: '16:21' },
+  { id: '25330006295860.PNM', role: '客服', sender: '测试美妆旗舰店:薇薇', contentType: '文本', content: '资料已收到，正在为您升级至专项处理。', time: '16:22', compact: true },
+]
+
+function messageClassName(message: HostMessage) {
+  if (message.contentType === '图片') return 'message message--attachment message--centered'
+  return `message ${message.role === '买家' ? 'message--consumer' : 'message--agent'}${message.compact ? ' message--compact' : ''}`
+}
+
 export function DemoHostShell() {
   const { ingestMessage, processingMessage } = useCaseRuntime()
   const [message, setMessage] = useState('')
@@ -25,11 +49,9 @@ export function DemoHostShell() {
           <section className="host-product"><div><ShoppingBag size={18} /></div><span><small>Current order</small><strong>Firming Gift Set</strong><em>¥1,398</em></span></section>
           <div className="service-context"><span>Service context</span><i />Adverse-reaction case linked<i />Order verified</div>
           <div className="host-date">11 May 2026</div>
-          <div className="message message--consumer"><p>你们这产品啥情况！我用了面霜整张脸肿了，今天去医院挂了皮肤科……</p><time>16:20</time></div>
-          <div className="message message--agent"><p>非常抱歉，您的情况我们高度重视。请先遵医嘱治疗，方便的话请上传相关材料……</p><time>16:21</time></div>
-          <div className="message message--consumer message--attachment"><span><MessageSquareText size={18} /></span><div><strong>Medical material uploaded</strong><small>Image attachment · consumer provided</small></div></div>
+          {hostMessages.slice(0, 3).map((item) => <div className={messageClassName(item)} data-message-id={item.id} data-role={item.role} data-sender={item.sender} key={item.id}>{item.contentType === '图片' ? <><span><MessageSquareText size={18} /></span><div><strong>{item.content}</strong><small>Image attachment · consumer provided</small></div></> : <><p>{item.content}</p><time>{item.time}</time></>}</div>)}
           <div className="host-event"><i /><span>Service record linked to this conversation</span><time>16:22</time></div>
-          <div className="message message--agent message--compact"><p>资料已收到，正在为您升级至专项处理。</p><time>16:22</time></div>
+          {hostMessages.slice(3).map((item) => <div className={messageClassName(item)} data-message-id={item.id} data-role={item.role} data-sender={item.sender} key={item.id}><p>{item.content}</p><time>{item.time}</time></div>)}
           {sentMessage && <div className="message message--consumer"><p>{sentMessage}</p><time>Now</time></div>}
           {messageError && <div className="host-event"><i /><span>{messageError}</span><time>Now</time></div>}
           <div className="host-composer"><input aria-label="Consumer message" value={message} onChange={(event) => setMessage(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void send() }} placeholder="Consumer message for understanding…" /><button type="button" disabled={processingMessage} onClick={() => void send()}>{processingMessage ? 'Reading…' : 'Send'}</button></div>
