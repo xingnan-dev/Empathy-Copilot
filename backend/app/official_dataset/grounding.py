@@ -32,11 +32,42 @@ BEAUTY_PRODUCT_LABELS = (
 
 
 class OfficialEvidenceGroundingService:
-    def ground_case(self, dataset: OfficialDataset, session_id: str) -> list[Evidence]:
+    def ground_case(
+        self,
+        dataset: OfficialDataset,
+        session_id: str,
+        *,
+        message_sequence_cutoff: int | None = None,
+    ) -> list[Evidence]:
         session = dataset.session(session_id)
-        messages = [item for item in dataset.messages if item.session_id == session_id]
-        orders = [item for item in dataset.orders if item.session_id == session_id]
-        records = [item for item in dataset.service_records if item.session_id == session_id]
+        session_messages = sorted(
+            (item for item in dataset.messages if item.session_id == session_id),
+            key=lambda item: item.sequence,
+        )
+        if message_sequence_cutoff is not None:
+            if message_sequence_cutoff < 1:
+                raise ValueError("message_sequence_cutoff must be positive")
+            messages = [
+                item for item in session_messages if item.sequence <= message_sequence_cutoff
+            ]
+            if not messages:
+                raise ValueError(
+                    f"message_sequence_cutoff precedes all messages for session {session_id}"
+                )
+            as_of = messages[-1].sent_at
+        else:
+            messages = session_messages
+            as_of = None
+        orders = [
+            item
+            for item in dataset.orders
+            if item.session_id == session_id and (as_of is None or item.ordered_at <= as_of)
+        ]
+        records = [
+            item
+            for item in dataset.service_records
+            if item.session_id == session_id and self._available_as_of(item, as_of)
+        ]
         evidence: list[Evidence | list[Evidence]] = [
             self._order_match(item, session_id) for item in orders
         ]
@@ -49,11 +80,35 @@ class OfficialEvidenceGroundingService:
             item
             for item in dataset.service_records
             if item.consumer_id == session.consumer_id and item.session_id != session_id
+            and self._available_as_of(item, as_of)
         ]
         evidence.extend(self._previous_service(item, session_id) for item in previous)
-        return [
+        grounded = [
             item for group in evidence for item in (group if isinstance(group, list) else [group])
         ]
+        if message_sequence_cutoff is None:
+            return grounded
+        assert as_of is not None
+        return [
+            item.model_copy(
+                update={
+                    "metadata": {
+                        **item.metadata,
+                        "official_message_sequence_cutoff": message_sequence_cutoff,
+                        "official_as_of": as_of.isoformat(),
+                    }
+                }
+            )
+            for item in grounded
+        ]
+
+    @staticmethod
+    def _available_as_of(record: OfficialServiceRecord, as_of: datetime | None) -> bool:
+        if as_of is None:
+            return True
+        return record.created_at <= as_of and (
+            record.completed_at is None or record.completed_at <= as_of
+        )
 
     @staticmethod
     def _base(

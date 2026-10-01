@@ -28,6 +28,7 @@ services:
       VISION_PROVIDER: ${VISION_PROVIDER:-}
       VISION_MODEL: ${VISION_MODEL:-}
       OFFICIAL_DATASET_PATH: ${OFFICIAL_DATASET_PATH:-}
+      OFFICIAL_CASE_MESSAGE_SEQUENCE_CUTOFFS: ${OFFICIAL_CASE_MESSAGE_SEQUENCE_CUTOFFS:-S00154=4}
     depends_on:
       postgres:
         condition: service_healthy

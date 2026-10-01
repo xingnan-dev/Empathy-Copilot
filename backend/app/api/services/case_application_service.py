@@ -1,5 +1,6 @@
 """Thin application boundary between HTTP events and the authoritative agent state."""
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from uuid import uuid4
 
@@ -75,17 +76,41 @@ class CaseApplicationService:
             self._replace_checkpoint(current, fixture)
 
     def register_official_cases(
-        self, dataset: OfficialDataset, case_ids: list[str] | None = None
+        self,
+        dataset: OfficialDataset,
+        case_ids: list[str] | None = None,
+        *,
+        message_sequence_cutoffs: Mapping[str, int] | None = None,
     ) -> None:
         factory = OfficialCaseFactory()
+        cutoffs = message_sequence_cutoffs or {}
         selected = case_ids or [item.session_id for item in dataset.sessions if item.scenario]
         for case_id in selected:
+            cutoff = cutoffs.get(case_id)
+            replacement = factory.build(
+                dataset,
+                case_id,
+                message_sequence_cutoff=cutoff,
+            )
             if not self.checkpoints.exists(case_id):
-                self.checkpoints.save(factory.build(dataset, case_id))
+                self.checkpoints.save(replacement)
                 continue
             current = self.checkpoints.load(case_id)
-            if self._is_legacy_integration_fixture(current):
-                self._replace_checkpoint(current, factory.build(dataset, case_id))
+            if self._is_legacy_integration_fixture(current) or (
+                cutoff is not None
+                and self._official_message_sequence_cutoff(current) != cutoff
+            ):
+                self._replace_checkpoint(current, replacement)
+
+    @staticmethod
+    def _official_message_sequence_cutoff(state: InvestigationState) -> int | None:
+        values = {
+            value
+            for item in state.evidence
+            if (value := item.metadata.get("official_message_sequence_cutoff")) is not None
+            and isinstance(value, int)
+        }
+        return next(iter(values)) if len(values) == 1 else None
 
     @classmethod
     def _is_legacy_integration_fixture(cls, state: InvestigationState) -> bool:

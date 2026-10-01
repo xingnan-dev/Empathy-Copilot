@@ -16,11 +16,21 @@ class OfficialCaseFactory:
         self.transitions = StateTransitionService()
         self.memory = ConsumerMemoryService()
 
-    def build(self, dataset: OfficialDataset, session_id: str) -> InvestigationState:
+    def build(
+        self,
+        dataset: OfficialDataset,
+        session_id: str,
+        *,
+        message_sequence_cutoff: int | None = None,
+    ) -> InvestigationState:
         session = dataset.session(session_id)
         if session.scenario is None:
             raise ValueError(f"unsupported official scene: {session.scene_major}")
-        evidence = self.grounding.ground_case(dataset, session_id)
+        evidence = self.grounding.ground_case(
+            dataset,
+            session_id,
+            message_sequence_cutoff=message_sequence_cutoff,
+        )
         state = InvestigationState(
             case_id=session_id,
             consumer_id=session.consumer_id,

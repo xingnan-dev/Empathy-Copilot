@@ -27,13 +27,23 @@ from backend.app.domain.gaps import (
 )
 from backend.app.domain.regimen import build_regimen_changes
 from backend.app.domain.scenarios import InvestigationScenario
+from backend.app.llm.providers.fake import FakeModelProvider
+from backend.app.llm.schemas import ModelOutput
+from backend.app.llm.service import ModelService
 from backend.app.official_dataset.adapter import (
     OfficialDatasetAdapter,
     OfficialDatasetValidationError,
 )
 from backend.app.official_dataset.cases import OfficialCaseFactory
 from backend.app.official_dataset.grounding import OfficialEvidenceGroundingService
-from backend.app.official_dataset.models import MessageRecord, OfficialDataset
+from backend.app.official_dataset.models import (
+    ConversationSession,
+    MessageRecord,
+    OfficialConsumerRecord,
+    OfficialDataset,
+    OfficialOrderRecord,
+    OfficialServiceRecord,
+)
 from backend.app.services.checkpoints import InMemoryCheckpointStore
 from backend.app.services.tools import ToolRegistry
 
@@ -48,6 +58,84 @@ def official_dataset() -> OfficialDataset:
 
 def _gap(state: InvestigationState, gap_type: GapType) -> EvidenceGap:
     return next(item for item in state.evidence_gaps if item.gap_type is gap_type)
+
+
+def _temporal_dataset() -> OfficialDataset:
+    before = datetime(2026, 5, 1, 10, 0)
+    after = datetime(2026, 5, 1, 10, 5)
+    return OfficialDataset(
+        consumers=[OfficialConsumerRecord(consumer_id="CONSUMER")],
+        sessions=[
+            ConversationSession(
+                session_id="TEMPORAL-CASE",
+                consumer_id="CONSUMER",
+                shop="SHOP",
+                scene_major="不良反应",
+                scene_minor="红肿",
+                scenario=InvestigationScenario.ADVERSE_REACTION,
+                started_at=before,
+                order_ids=["ORDER"],
+                ticket_ids=["SERVICE"],
+            )
+        ],
+        messages=[
+            MessageRecord(
+                message_id="VISIBLE-MESSAGE",
+                session_id="TEMPORAL-CASE",
+                sequence=1,
+                sent_at=before,
+                consumer_id="CONSUMER",
+                role="买家",
+                sender="CONSUMER",
+                text="我用了面霜，脸部肿了，已经就医。",
+                content_type="文本",
+                order_id="ORDER",
+            ),
+            MessageRecord(
+                message_id="FUTURE-IMAGE-MESSAGE",
+                session_id="TEMPORAL-CASE",
+                sequence=2,
+                sent_at=after,
+                consumer_id="CONSUMER",
+                role="买家",
+                sender="CONSUMER",
+                text="材料在这里，请快点处理。",
+                content_type="图片",
+                image_path="future.jpg",
+                order_id="ORDER",
+                ticket_id="SERVICE",
+            ),
+        ],
+        orders=[
+            OfficialOrderRecord(
+                order_id="ORDER",
+                session_id="TEMPORAL-CASE",
+                consumer_id="CONSUMER",
+                product_id="SET",
+                product_name="Gift Set",
+                quantity=1,
+                unit_price=100,
+                paid_amount=100,
+                order_status="完成",
+                ordered_at=datetime(2026, 4, 1, 10, 0),
+                paid_at=datetime(2026, 4, 1, 10, 1),
+            )
+        ],
+        service_records=[
+            OfficialServiceRecord(
+                service_record_id="FUTURE-SERVICE",
+                source_kind="不良反应工单",
+                session_id="TEMPORAL-CASE",
+                order_id="ORDER",
+                consumer_id="CONSUMER",
+                issue_type="不良反应",
+                status="已完结",
+                created_at=after,
+                completed_at=after,
+                details={"症状描述": "未来记录", "是否就医": "是"},
+            )
+        ],
+    )
 
 
 @pytest.mark.official_dataset
@@ -150,6 +238,131 @@ def test_explicit_product_use_grounding_is_general_and_conservative() -> None:
     assert all(item.key != "exact_product_used" for item in purchase_evidence)
 
 
+def test_temporal_cutoff_excludes_future_messages_images_and_service_records() -> None:
+    evidence = OfficialEvidenceGroundingService().ground_case(
+        _temporal_dataset(),
+        "TEMPORAL-CASE",
+        message_sequence_cutoff=1,
+    )
+
+    source_ids = {item.source.source_id for item in evidence}
+    assert "VISIBLE-MESSAGE" in source_ids
+    assert "FUTURE-IMAGE-MESSAGE" not in source_ids
+    assert "FUTURE-SERVICE" not in source_ids
+    assert not any(item.key == "image_reference" for item in evidence)
+    assert all(item.metadata["official_message_sequence_cutoff"] == 1 for item in evidence)
+
+
+def test_temporal_cutoff_is_shared_by_passport_strategy_and_response_context() -> None:
+    class CapturingProvider(FakeModelProvider):
+        def __init__(self) -> None:
+            super().__init__(response="已记录您反馈的面部肿胀情况，我们会继续核对。")
+            self.response_context: dict[str, object] | None = None
+
+        def generate_response(self, context: dict[str, object]) -> ModelOutput:
+            self.response_context = context
+            return super().generate_response(context)
+
+    state = OfficialCaseFactory().build(
+        _temporal_dataset(),
+        "TEMPORAL-CASE",
+        message_sequence_cutoff=1,
+    )
+    checkpoints = InMemoryCheckpointStore()
+    checkpoints.save(state)
+    provider = CapturingProvider()
+    service = CaseApplicationService(
+        InvestigationWorkflow(checkpoint_store=checkpoints),
+        checkpoints,
+        ModelService(provider),
+    )
+
+    projected = service.get_case("TEMPORAL-CASE")
+    confirmed_ids = {
+        evidence_id
+        for fact in projected.context_passport["confirmed_facts"]
+        for evidence_id in fact["evidence_ids"]
+    }
+    future_ids = {
+        "official-message-FUTURE-IMAGE-MESSAGE",
+        "official-image-FUTURE-IMAGE-MESSAGE",
+        "official-service-status-FUTURE-SERVICE",
+    }
+    assert confirmed_ids.isdisjoint(future_ids)
+    assert set(projected.response_context.evidence_used_ids).isdisjoint(future_ids)
+    assert projected.service_strategy.consumer_signal.label == (
+        "No explicit emotion signal available."
+    )
+
+    service.generate_response_draft("TEMPORAL-CASE", projected.revision)
+    assert provider.response_context is not None
+    response_evidence = provider.response_context["evidence"]
+    assert isinstance(response_evidence, list)
+    assert all(
+        "快点" not in str(item) and "未来记录" not in str(item)
+        for item in response_evidence
+    )
+
+
+@pytest.mark.official_dataset
+def test_s00154_initial_snapshot_excludes_future_official_records(
+    official_dataset: OfficialDataset,
+) -> None:
+    state = OfficialCaseFactory().build(
+        official_dataset,
+        "S00154",
+        message_sequence_cutoff=4,
+    )
+    source_ids = {item.source.source_id for item in state.evidence}
+    future_message_ids = {
+        item.message_id
+        for item in official_dataset.messages
+        if item.session_id == "S00154" and item.sequence > 4 and item.role == "买家"
+    }
+    future_service_ids = {
+        item.service_record_id
+        for item in official_dataset.service_records
+        if item.session_id == "S00154"
+    }
+    assert {
+        item.sent_at.strftime("%H:%M:%S")
+        for item in official_dataset.messages
+        if item.session_id == "S00154" and item.sequence in {5, 7, 9}
+    } == {"16:22:33", "16:26:18", "16:29:13"}
+    assert {
+        item.created_at.strftime("%H:%M:%S")
+        for item in official_dataset.service_records
+        if item.session_id == "S00154"
+    } == {"16:49:30"}
+    assert "94422222481506.PNM" in source_ids
+    assert source_ids.isdisjoint(future_message_ids)
+    assert source_ids.isdisjoint(future_service_ids)
+    used_product = next(item for item in state.evidence if item.key == "exact_product_used")
+    assert used_product.value == "面霜"
+    assert used_product.evidence_type is EvidenceType.CONSUMER_REPORTED
+    assert any(item.key == "reported_severity" for item in state.evidence)
+    assert any(item.key == "reported_medical_attention" for item in state.evidence)
+
+    checkpoints = InMemoryCheckpointStore()
+    checkpoints.save(state)
+    projected = CaseApplicationService(
+        InvestigationWorkflow(checkpoint_store=checkpoints), checkpoints
+    ).get_case("S00154")
+    assert projected.lifecycle == "WAITING_FOR_HUMAN"
+    assert projected.human_checkpoint.state == "REQUIRED"
+    assert projected.human_checkpoint.can_approve is True
+    assert next(gap for gap in projected.gaps if gap.id == "EXACT_PRODUCT_USED").status == (
+        "RESOLVED"
+    )
+    assert projected.response_context.question_resolves_gap == "ACTUAL_FIRST_USE_TIME"
+    assert projected.response_context.next_best_question == (
+        "想再确认一下，您第一次使用这款产品的具体日期是什么时候？"
+    )
+    assert projected.safety_gate == "SAFETY"
+    assert projected.safety_path == "ESCALATION"
+    assert projected.attribution_status == "INSUFFICIENT_EVIDENCE"
+
+
 @pytest.mark.official_dataset
 def test_official_registration_upgrades_only_the_legacy_integration_fixture(
     official_dataset: OfficialDataset,
@@ -183,6 +396,33 @@ def test_official_registration_upgrades_only_the_legacy_integration_fixture(
         "RESOLVED"
     )
     assert any(item.fact == "面霜" for item in projected.evidence)
+
+
+@pytest.mark.official_dataset
+def test_official_registration_replaces_an_uncut_initial_snapshot(
+    official_dataset: OfficialDataset,
+) -> None:
+    complete = OfficialCaseFactory().build(official_dataset, "S00154")
+    checkpoints = InMemoryCheckpointStore()
+    checkpoints.save(complete)
+    service = CaseApplicationService(
+        InvestigationWorkflow(checkpoint_store=checkpoints), checkpoints
+    )
+
+    service.register_official_cases(
+        official_dataset,
+        ["S00154"],
+        message_sequence_cutoffs={"S00154": 4},
+    )
+
+    refreshed = checkpoints.load("S00154")
+    assert refreshed.state_revision == complete.state_revision + 1
+    assert {
+        item.metadata.get("official_message_sequence_cutoff") for item in refreshed.evidence
+    } == {4}
+    assert all(
+        item.source.source_id != "BLFY27898314" for item in refreshed.evidence
+    )
 
 
 @pytest.mark.official_dataset

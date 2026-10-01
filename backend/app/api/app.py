@@ -27,6 +27,19 @@ from .schemas.cases import ErrorView
 from .services.case_application_service import CaseApplicationService
 
 
+def _official_message_sequence_cutoffs() -> dict[str, int]:
+    raw = os.getenv("OFFICIAL_CASE_MESSAGE_SEQUENCE_CUTOFFS", "").strip()
+    if not raw:
+        return {}
+    cutoffs: dict[str, int] = {}
+    for entry in raw.split(","):
+        case_id, separator, sequence = entry.strip().partition("=")
+        if not separator or not case_id or not sequence.isdigit() or int(sequence) < 1:
+            raise ValueError("invalid OFFICIAL_CASE_MESSAGE_SEQUENCE_CUTOFFS")
+        cutoffs[case_id] = int(sequence)
+    return cutoffs
+
+
 def build_runtime_service() -> CaseApplicationService:
     engine = create_database_engine(DatabaseSettings.from_environment())
     sessions = create_session_factory(engine)
@@ -58,7 +71,10 @@ def build_runtime_service() -> CaseApplicationService:
     if official_path:
         official = OfficialDatasetAdapter().read(official_path)
         OfficialDatasetImporter().import_dataset(official, sessions)
-        service.register_official_cases(official)
+        service.register_official_cases(
+            official,
+            message_sequence_cutoffs=_official_message_sequence_cutoffs(),
+        )
     service.ensure_integration_fixture()
     return service
 
