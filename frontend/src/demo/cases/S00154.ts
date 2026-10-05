@@ -55,7 +55,6 @@ export const s00154 = {
     'Medical attention reported',
     'Consumer reports facial swelling',
     'Medical material uploaded',
-    'Adverse-reaction service case exists',
   ],
   evidence: [
     {
@@ -89,14 +88,6 @@ export const s00154 = {
       source: 'Order system',
       timestamp: '27 Apr · 07:24',
       provenance: 'Order 6920073444593979097',
-    },
-    {
-      id: 'service-ticket',
-      fact: 'Adverse-reaction service case exists',
-      type: 'VERIFIED_BUSINESS_FACT',
-      source: 'Service record',
-      timestamp: '11 May · 16:49',
-      provenance: 'Ticket BLFY27898314',
     },
     {
       id: 'uploaded-material',
@@ -160,20 +151,10 @@ export const s00154 = {
       detail: 'The upload is observed. Its medical contents are not verified by the system.',
       source: 'Message 25581855302692.PNM',
     },
-    {
-      id: 'service-record',
-      date: '11 May 2026',
-      time: '16:49',
-      type: 'SERVICE_RECORD',
-      title: 'Adverse-reaction service case recorded',
-      detail: 'Relevant service handling record exists.',
-      source: 'Ticket BLFY27898314',
-    },
   ] satisfies TimelineRecord[],
   activity: [
     { id: 'restore', label: 'Restored current case context', status: 'COMPLETED', technical: 'CHECKPOINT' },
     { id: 'order', label: 'Retrieved order history', status: 'COMPLETED', technical: 'CALL_TOOL' },
-    { id: 'service', label: 'Retrieved service history', status: 'COMPLETED', technical: 'CALL_TOOL' },
     { id: 'ground', label: 'Grounded evidence with provenance', status: 'COMPLETED', technical: 'EVIDENCE' },
     { id: 'gaps', label: 'Detected three open evidence gaps', status: 'COMPLETED', technical: 'GAP_CHECK' },
     { id: 'safety', label: 'Evaluated escalation safety path', status: 'COMPLETED', technical: 'POLICY' },
@@ -188,7 +169,7 @@ export const s00154 = {
     drafts: [
       '看到您反馈使用后出现面部肿胀，并已就医，我们会优先按不良反应服务流程继续处理。想再确认一下，您第一次使用这款产品的具体日期是什么时候？',
     ],
-    evidenceUsedIds: ['consumer-swelling', 'consumer-product-used', 'consumer-medical-attention', 'service-ticket', 'uploaded-material'],
+    evidenceUsedIds: ['consumer-swelling', 'consumer-product-used', 'consumer-medical-attention', 'uploaded-material'],
     retainedUncertainty: ['Actual first-use time unknown', 'Recent regimen changes unknown', 'Current symptom progression unknown'],
     avoidedClaims: ['Product causality', 'Medical diagnosis', 'Confirmed allergy', 'Product safety conclusion'],
   },

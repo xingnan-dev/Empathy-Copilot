@@ -13,3 +13,4 @@ dist/
 build/
 competition_data/*
 !competition_data/.gitkeep
+ui-prototype/

@@ -2,7 +2,7 @@
 
 | Artifact | Status | Location / disclosure |
 |---|---|---|
-| Source code | READY | Repository; Phase 0–9 product behavior frozen |
+| Source code | SUBMITTED | Repository; Resonique v1.0.0 competition behavior frozen |
 | README | READY | `README.md` |
 | Competition Run Guide | READY | `docs/COMPETITION_RUN_GUIDE.md` |
 | Demo Operator Guide | READY | `docs/DEMO_OPERATOR_GUIDE.md` |
@@ -14,8 +14,9 @@
 | Official dataset instructions | READY | External workbook configured through `OFFICIAL_DATASET_PATH` |
 | Official image assets | NOT REQUIRED / UNAVAILABLE | Workbook references exist; organizer image files were not supplied |
 | Safety disclosure | READY | Run Guide and deterministic tests |
-| PPT | PENDING | Intentionally excluded from Phase 10.1 |
-| Demo video | PENDING | Intentionally excluded from Phase 10.1 |
+| PPT | SUBMITTED | Competition submission completed 2026-10-05 |
+| Demo video | SUBMITTED | Competition submission completed 2026-10-05 |
+| Final Submission Audit | COMPLETE | Validated and frozen for Team Oasis |
 
 ## Packaging exclusions
 

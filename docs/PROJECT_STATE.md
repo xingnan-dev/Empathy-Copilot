@@ -10,7 +10,14 @@
 ## Competition
 
 - **Event:** L'Oréal Beauty Tech Hackathon 2026
-- **Current focus:** Competition packaging
+- **Team:** Oasis
+- **Entry:** Resonique
+- **Submission date:** 2026-10-05
+- **Competition PPT:** SUBMITTED
+- **Demo Video:** SUBMITTED
+- **Final Submission Audit:** COMPLETE
+- **Competition submission:** COMPLETE
+- **Current focus:** Post-submission stabilization
 
 ## Product positioning
 
@@ -19,7 +26,8 @@ Resonique is an evidence-aware, stateful investigation agent for beauty-service 
 ## Current baseline
 
 - **Version:** V1.0 Technical Freeze
-- **Phase:** Phase 10.2 — Competition PPT & Storytelling
+- **Release:** Resonique v1.0.0 Competition Submission
+- **Phase:** Post-submission Stabilization
 - **Frozen technical baseline:** `44073aca8077e46e187bb4eb7d4f8370a8452c8c`
 - **Technical development:** COMPLETE / PERMANENTLY FROZEN
 
@@ -59,20 +67,13 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 
 ## Current restrictions
 
-- No further feature work unless a blocking competition demo defect is discovered.
-- Only fix demo blockers, critical bugs, or deployment blockers.
+- The competition version may receive only critical bug, security, or deployment fixes.
+- New functionality must enter a separate v1.1 phase and must not directly modify the competition version.
 - Do not redesign the accepted UI.
 - Do not modify `ui-prototype/` unless explicitly instructed.
 - Preserve evidence provenance and deterministic safety boundaries.
 
 ## Current work
 
-- **Next phase:** Phase 10.2 — Competition PPT & Storytelling
-- Demo video preparation
-- Final submission audit
-
-## Pending competition deliverables
-
-- Competition PPT
-- Demo Video
-- Final Submission Audit
+- **Next phase:** Await competition results while planning the v1.1 investigation loop.
+- Keep the technical baseline frozen during post-submission stabilization.

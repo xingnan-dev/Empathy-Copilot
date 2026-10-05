@@ -8,9 +8,10 @@ import { InvestigationSummary } from './InvestigationSummary'
 import { IntelligenceNavigation, type IntelligenceView } from './IntelligenceNavigation'
 import { ServiceTimeline } from './ServiceTimeline'
 import { WhyThisAction } from './WhyThisAction'
+import { evidenceBasisLabel } from '../presentation/caseTruth'
 
 export function IntelligenceExpanded({ onCollapse, onPrepare }: { onCollapse: () => void; onPrepare: () => void }) {
-  const { presentation: s00154 } = useCaseRuntime()
+  const { presentation: s00154, caseView } = useCaseRuntime()
   const [view, setView] = useState<IntelligenceView>('evidence')
   const collapseRef = useRef<HTMLButtonElement>(null)
 
@@ -35,7 +36,7 @@ export function IntelligenceExpanded({ onCollapse, onPrepare }: { onCollapse: ()
         </div>
         <WhyThisAction onPrepare={onPrepare} />
       </div>
-      <footer className="expanded-footer"><span>No evidence → No attribution</span><em>Based on consumer report and service records · Not a medical diagnosis</em></footer>
+      <footer className="expanded-footer"><span>No evidence → No attribution</span><em>Based on {evidenceBasisLabel(caseView)} · Not a medical diagnosis</em></footer>
     </div>
   )
 }

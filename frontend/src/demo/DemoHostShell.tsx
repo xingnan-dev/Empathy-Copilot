@@ -1,6 +1,7 @@
 import { MessageSquareText, Search, ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
 import { ResoniquePlugin } from '../plugin/ResoniquePlugin'
+import { currentServiceRecordEvidence } from '../presentation/caseTruth'
 import { useCaseRuntime } from '../runtime/CaseRuntime'
 
 const contacts = ['蒋a**', '林c**', '周e**', '杨c**']
@@ -30,7 +31,8 @@ function messageClassName(message: HostMessage) {
 }
 
 export function DemoHostShell() {
-  const { ingestMessage, processingMessage } = useCaseRuntime()
+  const { caseView, ingestMessage, processingMessage } = useCaseRuntime()
+  const hasServiceRecord = currentServiceRecordEvidence(caseView).length > 0
   const [message, setMessage] = useState('')
   const [sentMessage, setSentMessage] = useState<string | null>(null)
   const [messageError, setMessageError] = useState<string | null>(null)
@@ -47,10 +49,10 @@ export function DemoHostShell() {
         <main className="host-conversation">
           <header><div><strong>蒋a**</strong><small>Conversation · S00154</small></div><span><ShoppingBag size={14} />Current order</span></header>
           <section className="host-product"><div><ShoppingBag size={18} /></div><span><small>Current order</small><strong>Firming Gift Set</strong><em>¥1,398</em></span></section>
-          <div className="service-context"><span>Service context</span><i />Adverse-reaction case linked<i />Order verified</div>
+          <div className="service-context"><span>Service context</span><i />Order verified{hasServiceRecord && <><i />Service record linked</>}</div>
           <div className="host-date">11 May 2026</div>
           {hostMessages.slice(0, 3).map((item) => <div className={messageClassName(item)} data-message-id={item.id} data-role={item.role} data-sender={item.sender} key={item.id}>{item.contentType === '图片' ? <><span><MessageSquareText size={18} /></span><div><strong>{item.content}</strong><small>Image attachment · consumer provided</small></div></> : <><p>{item.content}</p><time>{item.time}</time></>}</div>)}
-          <div className="host-event"><i /><span>Service record linked to this conversation</span><time>16:22</time></div>
+          {hasServiceRecord && <div className="host-event"><i /><span>Service record linked to this conversation</span><time>16:22</time></div>}
           {hostMessages.slice(3).map((item) => <div className={messageClassName(item)} data-message-id={item.id} data-role={item.role} data-sender={item.sender} key={item.id}><p>{item.content}</p><time>{item.time}</time></div>)}
           {sentMessage && <div className="message message--consumer"><p>{sentMessage}</p><time>Now</time></div>}
           {messageError && <div className="host-event"><i /><span>{messageError}</span><time>Now</time></div>}

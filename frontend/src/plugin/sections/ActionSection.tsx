@@ -1,17 +1,19 @@
 import { ArrowRight, FileSearch, ShieldAlert } from 'lucide-react'
 import { SectionFrame } from './SectionFrame'
 import { useCaseRuntime } from '../../runtime/CaseRuntime'
+import { decisionSupportLabels } from '../../presentation/caseTruth'
 
 export function ActionSection({ onReview, onPrepare }: { onReview: () => void; onPrepare: () => void }) {
   const { presentation, caseView } = useCaseRuntime()
   const strategy = caseView.service_strategy
+  const support = decisionSupportLabels(caseView)
   return (
     <SectionFrame index="04" label="ACTION" question="What should the human agent do next?">
       <div className="action-callout">
         <span><ShieldAlert size={17} aria-hidden="true" /></span>
         <div><small>Recommended action</small><h3>{presentation.currentAction}</h3><p>Adverse-reaction handling path</p></div>
       </div>
-      <div className="why-row"><span>Why</span><p>Medical attention reported <b>+</b> supporting service evidence</p></div>
+      {support.length > 0 && <div className="why-row"><span>Why</span><p>{support.join(' + ')}</p></div>}
       <div className="service-strategy" aria-label="Consumer signal to service action">
         <div><small>Consumer signal · {strategy.consumer_signal.semantic_type}</small><p>{strategy.consumer_signal.label}</p></div>
         <i>↓</i>
