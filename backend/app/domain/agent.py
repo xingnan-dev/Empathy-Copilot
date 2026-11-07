@@ -67,6 +67,12 @@ class ToolCallStatus(StrEnum):
     FAILED = "FAILED"
 
 
+class ToolFailureKind(StrEnum):
+    RETRYABLE = "RETRYABLE"
+    NON_RETRYABLE = "NON_RETRYABLE"
+    UNKNOWN_OUTCOME = "UNKNOWN_OUTCOME"
+
+
 class ToolCallRecord(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -77,6 +83,10 @@ class ToolCallRecord(BaseModel):
     created_at: datetime
     completed_at: datetime | None = None
     result_evidence_ids: list[str] = Field(default_factory=list)
+    invocation_id: str | None = None
+    attempt_count: int = Field(default=0, ge=0)
+    failure_kind: ToolFailureKind | None = None
+    error_summary: str | None = None
 
     @model_validator(mode="after")
     def validate_lifecycle(self) -> "ToolCallRecord":
@@ -85,6 +95,11 @@ class ToolCallRecord(BaseModel):
             raise ValueError("completed_at must be present exactly when a tool call is finished")
         if self.status is not ToolCallStatus.COMPLETED and self.result_evidence_ids:
             raise ValueError("only COMPLETED tool calls can link result evidence")
+        if self.status is ToolCallStatus.FAILED:
+            if self.failure_kind is None or not self.error_summary:
+                raise ValueError("FAILED tool calls require safe failure details")
+        elif self.failure_kind is not None or self.error_summary is not None:
+            raise ValueError("only FAILED tool calls can contain failure details")
         return self
 
 

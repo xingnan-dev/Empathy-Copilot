@@ -42,6 +42,8 @@ class DeterministicDecisionPolicy:
             AgentStatus.TERMINATED,
         }:
             return NextActionDecision(action=None, reason="State is terminal.")
+        if state.status is AgentStatus.WAITING_FOR_HUMAN:
+            return NextActionDecision(action=None, reason="State is waiting for human recovery.")
         if state.step_count >= state.max_steps:
             return NextActionDecision(
                 action=None,
@@ -57,6 +59,23 @@ class DeterministicDecisionPolicy:
             return NextActionDecision(
                 action=AgentAction.WAIT_FOR_HUMAN,
                 reason="A deterministic case flag requires human review.",
+            )
+        unsafe_tool_call = next(
+            (
+                call
+                for call in reversed(state.tool_calls)
+                if call.status
+                in {ToolCallStatus.PENDING, ToolCallStatus.RUNNING, ToolCallStatus.FAILED}
+            ),
+            None,
+        )
+        if unsafe_tool_call is not None:
+            return NextActionDecision(
+                action=AgentAction.WAIT_FOR_HUMAN,
+                reason=(
+                    f"Tool invocation {unsafe_tool_call.invocation_id or unsafe_tool_call.id} "
+                    "requires manual recovery before another execution."
+                ),
             )
         if not self._has_order_fact(state) and not self._completed_tool(state, "get_order_history"):
             if state.max_steps - state.step_count < 3:

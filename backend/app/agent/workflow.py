@@ -1,7 +1,7 @@
 """Phase 2 LangGraph investigation workflow."""
 
 from datetime import UTC, datetime
-from typing import Literal, cast
+from typing import Literal, NotRequired, cast
 
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
@@ -36,6 +36,7 @@ from backend.app.services.transitions import StateTransitionService
 class WorkflowState(TypedDict):
     investigation: InvestigationState
     decision: NextActionDecision | None
+    persisted_revision: NotRequired[int | None]
 
 
 RouteName = Literal[
@@ -157,9 +158,19 @@ class InvestigationWorkflow:
     def run(
         self, state: InvestigationState, *, expected_revision: int | None = None
     ) -> InvestigationState:
-        output = self.graph.invoke({"investigation": state, "decision": None})
+        output = self.graph.invoke(
+            {
+                "investigation": state,
+                "decision": None,
+                "persisted_revision": expected_revision,
+            }
+        )
         result = cast(InvestigationState, output["investigation"])
-        self.checkpoints.save(result, expected_revision=expected_revision)
+        persisted_revision = cast(
+            int | None, output.get("persisted_revision", expected_revision)
+        )
+        if result.state_revision != persisted_revision:
+            self.checkpoints.save(result, expected_revision=persisted_revision)
         return result
 
     def resume_with_evidence(
@@ -288,13 +299,19 @@ class InvestigationWorkflow:
             arguments = {"case_id": state.case_id}
         else:
             arguments = {"policy_id": "beauty_service_default"}
-        result = self.tool_execution.execute_once(
+        execution = self.tool_execution.execute_durably(
             state,
             tool_name=decision.tool_name,
             action=decision.action,
             arguments=arguments,
+            checkpoints=self.checkpoints,
+            expected_revision=graph_state.get("persisted_revision"),
         )
-        return {"investigation": result, "decision": decision}
+        return {
+            "investigation": execution.state,
+            "decision": decision,
+            "persisted_revision": execution.persisted_revision,
+        }
 
     def _prepare_escalation(self, graph_state: WorkflowState) -> WorkflowState:
         state = graph_state["investigation"]

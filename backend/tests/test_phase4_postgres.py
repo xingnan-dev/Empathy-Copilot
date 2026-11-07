@@ -3,6 +3,7 @@ import os
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Never
 
 import pytest
 from alembic import command
@@ -11,10 +12,17 @@ from sqlalchemy import Engine, func, inspect, select, text, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from backend.app.agent.guardrails import AttributionDecision, assess_attribution
+from backend.app.agent.workflow import InvestigationWorkflow
 from backend.app.api.fixtures import s00154_waiting_for_human
 from backend.app.api.services.case_application_service import CaseApplicationService
-from backend.app.domain.agent import AgentStatus, InvestigationState, QuestionStatus, ToolCallStatus
-from backend.app.domain.business import LogisticsStatusToolResult
+from backend.app.domain.agent import (
+    AgentStatus,
+    InvestigationState,
+    QuestionStatus,
+    ToolCallStatus,
+    ToolFailureKind,
+)
+from backend.app.domain.business import LogisticsStatusToolResult, OrderHistoryToolResult
 from backend.app.domain.gaps import (
     GapStatus,
     GapType,
@@ -48,7 +56,8 @@ from backend.app.persistence.seed import seed_demo_data_transactionally
 from backend.app.repositories.postgres import PostgresRepositoryBundle
 from backend.app.services.checkpoints import StateConflictError
 from backend.app.services.grounding import EvidenceGroundingService
-from backend.app.services.tools import default_tool_registry
+from backend.app.services.tools import ToolOutcomeUnknownError, ToolRegistry, default_tool_registry
+from backend.app.services.transitions import StateTransitionService
 from backend.app.vision.fake import FakeVisionProvider
 from backend.app.vision.schemas import ImageCategory, StructuredVisionObservation, Visibility
 from backend.app.vision.service import VisionService
@@ -213,7 +222,6 @@ def test_phase6_model_evidence_and_gap_survive_service_restart(
 
 
 @pytest.mark.postgres
-@pytest.mark.official_dataset
 def test_phase8_visual_observation_survives_postgres_restart(
     postgres_sessions: sessionmaker[Session],
 ) -> None:
@@ -338,6 +346,147 @@ def test_checkpoint_roundtrip_preserves_full_validated_state(
     assert build_regimen_changes(CASE_ID, restored.evidence) == build_regimen_changes(
         CASE_ID, resumed.evidence
     )
+
+
+@pytest.mark.postgres
+@pytest.mark.parametrize(
+    ("error_type", "read_only", "expected_kind"),
+    [
+        (TimeoutError, True, ToolFailureKind.RETRYABLE),
+        (TimeoutError, False, ToolFailureKind.UNKNOWN_OUTCOME),
+        (ValueError, True, ToolFailureKind.NON_RETRYABLE),
+        (ToolOutcomeUnknownError, True, ToolFailureKind.UNKNOWN_OUTCOME),
+    ],
+)
+def test_failed_tool_call_survives_postgres_restart(
+    postgres_sessions: sessionmaker[Session],
+    error_type: type[Exception],
+    read_only: bool,
+    expected_kind: ToolFailureKind,
+) -> None:
+    registry = ToolRegistry()
+
+    def unavailable(
+        _state: InvestigationState, _arguments: dict[str, str]
+    ) -> Never:
+        raise error_type("database credentials must not be stored")
+
+    registry.register("get_order_history", unavailable, side_effect_free=read_only)
+    store = PostgresCheckpointStore(postgres_sessions)
+    workflow = InvestigationWorkflow(checkpoint_store=store, tool_registry=registry)
+    failed = workflow.run(_initial_state())
+
+    engine = create_database_engine(DatabaseSettings(os.environ["TEST_DATABASE_URL"]))
+    try:
+        restarted = InvestigationWorkflow(
+            checkpoint_store=PostgresCheckpointStore(create_session_factory(engine)),
+            tool_registry=registry,
+        )
+        restored = restarted.restore_case(CASE_ID)
+        assert restarted.run(restored, expected_revision=restored.state_revision) == failed
+    finally:
+        engine.dispose()
+    call = restored.tool_calls[-1]
+    assert restored == failed
+    assert restored.status is AgentStatus.WAITING_FOR_HUMAN
+    assert call.status is ToolCallStatus.FAILED
+    assert call.failure_kind is expected_kind
+    assert call.result_evidence_ids == []
+    assert restored.evidence == []
+    assert "database credentials" not in restored.model_dump_json()
+    assert registry.execution_counts["get_order_history"] == 1
+
+
+@pytest.mark.postgres
+@pytest.mark.parametrize(
+    "boundary", [ToolCallStatus.PENDING, ToolCallStatus.RUNNING, ToolCallStatus.COMPLETED]
+)
+def test_committed_tool_boundaries_survive_interruption_without_reexecution(
+    postgres_sessions: sessionmaker[Session], boundary: ToolCallStatus
+) -> None:
+    """Interrupt after a real commit; this is not an OS process-kill experiment."""
+    _seed(postgres_sessions)
+
+    class Interrupted(BaseException):
+        pass
+
+    class InterruptAfterCommit(PostgresCheckpointStore):
+        def save(
+            self, state: InvestigationState, *, expected_revision: int | None = None
+        ) -> None:
+            super().save(state, expected_revision=expected_revision)
+            if state.tool_calls and state.tool_calls[-1].status is boundary:
+                raise Interrupted
+
+    registry = default_tool_registry(PostgresRepositoryBundle(postgres_sessions))
+    first = InvestigationWorkflow(
+        checkpoint_store=InterruptAfterCommit(postgres_sessions), tool_registry=registry
+    )
+    with pytest.raises(Interrupted):
+        first.run(_initial_state())
+    assert registry.execution_counts.get("get_order_history", 0) == (
+        1 if boundary is ToolCallStatus.COMPLETED else 0
+    )
+
+    engine = create_database_engine(DatabaseSettings(os.environ["TEST_DATABASE_URL"]))
+    try:
+        sessions = create_session_factory(engine)
+        restarted = build_postgres_workflow(sessions)
+        restored = restarted.restore_case(CASE_ID)
+        assert restored.tool_calls[-1].status is boundary
+        result = restarted.run(restored, expected_revision=restored.state_revision)
+        assert restarted.tools.execution_counts == {}
+        assert result.tool_calls == restored.tool_calls
+        if boundary is ToolCallStatus.COMPLETED:
+            assert result.status is AgentStatus.WAITING_FOR_USER
+            assert set(result.tool_calls[-1].result_evidence_ids) <= {
+                item.id for item in result.evidence
+            }
+        else:
+            assert result.status is AgentStatus.WAITING_FOR_HUMAN
+            assert result.evidence == []
+        assert restarted.restore_case(CASE_ID) == result
+    finally:
+        engine.dispose()
+
+
+@pytest.mark.postgres
+def test_tool_completion_conflict_preserves_newer_running_snapshot(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    _seed(postgres_sessions)
+    store = PostgresCheckpointStore(postgres_sessions)
+    delegate = default_tool_registry(PostgresRepositoryBundle(postgres_sessions))
+    registry = ToolRegistry()
+
+    def concurrent_update(
+        state: InvestigationState, arguments: dict[str, str]
+    ) -> OrderHistoryToolResult:
+        persisted = store.load(CASE_ID)
+        assert persisted.tool_calls[-1].status is ToolCallStatus.RUNNING
+        advanced = StateTransitionService().transition(
+            persisted,
+            to_status=AgentStatus.INVESTIGATING,
+            action=None,
+            reason="Concurrent update after tool entry.",
+        )
+        store.save(advanced, expected_revision=persisted.state_revision)
+        result = delegate.execute("get_order_history", state, arguments)
+        assert isinstance(result, OrderHistoryToolResult)
+        return result
+
+    registry.register("get_order_history", concurrent_update, side_effect_free=True)
+    workflow = InvestigationWorkflow(checkpoint_store=store, tool_registry=registry)
+    with pytest.raises(StateConflictError):
+        workflow.run(_initial_state())
+    restored = store.load(CASE_ID)
+    assert restored.tool_calls[-1].status is ToolCallStatus.RUNNING
+    assert restored.transition_events[-1].reason == "Concurrent update after tool entry."
+    assert restored.evidence == []
+    restarted = InvestigationWorkflow(checkpoint_store=store, tool_registry=delegate)
+    result = restarted.run(restored, expected_revision=restored.state_revision)
+    assert result.status is AgentStatus.WAITING_FOR_HUMAN
+    assert delegate.execution_counts == {"get_order_history": 1}
 
 
 @pytest.mark.postgres

@@ -1,3 +1,7 @@
+from typing import Never
+
+import pytest
+
 from backend.app.agent.guardrails import can_ask_question, normalize_question
 from backend.app.agent.workflow import InvestigationWorkflow
 from backend.app.domain.agent import (
@@ -8,11 +12,12 @@ from backend.app.domain.agent import (
     InvestigationState,
     QuestionStatus,
     ToolCallStatus,
+    ToolFailureKind,
 )
 from backend.app.domain.evidence import EvidenceType, SourceType
 from backend.app.domain.gaps import GapStatus, GapType, evaluate_p0_gaps
-from backend.app.services.checkpoints import InMemoryCheckpointStore
-from backend.app.services.tools import default_tool_registry
+from backend.app.services.checkpoints import InMemoryCheckpointStore, StateConflictError
+from backend.app.services.tools import ToolOutcomeUnknownError, ToolRegistry, default_tool_registry
 from backend.app.services.transitions import (
     InvalidStateTransitionError,
     StateTransitionService,
@@ -138,6 +143,87 @@ def test_completed_tool_call_is_not_executed_twice() -> None:
     )
     assert unchanged == result
     assert registry.execution_counts["get_order_history"] == 1
+
+
+def test_tool_exception_persists_safe_failure_without_success_evidence() -> None:
+    store = InMemoryCheckpointStore()
+    registry = ToolRegistry()
+
+    def fail_read_only(
+        _state: InvestigationState, _arguments: dict[str, str]
+    ) -> Never:
+        raise TimeoutError("credential=must-not-be-persisted")
+
+    registry.register("get_order_history", fail_read_only, side_effect_free=True)
+    workflow = InvestigationWorkflow(checkpoint_store=store, tool_registry=registry)
+
+    result = workflow.run(state_without_order())
+    call = result.tool_calls[-1]
+    restored = store.load(CASE_ID)
+
+    assert result.status is AgentStatus.WAITING_FOR_HUMAN
+    assert call.status is ToolCallStatus.FAILED
+    assert call.failure_kind is ToolFailureKind.RETRYABLE
+    assert call.attempt_count == 1
+    assert call.completed_at is not None
+    assert call.invocation_id
+    assert "credential" not in (call.error_summary or "")
+    assert restored == result
+    assert restored.tool_calls[-1].status is ToolCallStatus.FAILED
+    assert restored.evidence == []
+    assert registry.execution_counts["get_order_history"] == 1
+
+
+def test_unknown_external_outcome_is_not_automatically_retried() -> None:
+    store = InMemoryCheckpointStore()
+    registry = ToolRegistry()
+
+    def unknown_outcome(
+        _state: InvestigationState, _arguments: dict[str, str]
+    ) -> Never:
+        raise ToolOutcomeUnknownError("provider response was lost")
+
+    registry.register("get_order_history", unknown_outcome)
+    workflow = InvestigationWorkflow(checkpoint_store=store, tool_registry=registry)
+    result = workflow.run(state_without_order())
+    call = result.tool_calls[-1]
+
+    assert call.failure_kind is ToolFailureKind.UNKNOWN_OUTCOME
+    assert result.status is AgentStatus.WAITING_FOR_HUMAN
+    recovery_decision = workflow.policy.decide(store.load(CASE_ID))
+    assert recovery_decision.action is None
+    assert "waiting for human recovery" in recovery_decision.reason
+
+    unchanged = workflow.tool_execution.execute_once(
+        store.load(CASE_ID),
+        tool_name="get_order_history",
+        action=AgentAction.CALL_TOOL,
+        arguments={"consumer_id": CONSUMER_ID},
+    )
+    assert unchanged == result
+    assert registry.execution_counts["get_order_history"] == 1
+
+
+def test_stale_concurrent_tool_recovery_is_rejected_before_execution() -> None:
+    store = InMemoryCheckpointStore()
+    original = state_without_order()
+    store.save(original)
+    stale = store.load(CASE_ID)
+    advanced = StateTransitionService().transition(
+        original,
+        to_status=AgentStatus.INVESTIGATING,
+        action=None,
+        reason="Concurrent state update.",
+    )
+    store.save(advanced, expected_revision=original.state_revision)
+    registry = default_tool_registry()
+    workflow = InvestigationWorkflow(checkpoint_store=store, tool_registry=registry)
+
+    with pytest.raises(StateConflictError):
+        workflow.run(stale, expected_revision=stale.state_revision)
+
+    assert registry.execution_counts.get("get_order_history", 0) == 0
+    assert store.load(CASE_ID) == advanced
 
 
 def test_new_instance_resume_preserves_completed_tool_history() -> None:
