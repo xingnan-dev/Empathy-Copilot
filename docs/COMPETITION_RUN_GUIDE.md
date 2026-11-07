@@ -1,4 +1,10 @@
-# Resonique
+# Resonique Local Run Guide
+
+This guide remains the runtime entry point for independent post-competition development.
+Its filename is retained for existing links. The competition release is frozen; current scope
+and verification status are in [PROJECT_STATE.md](PROJECT_STATE.md), with planned work in
+[POST_COMPETITION_PLAN.md](POST_COMPETITION_PLAN.md). The case demonstrations and evaluation
+results below describe the existing baseline, not acceptance of planned recovery features.
 
 ## What it is
 
@@ -30,7 +36,7 @@ Copy `.env.example` to an untracked `.env`; never commit it.
 
 | Variable | Class | Purpose |
 |---|---|---|
-| `POSTGRES_PASSWORD` | Required for Compose | Local competition database password |
+| `POSTGRES_PASSWORD` | PostgreSQL container setting | Currently fixed in `docker-compose.yml`; a same-named `.env` value is not interpolated |
 | `DATABASE_URL` | Required for native backend | PostgreSQL application URL |
 | `TEST_DATABASE_URL` | Test-only | Isolated DB name containing `test` |
 | `LLM_PROVIDER`, `LLM_MODEL`, `LLM_API_KEY`, `LLM_BASE_URL` | Optional | Real Qwen language generation; safe fallback remains when unavailable |
@@ -45,7 +51,10 @@ existing service defines one.
 ## Docker installation and startup
 
 1. Clone the repository and enter it.
-2. Copy `.env.example` to `.env`; set `POSTGRES_PASSWORD` and optional Qwen values.
+2. Copy `.env.example` to `.env`; configure optional Qwen values. The current Compose file fixes
+   local database credentials in both the PostgreSQL service and backend `DATABASE_URL`.
+   Changing `.env` alone does not change those credentials; a password change requires a
+   separate, coordinated database and configuration update, including any existing database volume.
 3. If licensed to use the official workbook, copy it to `competition_data/official.xlsx` and set
    `OFFICIAL_DATASET_PATH=/competition-data/official.xlsx`. Do not add the workbook to Git.
 4. Run `docker compose up --build`.
@@ -91,6 +100,21 @@ The workbook remains an external organizer asset. `OFFICIAL_DATASET_PATH` is rea
 startup; records are normalized, persisted, grounded into Evidence, and checkpointed. The official
 workbook references image paths, but those image files were not supplied. The runtime therefore
 reports an unavailable official asset and never manufactures it.
+
+### Usage scope pending verification
+
+The repository documents the organizer source and requires permission before redistribution
+in [SUBMISSION_MANIFEST.md](SUBMISSION_MANIFEST.md). No organizer license or authorization
+document establishing post-competition use was found in the reviewed project materials.
+Post-competition public display, redistribution, commercial use, and transmission to external
+model providers therefore remain **pending verification**, including derived case excerpts,
+screenshots, evaluation records, and database copies. Existing files are retained while this
+scope is clarified; competition participation or a Git ignore rule does not establish permission.
+
+[Phase 7](phases/PHASE_7.md) documents exclusion of payment credentials and handler identity
+from normalized service records. The adapter still retains message text and source identifiers;
+this is not evidence of complete anonymization. Confirm the organizer's masking process and
+permitted fields before describing the dataset or its derivatives as safe to publish.
 
 ## Demo fixture
 

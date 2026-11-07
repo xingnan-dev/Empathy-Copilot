@@ -1,6 +1,12 @@
 # Resonique Demo Operator Guide
 
-## Before the judges arrive
+These existing case demonstrations remain useful for local review of the preserved baseline.
+Current development scope and pending verification are recorded in
+[PROJECT_STATE.md](PROJECT_STATE.md); startup and data-use requirements are in the
+[run guide](COMPETITION_RUN_GUIDE.md). Competition submission and judging constraints do not
+apply to this operating checklist.
+
+## Before a local demonstration
 
 1. Start with `docker compose up --build` and wait for all three services to become healthy.
 2. Confirm `http://localhost:8000/health` returns `{"status":"ok"}`.

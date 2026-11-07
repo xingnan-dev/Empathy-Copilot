@@ -5,9 +5,10 @@
 - **Product:** Resonique
 - **Repository:** Empathy-Copilot
 - **Role:** Beauty Service Investigation Agent
-- **Operating model:** ChatGPT project `blackkesong` owns planning, product design, review, and competition materials; Codex owns code changes, tests, and Git. This repository is the single source of truth.
+- **Development mode:** Independent post-competition development, building on the preserved Team Oasis baseline.
+- **Operating model:** ChatGPT project `blackkesong` owns planning, product design, review, and project materials; Codex owns code changes, tests, and Git. This repository is the single source of truth.
 
-## Competition
+## Competition history
 
 - **Event:** L'Oréal Beauty Tech Hackathon 2026
 - **Team:** Oasis
@@ -17,19 +18,24 @@
 - **Demo Video:** SUBMITTED
 - **Final Submission Audit:** COMPLETE
 - **Competition submission:** COMPLETE
-- **Current focus:** Post-submission stabilization
+- **Outcome:** The competition has ended and the team did not advance, as reported by the project owner on 2026-11-07.
+
+Submission dates and completed PPT/video records above are historical facts, not current
+development requirements. See [the submission manifest](SUBMISSION_MANIFEST.md).
 
 ## Product positioning
 
 Resonique is an evidence-aware, stateful investigation agent for beauty-service support. It reconstructs what is known, preserves provenance and uncertainty, and prepares empathetic, actionable next steps for human approval.
 
-## Current baseline
+## Frozen competition baseline
 
 - **Version:** V1.0 Technical Freeze
 - **Release:** Resonique v1.0.0 Competition Submission
-- **Phase:** Post-submission Stabilization
+- **Historical phase:** Competition delivery freeze (Phase 10.1)
 - **Frozen technical baseline:** `44073aca8077e46e187bb4eb7d4f8370a8452c8c`
-- **Technical development:** COMPLETE / PERMANENTLY FROZEN
+- **Competition release tag:** `v1.0.0-competition-submission`
+- **Competition release commit:** `e77ef5a063179cba3c7aa3cc0a3438d89b5646c2`
+- **Freeze scope:** The competition technical baseline and release remain frozen. Independent development proceeds in separately reviewed post-competition increments.
 
 ## Core innovations
 
@@ -75,5 +81,25 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 
 ## Current work
 
-- **Next phase:** Await competition results while planning the v1.1 investigation loop.
-- Keep the technical baseline frozen during post-submission stabilization.
+- **Productization branch:** `codex/phase-e3-1-tool-failures`
+- **Phase E3.1:** Durable tool failure handling implemented and locally validated on isolated
+  PostgreSQL: 159 tests passed, 28 skipped for documented official-data/real-model dependencies;
+  the PostgreSQL subset passed 20 checks with one official-data skip. Ruff and mypy passed.
+  See [W0 validation](W0_VALIDATION.md) for scope, environment, and limitations. Phase review
+  remains pending; the frozen competition tag and commit remain unchanged.
+- **Implementation commit:** `a89bed63f5581280d4c2041016ba5f9645ec5a79`.
+- **Next phase:** Await review of Phase E3.1 before beginning any further productization work.
+- **Plan:** [Post-competition engineering plan](POST_COMPETITION_PLAN.md); further recovery work
+  is planned and remains gated on E3.1 validation and review.
+- Keep the competition technical baseline and submission tag frozen during independent development.
+- The E3.2 branch may be prepared from the W0 validated baseline; W1 specification work starts
+  only after the W0/E3.1 review. No recovery capability is claimed by this validation.
+
+## Reading and operation
+
+- Follow [AGENTS.md](../AGENTS.md) for the required development reading order; the active phase
+  is [E3.1](phases/PHASE_E3_1.md).
+- Use the [run guide](COMPETITION_RUN_GUIDE.md) for local setup and data-source requirements,
+  and the [operator guide](DEMO_OPERATOR_GUIDE.md) for the existing demonstration paths.
+- Historical phase requirements and submission records remain available as baseline evidence;
+  they do not set new submission deadlines or replace current phase acceptance criteria.
