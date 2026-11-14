@@ -282,6 +282,11 @@ class BusinessToolExecutionService:
         existing = effective_tool_calls(state).get(invocation_id)
         if existing is not None:
             return state, expected_revision
+        if state.status is not AgentStatus.INVESTIGATING or any(
+            call.status is not ToolCallStatus.COMPLETED
+            for call in effective_tool_calls(state).values()
+        ):
+            return state, expected_revision
 
         call_id = f"tool-{invocation_id}"
         pending = ToolCallRecord(

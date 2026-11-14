@@ -11,18 +11,24 @@ from backend.app.domain.agent import (
     ContinuationStatus,
     HumanReviewBlock,
     InvestigationState,
+    ToolCallRecord,
     ToolCallStatus,
+    ToolFailureKind,
     ToolRecoveryRequest,
 )
-from backend.app.services.checkpoints import InMemoryCheckpointStore, StateConflictError
+from backend.app.services.checkpoints import (
+    CheckpointStore,
+    InMemoryCheckpointStore,
+    StateConflictError,
+)
 from backend.app.services.tool_recovery import RecoveryError, ToolRecoveryService
-from backend.app.services.tools import ToolRegistry
+from backend.app.services.tools import ToolOutcomeUnknownError, ToolRegistry
 from backend.tests.fixtures import CASE_ID, CONSUMER_ID
 
 
 def failed_state(
-    store: InMemoryCheckpointStore | None = None,
-) -> tuple[InMemoryCheckpointStore, InvestigationState]:
+    store: CheckpointStore | None = None,
+) -> tuple[CheckpointStore, InvestigationState]:
     store = store or InMemoryCheckpointStore()
     registry = ToolRegistry()
 
@@ -211,3 +217,65 @@ def test_consumed_stale_permit_cannot_execute() -> None:
     with pytest.raises(StateConflictError):
         workflow.tool_execution.execute_recovery(permit, store)
     assert workflow.tools.execution_counts == {}
+
+
+def test_ordinary_executor_cannot_bypass_pause_with_different_arguments() -> None:
+    store, state = failed_state()
+    workflow = InvestigationWorkflow(checkpoint_store=store)
+    for tool, arguments in [
+        ("get_order_history", {"consumer_id": "different"}),
+        ("get_service_history", {"consumer_id": CONSUMER_ID}),
+    ]:
+        assert (
+            workflow.tool_execution.execute_once(
+                state, tool_name=tool, action=AgentAction.CALL_TOOL, arguments=arguments
+            )
+            == state
+        )
+    assert workflow.tools.execution_counts == {}
+
+
+@pytest.mark.parametrize("kind", [ToolFailureKind.UNKNOWN_OUTCOME, ToolFailureKind.NON_RETRYABLE])
+def test_forbidden_failure_kinds_are_not_recoverable(kind: ToolFailureKind) -> None:
+    store, state = failed_state()
+    call = ToolCallRecord.model_validate(
+        {**state.tool_calls[-1].model_dump(), "failure_kind": kind}
+    )
+    state = InvestigationState.model_validate({**state.model_dump(), "tool_calls": [call]})
+    store.save(state)
+    workflow = InvestigationWorkflow(checkpoint_store=store)
+    with pytest.raises(RecoveryError, match="RECOVERY_NOT_ALLOWED"):
+        ToolRecoveryService(workflow).recover(CASE_ID, request_for(state))
+    assert workflow.tools.execution_counts == {}
+
+
+def test_exactly_four_steps_allows_recovery() -> None:
+    store, state = failed_state()
+    state = InvestigationState.model_validate(
+        {**state.model_dump(), "max_steps": state.step_count + 4}
+    )
+    store.save(state)
+    view, _ = ToolRecoveryService(InvestigationWorkflow(checkpoint_store=store)).recover(
+        CASE_ID, request_for(state)
+    )
+    assert view.continuation is ContinuationStatus.SETTLED
+    assert store.load(CASE_ID).step_count == state.max_steps
+
+
+def test_unknown_side_effect_fixture_never_retries() -> None:
+    markers = []
+    registry = ToolRegistry()
+
+    def lost_receipt(_state: InvestigationState, _args: dict[str, str]) -> Never:
+        markers.append("external-marker")
+        raise ToolOutcomeUnknownError("response lost")
+
+    registry.register("get_order_history", lost_receipt, side_effect_free=False)
+    workflow = InvestigationWorkflow(tool_registry=registry)
+    state = workflow.run(
+        InvestigationState(case_id=CASE_ID, consumer_id=CONSUMER_ID, current_issue="test")
+    )
+    assert state.tool_calls[-1].failure_kind is ToolFailureKind.UNKNOWN_OUTCOME
+    with pytest.raises(RecoveryError, match="RECOVERY_NOT_ALLOWED"):
+        ToolRecoveryService(workflow).recover(CASE_ID, request_for(state))
+    assert markers == ["external-marker"]

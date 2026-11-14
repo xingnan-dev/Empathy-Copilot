@@ -75,7 +75,19 @@ def test_selects_explicit_successor_and_preserves_old_failure() -> None:
     assert InvestigationState.model_validate_json(state.model_dump_json()) == state
 
 
-@pytest.mark.parametrize("mutation", ["missing", "sequence", "arguments", "request", "fork"])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "missing",
+        "sequence",
+        "arguments",
+        "request",
+        "fork",
+        "duplicate",
+        "cycle",
+        "orphan",
+    ],
+)
 def test_bad_chain_is_rejected(mutation: str) -> None:
     data = chain_data()
     child = data["tool_calls"][1]
@@ -89,6 +101,16 @@ def test_bad_chain_is_rejected(mutation: str) -> None:
         data["tool_recoveries"][0]["new_attempt_id"] = "absent"
     if mutation == "fork":
         data["tool_calls"].append({**child, "id": "fork"})
+    if mutation == "duplicate":
+        data["tool_calls"].append(dict(child))
+    if mutation == "cycle":
+        data["tool_calls"][0].update(
+            previous_attempt_id="new",
+            attempt_sequence=3,
+            recovery_request_id=child["recovery_request_id"],
+        )
+    if mutation == "orphan":
+        data["tool_calls"] = data["tool_calls"][:1]
     with pytest.raises(ValidationError):
         InvestigationState.model_validate(data)
 
