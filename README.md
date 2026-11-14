@@ -16,7 +16,7 @@ and a React operator interface. Post-competition work adds explicit human-trigge
 order recovery, preserved attempt history, revision-guarded execution, and process-fault validation.
 
 W2, W3 and the F5 observation supplement have passed communication-area review. Current status:
-**W4 delivery pending final review**. Start with the local synthetic-data path in the
+**E3.2 accepted and merged into main** ([PR #1](https://github.com/xingnan-dev/Empathy-Copilot/pull/1)). Start with the local synthetic-data path in the
 [run guide](docs/COMPETITION_RUN_GUIDE.md). A
 [three-minute demonstration and script](docs/DEMO_OPERATOR_GUIDE.md) and
 [clean-checkout delivery record](docs/W4_DELIVERY.md) describe what was actually verified.
