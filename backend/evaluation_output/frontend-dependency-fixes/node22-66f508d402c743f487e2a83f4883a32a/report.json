@@ -1,0 +1,254 @@
+{
+  "experiment_id": "node22-66f508d402c743f487e2a83f4883a32a",
+  "status": "FAILED",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "log": "starting-commit.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "log": "branch.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--",
+        "frontend"
+      ],
+      "log": "frontend-diff.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "docker-version.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-a",
+        "--no-trunc",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "containers-before.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "node:22-alpine"
+      ],
+      "log": "pull-node.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "node:22-alpine",
+        "--format",
+        "{\"id\":{{json .Id}},\"digests\":{{json .RepoDigests}},\"os\":{{json .Os}},\"architecture\":{{json .Architecture}},\"labels\":{{json .Config.Labels}}}"
+      ],
+      "log": "inspect-node.log",
+      "exit_code": 1
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-a",
+        "--no-trunc",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "containers-after.log",
+      "exit_code": 0
+    }
+  ],
+  "cleanup": [],
+  "starting_commit": "975933705fea428331954b22b9844de0b66707f8",
+  "docker": {
+    "Client": {
+      "Version": "29.7.2",
+      "ApiVersion": "1.55",
+      "DefaultAPIVersion": "1.55",
+      "GitCommit": "a7dcaa6",
+      "GoVersion": "go1.26.5",
+      "Os": "windows",
+      "Arch": "amd64",
+      "BuildTime": "Wed Aug  5 18:31:33 2026",
+      "Context": "desktop-linux"
+    },
+    "Server": {
+      "Platform": {
+        "Name": "Docker Desktop 4.86.0 (236216)"
+      },
+      "Version": "29.7.2",
+      "ApiVersion": "1.55",
+      "MinAPIVersion": "1.40",
+      "Os": "linux",
+      "Arch": "amd64",
+      "Components": [
+        {
+          "Name": "Engine",
+          "Version": "29.7.2",
+          "Details": {
+            "ApiVersion": "1.55",
+            "Arch": "amd64",
+            "BuildTime": "Wed Aug  5 18:28:36 2026",
+            "Experimental": "false",
+            "GitCommit": "6a43e3d",
+            "GoVersion": "go1.26.5",
+            "KernelVersion": "6.18.33.2-microsoft-standard-WSL2",
+            "MinAPIVersion": "1.40",
+            "Module": "github.com/moby/moby/v2",
+            "ModuleVersion": "v2.0.0+unknown",
+            "Os": "linux"
+          }
+        },
+        {
+          "Name": "containerd",
+          "Version": "v2.2.5",
+          "Details": {
+            "GitCommit": "e53c7c1516c3b2bff98eb76f1f4117477e6f4e66"
+          }
+        },
+        {
+          "Name": "runc",
+          "Version": "1.3.6",
+          "Details": {
+            "GitCommit": "v1.3.6-0-g491b69ba"
+          }
+        },
+        {
+          "Name": "docker-init",
+          "Version": "0.19.0",
+          "Details": {
+            "GitCommit": "de40ad0"
+          }
+        }
+      ],
+      "GitCommit": "6a43e3d",
+      "GoVersion": "go1.26.5",
+      "KernelVersion": "6.18.33.2-microsoft-standard-WSL2",
+      "BuildTime": "2026-08-05T18:28:36.000000000+00:00"
+    }
+  },
+  "containers_before": [
+    {
+      "id": "5c92c85dfd5462d21f42211d99e7f8f39207024795df61dabbb7e307a4abd664",
+      "state": "exited"
+    },
+    {
+      "id": "831ecea57c3a2593dfb0a47d70874ffb0ae8dab512fb4174546d2338b72ac865",
+      "state": "exited"
+    },
+    {
+      "id": "0d98206b4319b0d72f23d7c7ee7e032e088b22b0b00c946142c269747ed254c4",
+      "state": "exited"
+    },
+    {
+      "id": "9a057a83ee8fc14b7d6e31612ba7496c66532d5c0fe63455b0aad39ac9b1dabe",
+      "state": "exited"
+    },
+    {
+      "id": "a8966d95728a54367f4108646074ab7e010b0c54063ef6b9598054e22172672c",
+      "state": "exited"
+    },
+    {
+      "id": "9e8adc644fd1225f2021aeef018ee3ae6d1bca4f6b3a90ffc79ae232fe905754",
+      "state": "running"
+    },
+    {
+      "id": "09e0123413c26267d94aeceb40226eebfa93ee40258fa7cea6d9fb9cc93b4255",
+      "state": "running"
+    },
+    {
+      "id": "0889b848c1ba33c210b982f431fd96cd037cf57ef58ec2882716e0a101267fc0",
+      "state": "running"
+    },
+    {
+      "id": "a2152b8f44825a2c91b9ffb81e7813e1ddce7ae5e7d15d03ea88df39512d985e",
+      "state": "exited"
+    },
+    {
+      "id": "4a1025137eefc5938e092f1dc5729537951f5a8459b010583948805699c3fd23",
+      "state": "exited"
+    },
+    {
+      "id": "44a3134d24ae825d38953b3487511354a93e6439fb9b0c38c11d1e8909cf632b",
+      "state": "exited"
+    }
+  ],
+  "base_images": {},
+  "error": "inspect-node exited 1; see E:\\Empathy-Copilot\\backend\\evaluation_output\\frontend-dependency-fixes\\node22-66f508d402c743f487e2a83f4883a32a",
+  "containers_after": [
+    {
+      "id": "5c92c85dfd5462d21f42211d99e7f8f39207024795df61dabbb7e307a4abd664",
+      "state": "exited"
+    },
+    {
+      "id": "831ecea57c3a2593dfb0a47d70874ffb0ae8dab512fb4174546d2338b72ac865",
+      "state": "exited"
+    },
+    {
+      "id": "0d98206b4319b0d72f23d7c7ee7e032e088b22b0b00c946142c269747ed254c4",
+      "state": "exited"
+    },
+    {
+      "id": "9a057a83ee8fc14b7d6e31612ba7496c66532d5c0fe63455b0aad39ac9b1dabe",
+      "state": "exited"
+    },
+    {
+      "id": "a8966d95728a54367f4108646074ab7e010b0c54063ef6b9598054e22172672c",
+      "state": "exited"
+    },
+    {
+      "id": "9e8adc644fd1225f2021aeef018ee3ae6d1bca4f6b3a90ffc79ae232fe905754",
+      "state": "running"
+    },
+    {
+      "id": "09e0123413c26267d94aeceb40226eebfa93ee40258fa7cea6d9fb9cc93b4255",
+      "state": "running"
+    },
+    {
+      "id": "0889b848c1ba33c210b982f431fd96cd037cf57ef58ec2882716e0a101267fc0",
+      "state": "running"
+    },
+    {
+      "id": "a2152b8f44825a2c91b9ffb81e7813e1ddce7ae5e7d15d03ea88df39512d985e",
+      "state": "exited"
+    },
+    {
+      "id": "4a1025137eefc5938e092f1dc5729537951f5a8459b010583948805699c3fd23",
+      "state": "exited"
+    },
+    {
+      "id": "44a3134d24ae825d38953b3487511354a93e6439fb9b0c38c11d1e8909cf632b",
+      "state": "exited"
+    }
+  ],
+  "inventory_redaction": "Only container IDs and states retained; unrelated project names, mounts and networks omitted."
+}

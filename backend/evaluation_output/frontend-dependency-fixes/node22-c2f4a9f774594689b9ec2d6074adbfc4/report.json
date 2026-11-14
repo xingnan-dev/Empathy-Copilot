@@ -1,0 +1,629 @@
+{
+  "experiment_id": "node22-c2f4a9f774594689b9ec2d6074adbfc4",
+  "status": "FAILED",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "log": "starting-commit.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "log": "branch.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "HEAD",
+        "--",
+        "frontend"
+      ],
+      "log": "frontend-diff.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "docker-version.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-a",
+        "--no-trunc",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "containers-before.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "node:22-alpine"
+      ],
+      "log": "pull-node.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "node:22-alpine",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "inspect-node.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "pull",
+        "nginx:1.27-alpine"
+      ],
+      "log": "pull-nginx.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "nginx:1.27-alpine",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "inspect-nginx.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "build",
+        "--no-cache",
+        "--progress=plain",
+        "--target",
+        "build",
+        "--label",
+        "io.resonique.frontend-node22-validation=node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "-t",
+        "resonique-node22-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "C:\\Users\\dell\\AppData\\Local\\Temp\\node22-c2f4a9f774594689b9ec2d6074adbfc4-5m4g6mnb\\frontend"
+      ],
+      "log": "build-node22.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "build",
+        "--progress=plain",
+        "--label",
+        "io.resonique.frontend-node22-validation=node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "-t",
+        "resonique-nginx-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "C:\\Users\\dell\\AppData\\Local\\Temp\\node22-c2f4a9f774594689b9ec2d6074adbfc4-5m4g6mnb\\frontend"
+      ],
+      "log": "build-nginx.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "resonique-node22-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "inspect-build-image.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "resonique-nginx-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "inspect-delivery-image.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "node22-c2f4a9f774594689b9ec2d6074adbfc4-checks",
+        "--label",
+        "io.resonique.frontend-node22-validation=node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "resonique-node22-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "sh",
+        "-c",
+        "set -eu\nnode --version > /tmp/node-version.txt\nnpm --version > /tmp/npm-version.txt\ncat /tmp/node-version.txt /tmp/npm-version.txt\necho 'COMMAND: npm ci'\nnpm ci\necho 'COMMAND: npm test'\nnpm test\necho 'COMMAND: clean incremental TypeScript outputs before typecheck'\n./node_modules/.bin/tsc -b --clean\necho 'COMMAND: npm run typecheck'\nnpm run typecheck\necho 'COMMAND: npm run lint'\nnpm run lint\necho 'COMMAND: npm run build'\nnpm run build\nsha256sum /app/package-lock.json > /tmp/lock-sha256.txt\nnpm ls --all --json > /tmp/installed-tree.json\naudit_exit=0\nnpm audit --json > /tmp/audit.json || audit_exit=$?\necho \"audit exit: $audit_exit\"\ntest \"$audit_exit\" -le 1\nnode <<'JS'\nconst fs = require('fs'), crypto = require('crypto'), path = require('path');\nfunction visit(p) {\n  return fs.readdirSync(p, {withFileTypes: true}).flatMap(x =>\n    x.isDirectory() ? visit(path.join(p, x.name)) : [path.join(p, x.name)]);\n}\nconst result = Object.fromEntries(visit('/app/dist').map(p => [p.slice(9), {\n  bytes: fs.statSync(p).size,\n  sha256: crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')\n}]));\nfs.writeFileSync('/tmp/assets.json', JSON.stringify(result, null, 2));\nJS\n"
+      ],
+      "log": "create-check-container.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "start",
+        "-a",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b"
+      ],
+      "log": "node22-checks.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b",
+        "--format",
+        "{{.State.ExitCode}}"
+      ],
+      "log": "checks-exit.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b:/tmp/node-version.txt",
+        "E:\\Empathy-Copilot\\backend\\evaluation_output\\frontend-dependency-fixes\\node22-c2f4a9f774594689b9ec2d6074adbfc4\\node-version.txt"
+      ],
+      "log": "copy-node-version-txt.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b:/tmp/npm-version.txt",
+        "E:\\Empathy-Copilot\\backend\\evaluation_output\\frontend-dependency-fixes\\node22-c2f4a9f774594689b9ec2d6074adbfc4\\npm-version.txt"
+      ],
+      "log": "copy-npm-version-txt.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b:/tmp/lock-sha256.txt",
+        "E:\\Empathy-Copilot\\backend\\evaluation_output\\frontend-dependency-fixes\\node22-c2f4a9f774594689b9ec2d6074adbfc4\\lock-sha256.txt"
+      ],
+      "log": "copy-lock-sha256-txt.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b:/tmp/installed-tree.json",
+        "E:\\Empathy-Copilot\\backend\\evaluation_output\\frontend-dependency-fixes\\node22-c2f4a9f774594689b9ec2d6074adbfc4\\installed-tree.json"
+      ],
+      "log": "copy-installed-tree-json.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b:/tmp/audit.json",
+        "E:\\Empathy-Copilot\\backend\\evaluation_output\\frontend-dependency-fixes\\node22-c2f4a9f774594689b9ec2d6074adbfc4\\audit.json"
+      ],
+      "log": "copy-audit-json.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b:/tmp/assets.json",
+        "E:\\Empathy-Copilot\\backend\\evaluation_output\\frontend-dependency-fixes\\node22-c2f4a9f774594689b9ec2d6074adbfc4\\assets.json"
+      ],
+      "log": "copy-assets-json.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "node22-c2f4a9f774594689b9ec2d6074adbfc4-nginx",
+        "--label",
+        "io.resonique.frontend-node22-validation=node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "-p",
+        "127.0.0.1::80",
+        "resonique-nginx-check:node22-c2f4a9f774594689b9ec2d6074adbfc4"
+      ],
+      "log": "create-nginx-container.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "start",
+        "96852b112262753a45e48c0016591f36548dc312c93a8277b91622f6267828d3"
+      ],
+      "log": "start-nginx.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "port",
+        "96852b112262753a45e48c0016591f36548dc312c93a8277b91622f6267828d3",
+        "80/tcp"
+      ],
+      "log": "nginx-port.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "96852b112262753a45e48c0016591f36548dc312c93a8277b91622f6267828d3",
+        "--format",
+        "{{json .Config.Labels}}"
+      ],
+      "log": "cleanup-container-label-0.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "96852b112262753a45e48c0016591f36548dc312c93a8277b91622f6267828d3"
+      ],
+      "log": "cleanup-container-0.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b",
+        "--format",
+        "{{json .Config.Labels}}"
+      ],
+      "log": "cleanup-container-label-1.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b"
+      ],
+      "log": "cleanup-container-1.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "resonique-nginx-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "cleanup-image-label-0.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "resonique-nginx-check:node22-c2f4a9f774594689b9ec2d6074adbfc4"
+      ],
+      "log": "cleanup-image-0.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "resonique-node22-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "cleanup-image-label-1.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "resonique-node22-check:node22-c2f4a9f774594689b9ec2d6074adbfc4"
+      ],
+      "log": "cleanup-image-1.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-a",
+        "--no-trunc",
+        "--format",
+        "{{json .}}"
+      ],
+      "log": "containers-after.log",
+      "exit_code": 0
+    }
+  ],
+  "cleanup": [
+    {
+      "container": "96852b112262753a45e48c0016591f36548dc312c93a8277b91622f6267828d3",
+      "removed": true
+    },
+    {
+      "container": "d66b3cd3beb168714c010a5a68c056227c2d820614c8a0ddc6db837bf07f5e0b",
+      "removed": true
+    },
+    {
+      "image_tag": "resonique-nginx-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+      "removed": true
+    },
+    {
+      "image_tag": "resonique-node22-check:node22-c2f4a9f774594689b9ec2d6074adbfc4",
+      "removed": true
+    }
+  ],
+  "starting_commit": "975933705fea428331954b22b9844de0b66707f8",
+  "docker": {
+    "Client": {
+      "Version": "29.7.2",
+      "ApiVersion": "1.55",
+      "DefaultAPIVersion": "1.55",
+      "GitCommit": "a7dcaa6",
+      "GoVersion": "go1.26.5",
+      "Os": "windows",
+      "Arch": "amd64",
+      "BuildTime": "Wed Aug  5 18:31:33 2026",
+      "Context": "desktop-linux"
+    },
+    "Server": {
+      "Platform": {
+        "Name": "Docker Desktop 4.86.0 (236216)"
+      },
+      "Version": "29.7.2",
+      "ApiVersion": "1.55",
+      "MinAPIVersion": "1.40",
+      "Os": "linux",
+      "Arch": "amd64",
+      "Components": [
+        {
+          "Name": "Engine",
+          "Version": "29.7.2",
+          "Details": {
+            "ApiVersion": "1.55",
+            "Arch": "amd64",
+            "BuildTime": "Wed Aug  5 18:28:36 2026",
+            "Experimental": "false",
+            "GitCommit": "6a43e3d",
+            "GoVersion": "go1.26.5",
+            "KernelVersion": "6.18.33.2-microsoft-standard-WSL2",
+            "MinAPIVersion": "1.40",
+            "Module": "github.com/moby/moby/v2",
+            "ModuleVersion": "v2.0.0+unknown",
+            "Os": "linux"
+          }
+        },
+        {
+          "Name": "containerd",
+          "Version": "v2.2.5",
+          "Details": {
+            "GitCommit": "e53c7c1516c3b2bff98eb76f1f4117477e6f4e66"
+          }
+        },
+        {
+          "Name": "runc",
+          "Version": "1.3.6",
+          "Details": {
+            "GitCommit": "v1.3.6-0-g491b69ba"
+          }
+        },
+        {
+          "Name": "docker-init",
+          "Version": "0.19.0",
+          "Details": {
+            "GitCommit": "de40ad0"
+          }
+        }
+      ],
+      "GitCommit": "6a43e3d",
+      "GoVersion": "go1.26.5",
+      "KernelVersion": "6.18.33.2-microsoft-standard-WSL2",
+      "BuildTime": "2026-08-05T18:28:36.000000000+00:00"
+    }
+  },
+  "containers_before": [
+    {
+      "id": "5c92c85dfd5462d21f42211d99e7f8f39207024795df61dabbb7e307a4abd664",
+      "state": "exited"
+    },
+    {
+      "id": "831ecea57c3a2593dfb0a47d70874ffb0ae8dab512fb4174546d2338b72ac865",
+      "state": "exited"
+    },
+    {
+      "id": "0d98206b4319b0d72f23d7c7ee7e032e088b22b0b00c946142c269747ed254c4",
+      "state": "exited"
+    },
+    {
+      "id": "9a057a83ee8fc14b7d6e31612ba7496c66532d5c0fe63455b0aad39ac9b1dabe",
+      "state": "exited"
+    },
+    {
+      "id": "a8966d95728a54367f4108646074ab7e010b0c54063ef6b9598054e22172672c",
+      "state": "exited"
+    },
+    {
+      "id": "9e8adc644fd1225f2021aeef018ee3ae6d1bca4f6b3a90ffc79ae232fe905754",
+      "state": "running"
+    },
+    {
+      "id": "09e0123413c26267d94aeceb40226eebfa93ee40258fa7cea6d9fb9cc93b4255",
+      "state": "running"
+    },
+    {
+      "id": "0889b848c1ba33c210b982f431fd96cd037cf57ef58ec2882716e0a101267fc0",
+      "state": "running"
+    },
+    {
+      "id": "a2152b8f44825a2c91b9ffb81e7813e1ddce7ae5e7d15d03ea88df39512d985e",
+      "state": "exited"
+    },
+    {
+      "id": "4a1025137eefc5938e092f1dc5729537951f5a8459b010583948805699c3fd23",
+      "state": "exited"
+    },
+    {
+      "id": "44a3134d24ae825d38953b3487511354a93e6439fb9b0c38c11d1e8909cf632b",
+      "state": "exited"
+    }
+  ],
+  "base_images": {
+    "node:22-alpine": {
+      "id": "sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a",
+      "digests": [
+        "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "labels": {}
+    },
+    "nginx:1.27-alpine": {
+      "id": "sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+      "digests": [
+        "nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "labels": {
+        "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+      }
+    }
+  },
+  "input_sha256": {
+    "Dockerfile": "e0c3e0989f9a939f3bd01cf038e928f38174e3cd514c1d57d615ca8ff20e97e5",
+    "package.json": "7c7acb8133c1bcc235cc46da75687ffe09aeadd3da1e26ddbf83ab887018b296",
+    "package-lock.json": "566f7c596563f87e8280b9a320c3aa170c59ca9473e3fb41398022757e271c4c",
+    ".dockerignore": "4e4c7ee631cd58b15f53cf93bee09f52dac10070e3344e59feb0459dcb20dc40"
+  },
+  "build_image": {
+    "id": "sha256:52f4afe1dc203ba10242632c64c534b8c15c7e8be56624d7b5701cdd98524cb4",
+    "digests": [
+      "resonique-node22-check@sha256:52f4afe1dc203ba10242632c64c534b8c15c7e8be56624d7b5701cdd98524cb4"
+    ],
+    "os": "linux",
+    "architecture": "amd64",
+    "labels": {
+      "io.resonique.frontend-node22-validation": "node22-c2f4a9f774594689b9ec2d6074adbfc4"
+    }
+  },
+  "delivery_image": {
+    "id": "sha256:881d83738818d76c46d7680207d7f04ed0bc7461dc5f9e4aeccc38c922df12b4",
+    "digests": [
+      "resonique-nginx-check@sha256:881d83738818d76c46d7680207d7f04ed0bc7461dc5f9e4aeccc38c922df12b4"
+    ],
+    "os": "linux",
+    "architecture": "amd64",
+    "labels": {
+      "io.resonique.frontend-node22-validation": "node22-c2f4a9f774594689b9ec2d6074adbfc4",
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    }
+  },
+  "check_container_exit": 0,
+  "node": "v22.23.5",
+  "npm": "10.9.9",
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 7,
+    "high": 0,
+    "critical": 0,
+    "total": 7
+  },
+  "audit_advisories": [
+    "https://github.com/advisories/GHSA-g3hv-75wg-m249"
+  ],
+  "http": [],
+  "error": "'index.html'",
+  "containers_after": [
+    {
+      "id": "5c92c85dfd5462d21f42211d99e7f8f39207024795df61dabbb7e307a4abd664",
+      "state": "exited"
+    },
+    {
+      "id": "831ecea57c3a2593dfb0a47d70874ffb0ae8dab512fb4174546d2338b72ac865",
+      "state": "exited"
+    },
+    {
+      "id": "0d98206b4319b0d72f23d7c7ee7e032e088b22b0b00c946142c269747ed254c4",
+      "state": "exited"
+    },
+    {
+      "id": "9a057a83ee8fc14b7d6e31612ba7496c66532d5c0fe63455b0aad39ac9b1dabe",
+      "state": "exited"
+    },
+    {
+      "id": "a8966d95728a54367f4108646074ab7e010b0c54063ef6b9598054e22172672c",
+      "state": "exited"
+    },
+    {
+      "id": "9e8adc644fd1225f2021aeef018ee3ae6d1bca4f6b3a90ffc79ae232fe905754",
+      "state": "running"
+    },
+    {
+      "id": "09e0123413c26267d94aeceb40226eebfa93ee40258fa7cea6d9fb9cc93b4255",
+      "state": "running"
+    },
+    {
+      "id": "0889b848c1ba33c210b982f431fd96cd037cf57ef58ec2882716e0a101267fc0",
+      "state": "running"
+    },
+    {
+      "id": "a2152b8f44825a2c91b9ffb81e7813e1ddce7ae5e7d15d03ea88df39512d985e",
+      "state": "exited"
+    },
+    {
+      "id": "4a1025137eefc5938e092f1dc5729537951f5a8459b010583948805699c3fd23",
+      "state": "exited"
+    },
+    {
+      "id": "44a3134d24ae825d38953b3487511354a93e6439fb9b0c38c11d1e8909cf632b",
+      "state": "exited"
+    }
+  ],
+  "inventory_redaction": "Only container IDs and states retained; unrelated project names, mounts and networks omitted."
+}

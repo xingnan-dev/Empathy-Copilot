@@ -83,7 +83,8 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 
 - **Active maintenance:** Frontend dependency fixes on `codex/frontend-dependency-fixes`,
   starting from latest main `2a1fee8b26d10ab2251a4e731d006a6f3b54ec42`;
-  compatible Vite/CSS/ESLint fixes locally verified, **待沟通区评审**;
+  compatible Vite/CSS/ESLint fixes passed communication-area static review;
+  Node22 Docker build/checks and final nginx HTTP delivery verified, **待合并前评审**;
   minimatch/typescript-eslint residual risk remains open, with no forced override or major downgrade.
   Scope: dependency upgrades and necessary compatibility adjustments only; no merge or release authorized.
   See [dependency review](FRONTEND_DEPENDENCY_REVIEW.md) for verification and remaining risks.
@@ -131,6 +132,9 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 视频经负责人决定取消；27项官方工作簿和1项真实Qwen测试跳过范围保留。
 恢复限定本地单API工作进程；退出条件与操作者身份是声明，不是认证或跨主机fencing。
 旧程序读取新增字段的回滚限制保留，需配套数据库备份，不能删除恢复历史后降级。
-[前端依赖修复](FRONTEND_DEPENDENCY_REVIEW.md)已完成兼容升级与本地验证，待沟通区评审；
+[前端依赖修复](FRONTEND_DEPENDENCY_REVIEW.md)已通过兼容升级静态评审，Node22 Docker补验通过，待合并前评审；
 audit由14条降至7条中危，均关联同一minimatch公告，剩余风险未关闭，不宣称全部修复。
 前端测试5通过，类型检查/lint/构建/npm ci通过；15项HTTP/CSS检查不替代浏览器交互验收。
+Docker补验使用Node22.23.5/npm10.9.9、Linux/amd64及nginx1.27.5，同样5项测试通过；
+最终首页和JS/CSS均HTTP200，内容摘要匹配；本次容器/验证镜像标签已清理，既有业务容器保持原状态。
+Dockerfile与锁文件未改，minimatch风险独立开放；浏览器交互和基础镜像CVE扫描仍未验证，不重跑后端故障矩阵。

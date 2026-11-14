@@ -103,7 +103,7 @@ typescript-eslint8.18.2、TypeScript5.7.2和全部React相关直接依赖保持�
 [最终HTTP/CSS检查](../backend/evaluation_output/frontend-dependency-fixes/http-css-final.json)
 保留证据；最终组合15项HTTP/CSS检查通过，沿用上文的非浏览器层级限制。
 未改后端代码或恢复逻辑，未重复运行后端/官方数据/真实模型及W3进程实验；其原验证范围不变。
-Node22 Docker构建镜像未在本轮实际构建，浏览器交互与跨平台安装仍未验证。
+组合B交付时尚未验证Node22 Docker路径；后续补验见文末。浏览器交互仍未验证。
 
 [最终audit](../backend/evaluation_output/frontend-dependency-fixes/audit-after.json)：
 **7中危/0低/0高/0严重**，退出1为仍有告警；非查询失败，不视为零漏洞。
@@ -149,6 +149,75 @@ audit建议降级typescript-eslint7.3.1跨越直接工具主版本，且需重�
 
 ### 交付状态
 
-**兼容升级已本地验证，待沟通区评审；minimatch剩余风险未关闭。**
+**兼容升级已通过沟通区静态评审；Node22 Docker补验通过，待合并前评审；minimatch剩余风险未关闭。**
 不创建PR、不合并main、不创建发布标签。已有E3.2历史、视频取消决定、外部输入跳过、
 单进程/身份声明及回滚限制均保留。文档本地链接与diff检查后按验证组合提交并推送。
+
+### Node22 Docker交付路径补验（2026-11-14）
+
+起点 `975933705fea428331954b22b9844de0b66707f8`，分支仍为
+`codex/frontend-dependency-fixes`；刷新远端后与本地一致，main仍为2a1fee8，开始时工作区干净。
+使用当前提交中的原始 `frontend/Dockerfile`、`.dockerignore`、package.json与锁文件，
+没有修改产品源码、Dockerfile、依赖版本或锁文件，不扩展工具链主版本迁移。
+本次新[验证脚本](../scripts/verify_frontend_node22.py)由本次补验提交保存；
+报告starting_commit是被验证的前端快照9759337，不表示该提交已经包含后续新增的验证脚本。
+
+复现：在仓库根目录执行 `python scripts/verify_frontend_node22.py`（Python>=3.12、
+Docker Linux引擎、基础镜像/npm源网络访问权限）。脚本通过git archive导出已提交frontend到
+独立临时目录，拒绝frontend未提交改动，排除本机node_modules、dist、.env与增量缓存；
+用同一上下文先 `docker build --no-cache --target build`，再按原Dockerfile构建最终nginx镜像。
+实际完整argv、退出码及原始输出保存在每个实验目录的report.json与对应log文件。
+
+| 环境/镜像 | 实际结果 |
+| --- | --- |
+| Docker Desktop / Engine / 平台 | 4.86.0 / 29.7.2 / linux/amd64，WSL2 |
+| node:22-alpine | Node **v22.23.5** / npm **10.9.9**；基础镜像digest `sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a` |
+| nginx:1.27-alpine | nginx **1.27.5**；基础镜像digest `sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10` |
+| 验证build镜像ID | `sha256:38a843f541a7acc00e3d117d9ff220fa53f2c0aad1b2ab773a835d79a48ccfd7` |
+| 最终交付镜像ID | `sha256:32b6fd796af0a7495d1ce9b287699110573cbbe25ab7817e2e13cf4cbb569e70` |
+
+原Dockerfile基础镜像标签为浮动标签；上表记录本次解析结果，不承诺未来相同标签仍解析到相同内容。
+Windows Git导出在本环境按core.autocrlf生成CRLF；导出锁文件原字节SHA-256为
+`566f7c596563f87e8280b9a320c3aa170c59ca9473e3fb41398022757e271c4c`，
+归一化LF后与Git对象的 `b56b5887…ec24ed1` 完全一致。npm ci后容器内原字节摘要保持566f7c59…，
+没有重新解析或改写锁文件。此换行差异解释了导出上下文摘要与上文Git LF摘要的区别。
+
+最终成功实验为 `node22-3847c80d4a60447c9fc4182e3bdf75fb`：
+[完整报告](../backend/evaluation_output/frontend-dependency-fixes/node22-3847c80d4a60447c9fc4182e3bdf75fb/report.json)、
+[Dockerfile构建日志](../backend/evaluation_output/frontend-dependency-fixes/node22-3847c80d4a60447c9fc4182e3bdf75fb/build-node22.log)、
+[nginx镜像构建日志](../backend/evaluation_output/frontend-dependency-fixes/node22-3847c80d4a60447c9fc4182e3bdf75fb/build-nginx.log)、
+[容器检查日志](../backend/evaluation_output/frontend-dependency-fixes/node22-3847c80d4a60447c9fc4182e3bdf75fb/node22-checks.log)。
+
+| 隔离环境检查 | 结果 |
+| --- | --- |
+| npm ci | 通过，安装232包；无宿主机依赖挂载，检查容器退出0 |
+| npm test | 5通过、0失败、0跳过；不把多轮执行算作新增用例 |
+| typecheck | 清理容器内部TypeScript增量产物后运行，通过 |
+| lint / build / npm ls --all | 全部通过，构建1620模块 |
+| 最终nginx首页与资源 | /及/index.html可读，引用JS/CSS均HTTP200；Content-Type和SHA-256与独立检查容器dist一致 |
+| 产物 | JS 244682字节、CSS 64517字节；[完整资产摘要](../backend/evaluation_output/frontend-dependency-fixes/node22-3847c80d4a60447c9fc4182e3bdf75fb/assets.json) |
+| nginx运行内容 | node/npm命令不存在；未运行Vite开发服务器 |
+| npm audit | 7中危、0低/高/严重；退出1，仍为同一minimatch公告，[本轮原始结果](../backend/evaluation_output/frontend-dependency-fixes/node22-3847c80d4a60447c9fc4182e3bdf75fb/audit.json) |
+
+两次未完成实验亦保留，不计为完整通过：
+[66f508d4报告](../backend/evaluation_output/frontend-dependency-fixes/node22-66f508d402c743f487e2a83f4883a32a/report.json)
+在基础镜像缺少Labels字段时采集失败，未进入构建；
+[c2f4a9f7报告](../backend/evaluation_output/frontend-dependency-fixes/node22-c2f4a9f774594689b9ec2d6074adbfc4/report.json)
+已完成Node22全部检查，但检查器资产键保留了前导斜杠，HTTP摘要比较发生KeyError。
+修正两处观测脚本后，重新运行完整路径得到上述PASSED。两者均非产品兼容失败，
+不改写失败报告为成功；清理均完成。新脚本另通过Ruff lint/format及Python编译检查。
+
+所有容器/镜像标签用独立UUID及io.resonique.frontend-node22-validation标签；
+清理前核对所属标签，删除仅针对本次明确创建的ID/tag。不使用compose down、全局prune或业务卷。
+nginx仅发布随机127.0.0.1端口，不挂载业务目录/数据库；每轮临时上下文自动清理。
+成功轮两个容器和两个验证镜像标签均已移除，原有容器ID与运行/退出状态保持一致。
+保留下载的基础镜像和Docker构建缓存，避免清理共享资源；库存证据只保留ID/状态，
+未提交其他项目的名称、挂载和网络信息（前两轮采集的附加库存字段已缩减）。
+工具日志仅归一化换行和行末空白，保留输出文字、步骤及退出码；该输出格式整理不改验证逻辑。
+
+剩余minimatch风险继续独立开放，本轮不override、不降级、不迁移主版本。
+npm ci仍有ESLint9.27.0不再支持的上游弃用提示，未造成安装或检查失败，
+后续维护版本选择单独评估，不据本次通过宣布长期支持。
+本轮验证到Linux/amd64 Node22构建与nginx静态交付；**没有浏览器渲染、点击、案件交互或真实API操作验证**，
+不等同视觉/端到端验收，亦未进行基础镜像CVE扫描或ARM平台验证。
+未改后端，无需且没有重跑完整后端故障矩阵。补验完成后提交/推送交回沟通区，PR合并及发布仍待确认。

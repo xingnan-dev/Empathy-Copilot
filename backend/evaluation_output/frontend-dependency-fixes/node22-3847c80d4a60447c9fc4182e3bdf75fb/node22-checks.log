@@ -1,0 +1,90 @@
+v22.23.5
+10.9.9
+COMMAND: npm ci
+
+added 232 packages, and audited 233 packages in 14s
+
+60 packages are looking for funding
+  run `npm fund` for details
+
+7 moderate severity vulnerabilities
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+COMMAND: npm test
+
+> resonique-plugin-ui@0.1.0 test
+> node --experimental-strip-types --test src/presentation/caseTruth.test.mjs
+
+TAP version 13
+# Subtest: no restored history produces no returning-consumer support
+ok 1 - no restored history produces no returning-consumer support
+  ---
+  duration_ms: 3.605503
+  type: 'test'
+  ...
+# Subtest: restored history can support returning-consumer wording
+ok 2 - restored history can support returning-consumer wording
+  ---
+  duration_ms: 0.210052
+  type: 'test'
+  ...
+# Subtest: no service-record evidence produces no service-record claim
+ok 3 - no service-record evidence produces no service-record claim
+  ---
+  duration_ms: 0.556327
+  type: 'test'
+  ...
+# Subtest: consumer-reported text cannot become a verified service-record claim
+ok 4 - consumer-reported text cannot become a verified service-record claim
+  ---
+  duration_ms: 0.209552
+  type: 'test'
+  ...
+# Subtest: authoritative service evidence enables supported service-record wording
+ok 5 - authoritative service evidence enables supported service-record wording
+  ---
+  duration_ms: 0.322307
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 173.779352
+COMMAND: clean incremental TypeScript outputs before typecheck
+COMMAND: npm run typecheck
+
+> resonique-plugin-ui@0.1.0 typecheck
+> tsc -b --pretty false
+
+COMMAND: npm run lint
+
+> resonique-plugin-ui@0.1.0 lint
+> eslint .
+
+COMMAND: npm run build
+
+> resonique-plugin-ui@0.1.0 build
+> tsc -b && vite build
+
+vite v6.4.6 building for production...
+transforming...
+✓ 1620 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.56 kB │ gzip:  0.33 kB
+dist/assets/index-KT6CyoyF.css   64.52 kB │ gzip: 12.31 kB
+dist/assets/index-B_mE6WwW.js   244.68 kB │ gzip: 73.60 kB
+✓ built in 3.57s
+audit exit: 1
+npm warn deprecated eslint@9.27.0: This version is no longer supported. Please see https://eslint.org/version-support for other options.
