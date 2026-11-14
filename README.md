@@ -10,9 +10,11 @@ ended and the team did not advance, as reported by the project owner. The compet
 remains a frozen historical baseline.
 
 The runtime is React → FastAPI → deterministic domain/agent workflow → PostgreSQL, with
-optional Qwen language and vision providers. W0 / E3.1 validation was accepted on 2026-11-14. Current work is
-[W1 recovery specification](docs/phases/PHASE_E3_2.md), delivered for review before W2. See the [W0 validation record](docs/W0_VALIDATION.md) for results and skipped checks.
-Human-triggered tool recovery is planned, not yet delivered.
+optional Qwen language and vision providers. W0 / E3.1 validation was accepted on 2026-11-14.
+The [reviewed recovery specification](docs/phases/PHASE_E3_2.md) has been implemented in W2 with
+local-sample and isolated PostgreSQL verification. See the [W2 handoff](docs/W2_VALIDATION.md)
+for operation, results and limitations. W2 awaits review; W3 independent process-fault acceptance
+has not started. The [W0 validation record](docs/W0_VALIDATION.md) remains the original baseline.
 
 ## Reading guide
 
