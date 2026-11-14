@@ -1,0 +1,4 @@
+*.config.json
+*.release
+*.log
+!regression.log

@@ -88,9 +88,11 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
   See [W0 validation](W0_VALIDATION.md) for scope, environment, and limitations. W0/E3.1 review was accepted on 2026-11-14; the frozen competition tag and commit remain unchanged.
 - **Implementation commit:** `a89bed63f5581280d4c2041016ba5f9645ec5a79`.
 - **Current phase:** W1 and its supplement accepted; W2 implementation and local validation
-  accepted by static review; W3 independent-process acceptance in progress against [D2 / E3.2](phases/PHASE_E3_2.md) at
+  accepted by static review; W3 independent-process acceptance completed against [D2 / E3.2](phases/PHASE_E3_2.md) at
   `af52b577ac8b69daca0e97995c613efd2427c124`.
   W3 starting checkpoint: `3893e68012c2236cdfa5844b27430656bc8357cf`.
+  [W3 handoff](W3_VALIDATION.md): 13 initial + 39 repeated process experiments passed;
+  full regression 221 passed / 28 external-input skips. W3 awaits review; W4 has not started.
 - **W2 verification:** [Execution and validation handoff](W2_VALIDATION.md): 218 passed,
   28 external-input skips; PostgreSQL subset 36 passed / 1 official-data skip; Ruff and mypy passed.
   Implementation checked at `da131051af0f4849b6ae2a3677e15e7c887ba8f8`.
