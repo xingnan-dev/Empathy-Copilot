@@ -125,8 +125,25 @@ GET 的 replayed=false；重复 POST 为 true。响应投影最新持久化状�
 新增账本字段 `continuation: enum = PENDING`：领取时 PENDING，工具开始时 RUNNING，
 失败暂停或续接落库后 SETTLED；新请求接替未完成尝试时父请求（若有）标 INTERRUPTED。
 上述字段变化与相应 State 转换一起提交。工具 COMPLETED 到续接之间允许 RUNNING：
-此时重放只读，不自动续接；进程退出后通过现有普通工作流重入继续（不重新查询），
-下一正式转换将对应账本标 SETTLED，纳入 F5 检查。
+此时重放只读，不自动续接；进程退出后的明确续接入口见下节，纳入 F5 检查。
+
+### COMPLETED 后的重启续接入口
+
+W2 新增 `scripts/resume_completed_recovery.py`，参数 `--case-id`、`--request-id`；
+从 DATABASE_URL 建新 engine/session，使用 build_postgres_workflow 与 PostgresCheckpointStore
+加载并完整校验快照。外部实验脚本先停止 API、wait 确认旧 PID 退出，在 API 尚未重启时
+运行该脚本；成功后再启动单 API 工作进程并 GET 查询。脚本是短时离线续接命令，不提供 HTTP
+控制服务，不得与 API 同时执行。不会领取新尝试或调用 execute_recovery。
+
+入口仅接受该请求当前叶为 COMPLETED、continuation=RUNNING 且案件 INVESTIGATING；
+已 SETTLED 则只读成功退出；其他组合明确拒绝且不执行。读取到的 state_revision 原样作为
+workflow.run(state, expected_revision=loaded.state_revision) 的参数，禁止传 None 或请求最初 revision。
+W2 在工作流首个后续正式转换中，将对应请求 continuation=SETTLED 与调查状态、事件、计数、
+修订号同次 CAS 提交；刷新派生缺口、仅加载或 GET 不改变 continuation。该转换即使选择后续
+其他业务工具，也在其首次正式准备转换中标记 SETTLED，原订单工具始终复用 COMPLETED。
+安全升级/预算耗尽走原正式升级/终止转换并稳定请求；CAS 冲突退出非零，不覆盖、不盲重跑。
+脚本回执丢失可重跑：已 SETTLED 不做转换。再次在提交前崩溃仍为 RUNNING，可再次离线续接。
+F5 必须验证重启后调查推进、GET 从202变200且SETTLED、订单入口累计次数不增加。
 
 处理顺序固定：解析结构 → 加载案件 → 查 request_id → 相同内容返回进度（不检查原旧 revision）
 或不同内容 409 REQUEST_ID_CONFLICT → 新请求检查 revision → 目标/资格/安全/预算 → 原子领取。
@@ -152,7 +169,12 @@ current_action=CALL_TOOL、无其他阻断。失败须 RETRYABLE；NON_RETRYABLE
 
 所有接受请求都要求 previous_process_exited=true，含 FAILED，避免原进程返回后仍继续执行。
 实验脚本负责停止并 join/wait 原工作子进程，确认退出再请求；固定超时不是退出证明。
-应用只记录声明，没有跨主机 fencing。测试环境单执行工作进程，恢复 HTTP 控制进程独立。
+应用只记录声明，没有跨主机 fencing。本轮固定单 API 工作进程（Uvicorn 单 worker、无 reload），
+由该进程同步领取并执行工具。外部 scripts/tool_recovery_experiment.py 管理其启动、终止、
+wait 与重启，并作为 HTTP 客户端发送请求；不存在独立 HTTP 控制服务。
+previous_process_exited 指向本次 target_attempt_id 所属的旧 API 执行进程（包括失败调用所属进程），
+不是脚本或新 API 进程。脚本保存 PID/进程启动标识与目标尝试关联、退出码和 wait 结果作为实验依据；
+重启后的 API 只记录操作者声明，不将裸 PID 或 bool 当存活检测。连续恢复每次确认对应旧进程退出。
 
 领取使用 StateTransitionService 一次转换（等待→调查或调查→调查，action=CALL_TOOL）：
 追加新 PENDING 尝试及请求账本、记录中断接替关系、仅清除工具暂停原因、更新 reason/时间，
@@ -167,6 +189,25 @@ CAS where case_id AND expected_revision；失败无 permit、无工具执行。�
 同请求并发失败方只能读取获胜记录。运行后冲突按原 StateConflictError 保护，禁止补写覆盖。
 恢复成功的原始结果经 Grounding；同 Evidence id 内容不同拒绝持久化并暂停为 NON_RETRYABLE，
 不能静默复用不同内容。本轮固定样本内容不变，来源观察时间来自真实记录/实际观测，禁止补造。
+
+### Evidence 批次去重与冲突落库
+
+W2 在 services/grounding.py 提供纯批次合并校验，由 tools.py 在构造完成转换前调用。
+以 id 定位；同 id 比较 case_id、evidence_type、key、value、source 的全部结构化字段、
+observed_at、extraction_confidence、metadata。唯一排除字段为 Evidence.created_at（本次生成时间），
+不排除 value/metadata 内的业务时间或任何来源字段。比较使用 JSON-safe 类型严格递归值相等：
+对象键顺序忽略，数组顺序保留，bool不等于数字，字符串不裁剪、不转换日期；不比较整个模型。
+先校验全部候选及批次内部重复，再与存量逐项检查；内容相同复用原 Evidence 对象与原 created_at，
+新完成调用引用其原 id。新 id 候选只有全批通过才一次追加，不允许边检查边改 State。
+
+任一同 id 内容冲突（包括候选内部冲突），整批不追加、不覆盖：从已持久化 RUNNING 状态构造
+FAILED/NON_RETRYABLE，固定脱敏摘要 `Evidence content conflict.`，result_evidence_ids=[]；
+同次正式转换到 WAITING_FOR_HUMAN、设置 TOOL_RECOVERY、请求 continuation=SETTLED，并以
+RUNNING revision 为 expected_revision CAS 落库。原 Evidence、历史记录和缺口不被候选改变。
+CAS 失败沿用冲突保护，不能补写 FAILED；原持久化 RUNNING 保留，按中断流程处理。
+F16验收：仅created_at不同复用；业务金额/产品/value时间/source/metadata差异拒绝；
+混合“新id+相同id+冲突id”整批零追加；候选内部重复相同去重、不同失败；冲突落库后重启可读
+FAILED且无成功Evidence引用，GET稳定200，不再执行。该规则适用于普通和恢复工具完成路径。
 
 ## 5. 旧快照与回滚
 
@@ -210,3 +251,11 @@ W3 预计5–7天，W4仍3–5天。剩余14–20工作日，不包含评审等�
 W1 只提交本文与状态/导航更新；W2 必须在规格评审后开始。
 W2按 T1+测试、T2、T3+测试、T4+测试、T5/T6 分组提交并阶段推送；每次精确暂存和核对远端。
 W3报告须记录实际通过/失败/跳过，未完成故障矩阵不得宣布阶段完成。主分支合并另行验收。
+
+### W1 补订任务映射（2026-11-14）
+
+T3 增加 grounding.py 批次比较/合并与 tools.py 冲突失败落库，T6加入F16全部单元及数据库断言。
+T5 增加 scripts/resume_completed_recovery.py 与 workflow 首次转换的原子 SETTLED 更新；
+T6验证 expected_revision、冲突与幂等续接；W3 F5使用真实单 API 子进程和离线脚本完成重启闭环。
+W3实验脚本统一单 API 同步执行结构，保存目标旧执行进程退出证据；F2–F4/F9覆盖连续进程接替。
+本次仍为 W1 补订，不创建上述脚本或执行 W2；排期沿用本规格估算，评审通过后实施。
