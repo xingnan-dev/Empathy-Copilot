@@ -1,0 +1,46 @@
+
+COMMAND: npm run test
+
+> resonique-plugin-ui@0.1.0 test
+> node --experimental-strip-types --test src/presentation/caseTruth.test.mjs
+
+✔ no restored history produces no returning-consumer support (2.1733ms)
+✔ restored history can support returning-consumer wording (0.1142ms)
+✔ no service-record evidence produces no service-record claim (0.2045ms)
+✔ consumer-reported text cannot become a verified service-record claim (0.106ms)
+✔ authoritative service evidence enables supported service-record wording (0.1827ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 186.9954
+
+COMMAND: npm run typecheck
+
+> resonique-plugin-ui@0.1.0 typecheck
+> tsc -b --pretty false
+
+
+COMMAND: npm run lint
+
+> resonique-plugin-ui@0.1.0 lint
+> eslint .
+
+
+COMMAND: npm run build
+
+> resonique-plugin-ui@0.1.0 build
+> tsc -b && vite build
+
+vite v6.0.7 building for production...
+transforming...
+✓ 1620 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.54 kB │ gzip:  0.32 kB
+dist/assets/index-BRWWxa0m.css   64.54 kB │ gzip: 12.31 kB
+dist/assets/index-BFV8XRjg.js   243.67 kB │ gzip: 73.55 kB
+✓ built in 4.45s

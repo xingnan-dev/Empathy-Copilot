@@ -1,6 +1,7 @@
-# 前端依赖独立审查待办
+# 前端依赖独立审查与修复记录
 
-2026-11-14；只读审查完成，修复仍为独立待办。本记录不宣称漏洞已消除，也不自动批准发布。
+2026-11-14；原只读审查保留如下；负责人已授权独立依赖修复，执行结果见文末。
+本记录不自动批准合并或发布，也不将剩余风险视为已修复。
 [npm原始结果](../backend/evaluation_output/w4/frontend-audit.json)基于当前package-lock：
 14个受影响依赖条目，2低、9中、3高、0严重；不等同14个独立漏洞或14条可利用路径。
 命令为 frontend 目录下 `npm audit --json`；退出码1表示发现漏洞，不是查询失败。
@@ -28,3 +29,59 @@ nginx镜像自身漏洞不属于npm审查覆盖；静态dist也不因此获得�
 单个通告修复版本不代表该包其他通告也已修复。当前未修改package.json或package-lock.json。
 本事项保持独立开放：视频取消只移除视频阻断，不能被解释为漏洞豁免。负责人在最终评审中
 决定依赖修复与合并/发布的安排；代码、测试、故障实验、干净检出、文档和Git仍按既定范围验收。
+
+## 修复执行起点（2026-11-14）
+
+已读取AGENTS、PRD、AGENT_DESIGN、E3.2阶段说明及PROJECT_STATE；E3.2已完成，
+本轮为负责人授权的独立依赖维护。远端刷新后main仍为
+`2a1fee8b26d10ab2251a4e731d006a6f3b54ec42`，工作区干净，无更新差异；
+由origin/main创建 `codex/frontend-dependency-fixes`，不修改ui-prototype或恢复机制，不合并或发布。
+Node `v24.16.0` / npm `11.13.0`；起始package-lock SHA-256：
+`8430452218bb86a5cfe7882a672c516392e5c15bedf3c5fea7c299a3eea62a45`。
+[起始版本及资产摘要](../backend/evaluation_output/frontend-dependency-fixes/baseline.json)、
+[修复前audit](../backend/evaluation_output/frontend-dependency-fixes/audit-before.json)已保存。
+新audit与原审查相同：14条（2低/9中/3高）。
+
+### 组合A：开发服务器与构建链
+
+| 安装节点 | 原版本 → 本组版本 | 选择依据 |
+| --- | --- | --- |
+| node_modules/vite | 6.0.7 → 6.4.6 | 保留6主版本；现有plugin-react4.3.4声明支持Vite6，不升级React或插件 |
+| node_modules/esbuild及平台包 | 0.24.2 → 0.25.12 | Vite6.4声明的^0.25.0正常解析，不强制覆盖0.x API |
+| node_modules/postcss | 8.4.49 → 8.5.23 | 所查PostCSS通告最高受影响版本为8.5.22，同主版本首个修复补丁 |
+| node_modules/source-map-js | 1.2.1 → 1.2.2 | 通过现有^1.2.1范围更新，修复indexed map偏移导致的阻塞 |
+| node_modules/postcss-selector-parser | 6.1.4 → 6.1.6 | 保留6主版本，现有依赖范围内更新，避开<6.1.5 |
+
+不使用force、overrides或全量依赖刷新。先更新精确Vite/PostCSS，随后仅对source-map-js与
+selector-parser运行定向 `npm update ... --package-lock-only --ignore-scripts`。
+Vite最初试验6.4.4后，audit发现[仅影响6.4.4的查询绕过](https://github.com/advisories/GHSA-8g5g-mxqh-grgj)，
+保留[中间audit](../backend/evaluation_output/frontend-dependency-fixes/audit-build-chain.json)；
+改为同6.4系列当前补丁6.4.6并重新验证，不将最初候选当作修复完成。
+其余依据：[PostCSS](https://github.com/advisories/GHSA-fxqj-rqcc-2cmp)、
+[source-map-js](https://github.com/advisories/GHSA-68fv-2mgg-jv7q)、
+[selector-parser](https://github.com/advisories/GHSA-rj75-hqrm-r3gf)。
+传递变化包含Vite局部fdir/picomatch节点及esbuild平台包；cssesc移除，业务依赖未升级。
+
+升级前与组合A均运行 `npm test`（5通过、零跳过）、`npm run typecheck`、`npm run lint`、
+`npm run build`，全部通过；组合A另用 `npm ci`验证安装。
+[原始基线日志](../backend/evaluation_output/frontend-dependency-fixes/baseline-checks.log)、
+[最终组合A日志](../backend/evaluation_output/frontend-dependency-fixes/build-chain-final-checks.log)、
+[组合A audit](../backend/evaluation_output/frontend-dependency-fixes/audit-build-chain-final.json)：
+9条（2低/7中/0高），高危及开发/构建链告警已消除，lint链待下一组处理。
+
+针对性验证命令（先在frontend执行npm ci与npm run build，再回仓库根目录）：
+`node scripts/verify_frontend_dependencies.mjs`。
+复用现有Vite/PostCSS依赖，不引入框架；[脚本](../scripts/verify_frontend_dependencies.mjs)
+仅管理自己启动的loopback服务器及带UUID的合成拒绝文件，finally关闭并清理探针，不读取真实.env。
+原锁文件在独立临时目录重建，其CSS与起始SHA完全相同，
+[基线CSS](../backend/evaluation_output/frontend-dependency-fixes/baseline.css)按原字节保留。
+新CSS64517字节，原64540字节；差异仅13处简单媒体查询的空白压缩。
+AST比较仅归一化这些max-width/reduced-motion条件空白，完整保留其他参数、选择器、声明、顺序。
+另验证PostCSS/autoprefixer→source map→source-map-js原位置/源内容往返，生产未启用.map输出。
+Vite、PostCSS、Tailwind配置及源CSS均未修改。
+[HTTP/CSS结果](../backend/evaluation_output/frontend-dependency-fixes/http-css.json)含15项检查：
+dev入口、S00154样本、runtime模块、preview及JS/CSS资源可访问；构建JS仍包含案件及审批/草稿/消息入口；
+四种合成.env查询均拒绝，foreign Origin未获CORS授权。无浏览器工具，未渲染页面、点击按钮、
+核实视觉布局或调用真实后端操作；HTTP资源可用不能替代交互验收。
+检查器初始按字节相等断言失败，以上旧版重建与AST比较定位后修正检查方式；
+首次端口绑定受沙箱限制，取得环境权限后重跑通过，不将失败尝试算入通过数量。

@@ -81,6 +81,10 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 
 ## Current work
 
+- **Active maintenance:** Frontend dependency fixes on `codex/frontend-dependency-fixes`,
+  starting from latest main `2a1fee8b26d10ab2251a4e731d006a6f3b54ec42`;
+  scope: dependency upgrades and necessary compatibility adjustments only.
+  See [dependency review](FRONTEND_DEPENDENCY_REVIEW.md) for verification and remaining risks.
 - **Productization branch:** `codex/phase-e3-2-readonly-recovery`
 - **Phase E3.1:** Durable tool failure handling implemented and locally validated on isolated
   PostgreSQL: 159 tests passed, 28 skipped for documented official-data/real-model dependencies;
@@ -108,8 +112,9 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 
 ## Reading and operation
 
-- Follow [AGENTS.md](../AGENTS.md) for the required development reading order; the active phase
-  is [E3.2 / W4](phases/PHASE_E3_2.md).
+- Follow [AGENTS.md](../AGENTS.md) for the required development reading order; the completed product phase
+  is [E3.2 / W4](phases/PHASE_E3_2.md). Active dependency maintenance follows the
+  [independent review](FRONTEND_DEPENDENCY_REVIEW.md), without expanding product scope.
 - Use the [run guide](COMPETITION_RUN_GUIDE.md) for local setup and data-source requirements,
   and the [operator guide](DEMO_OPERATOR_GUIDE.md) for the existing demonstration paths.
 - Historical phase requirements and submission records remain available as baseline evidence;
