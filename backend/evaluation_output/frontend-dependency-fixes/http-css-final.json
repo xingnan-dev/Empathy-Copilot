@@ -1,0 +1,95 @@
+{
+  "level": "HTTP assets and CSS/source-map processing; no browser interaction or live API operation",
+  "checks": [
+    {
+      "name": "production-css-structure-unchanged",
+      "passed": true,
+      "bytes": 64517,
+      "sha256": "dfda11154fa8fcb989e807eb6432399fe84c67ea52be503325b3259aed898c5d",
+      "baselineBytes": 64540,
+      "baselineSha256": "77389dbc902cfe930450e44695f0ddf60f3030597ebe5d8fab16429d3e03883d",
+      "normalizedOnly": "whitespace in simple max-width/prefers-reduced-motion media conditions"
+    },
+    {
+      "name": "production-maps-disabled",
+      "passed": true
+    },
+    {
+      "name": "postcss-autoprefixer-source-map-roundtrip",
+      "passed": true,
+      "sources": [
+        "dependency-probe.css"
+      ],
+      "originalLine": 1
+    },
+    {
+      "name": "dev-asset",
+      "passed": true,
+      "route": "/",
+      "status": 200
+    },
+    {
+      "name": "dev-asset",
+      "passed": true,
+      "route": "/src/main.tsx",
+      "status": 200
+    },
+    {
+      "name": "dev-asset",
+      "passed": true,
+      "route": "/src/runtime/CaseRuntime.tsx",
+      "status": 200
+    },
+    {
+      "name": "dev-asset",
+      "passed": true,
+      "route": "/src/demo/cases/S00154.ts",
+      "status": 200
+    },
+    {
+      "name": "dev-deny-synthetic-env",
+      "passed": true,
+      "query": "",
+      "status": 403
+    },
+    {
+      "name": "dev-deny-synthetic-env",
+      "passed": true,
+      "query": "?raw",
+      "status": 403
+    },
+    {
+      "name": "dev-deny-synthetic-env",
+      "passed": true,
+      "query": "?import&raw",
+      "status": 403
+    },
+    {
+      "name": "dev-deny-synthetic-env",
+      "passed": true,
+      "query": "?import&url&inline",
+      "status": 403
+    },
+    {
+      "name": "dev-foreign-origin-not-allowed",
+      "passed": true
+    },
+    {
+      "name": "preview-asset",
+      "passed": true,
+      "route": "/assets/index-B_mE6WwW.js",
+      "status": 200
+    },
+    {
+      "name": "preview-asset",
+      "passed": true,
+      "route": "/assets/index-KT6CyoyF.css",
+      "status": 200
+    },
+    {
+      "name": "preview-index",
+      "passed": true,
+      "status": 200
+    }
+  ]
+}

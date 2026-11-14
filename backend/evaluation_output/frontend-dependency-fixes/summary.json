@@ -1,0 +1,316 @@
+{
+  "starting_commit": "2a1fee8b26d10ab2251a4e731d006a6f3b54ec42",
+  "build_chain_commit": "d75ee6c0e27844ef86b69bc5e5bedf1790ad991f",
+  "node": "v24.16.0",
+  "npm": "11.13.0",
+  "lock_sha256": "b56b5887cab80c8227c3a8200059d9b2b526e483764f2686c43365a23ec24ed1",
+  "audit_before": {
+    "info": 0,
+    "low": 2,
+    "moderate": 9,
+    "high": 3,
+    "critical": 0,
+    "total": 14
+  },
+  "audit_after": {
+    "info": 0,
+    "low": 0,
+    "moderate": 7,
+    "high": 0,
+    "critical": 0,
+    "total": 7
+  },
+  "removed_entries": [
+    "@eslint/plugin-kit",
+    "esbuild",
+    "eslint",
+    "postcss",
+    "postcss-selector-parser",
+    "source-map-js",
+    "vite"
+  ],
+  "added_entries": [],
+  "resolved_advisories": [
+    "https://github.com/advisories/GHSA-356w-63v5-8wf4",
+    "https://github.com/advisories/GHSA-4r4m-qw57-chr8",
+    "https://github.com/advisories/GHSA-4w7w-66w2-5vf9",
+    "https://github.com/advisories/GHSA-587h-7wmj-h5pm",
+    "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+    "https://github.com/advisories/GHSA-68fv-2mgg-jv7q",
+    "https://github.com/advisories/GHSA-698v-4r3x-3vcv",
+    "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+    "https://github.com/advisories/GHSA-859w-5945-r5v3",
+    "https://github.com/advisories/GHSA-93m4-6634-74q7",
+    "https://github.com/advisories/GHSA-9jrq-w75r-8gcw",
+    "https://github.com/advisories/GHSA-fx2h-pf6j-xcff",
+    "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+    "https://github.com/advisories/GHSA-g4jq-h2w9-997c",
+    "https://github.com/advisories/GHSA-jqfw-vq24-v9c3",
+    "https://github.com/advisories/GHSA-p9ff-h696-f583",
+    "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+    "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+    "https://github.com/advisories/GHSA-r825-w8mm-5pxw",
+    "https://github.com/advisories/GHSA-rj75-hqrm-r3gf",
+    "https://github.com/advisories/GHSA-rq7h-c2jc-7f22",
+    "https://github.com/advisories/GHSA-v6wh-96g9-6wx3",
+    "https://github.com/advisories/GHSA-vg6x-rcgg-rjx6",
+    "https://github.com/advisories/GHSA-x574-m823-4x7w",
+    "https://github.com/advisories/GHSA-xcj6-pq6g-qj4x",
+    "https://github.com/advisories/GHSA-xffm-g5w8-qvg7"
+  ],
+  "remaining_advisories": [
+    "https://github.com/advisories/GHSA-g3hv-75wg-m249"
+  ],
+  "added_advisories": [],
+  "remaining_entries": {
+    "@typescript-eslint/eslint-plugin": {
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/@typescript-eslint/eslint-plugin"
+      ]
+    },
+    "@typescript-eslint/parser": {
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/@typescript-eslint/parser"
+      ]
+    },
+    "@typescript-eslint/type-utils": {
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/@typescript-eslint/type-utils"
+      ]
+    },
+    "@typescript-eslint/typescript-estree": {
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/@typescript-eslint/typescript-estree"
+      ]
+    },
+    "@typescript-eslint/utils": {
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/@typescript-eslint/utils"
+      ]
+    },
+    "minimatch": {
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch"
+      ]
+    },
+    "typescript-eslint": {
+      "severity": "moderate",
+      "nodes": [
+        "node_modules/typescript-eslint"
+      ]
+    }
+  },
+  "lock_changes": [
+    {
+      "path": "node_modules/@esbuild/aix-ppc64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/android-arm",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/android-arm64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/android-x64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/darwin-arm64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/darwin-x64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/freebsd-arm64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/freebsd-x64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-arm",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-arm64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-ia32",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-loong64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-mips64el",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-ppc64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-riscv64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-s390x",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/linux-x64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/netbsd-arm64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/netbsd-x64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/openbsd-arm64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/openbsd-x64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/openharmony-arm64",
+      "before": null,
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/sunos-x64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/win32-arm64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/win32-ia32",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@esbuild/win32-x64",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/@eslint/config-array",
+      "before": "0.19.2",
+      "after": "0.20.1"
+    },
+    {
+      "path": "node_modules/@eslint/config-helpers",
+      "before": null,
+      "after": "0.2.3"
+    },
+    {
+      "path": "node_modules/@eslint/core",
+      "before": "0.9.1",
+      "after": "0.14.0"
+    },
+    {
+      "path": "node_modules/@eslint/js",
+      "before": "9.17.0",
+      "after": "9.27.0"
+    },
+    {
+      "path": "node_modules/@eslint/plugin-kit",
+      "before": "0.2.8",
+      "after": "0.3.5"
+    },
+    {
+      "path": "node_modules/@eslint/plugin-kit/node_modules/@eslint/core",
+      "before": "0.13.0",
+      "after": "0.15.2"
+    },
+    {
+      "path": "node_modules/cssesc",
+      "before": "3.0.0",
+      "after": null
+    },
+    {
+      "path": "node_modules/esbuild",
+      "before": "0.24.2",
+      "after": "0.25.12"
+    },
+    {
+      "path": "node_modules/eslint",
+      "before": "9.17.0",
+      "after": "9.27.0"
+    },
+    {
+      "path": "node_modules/postcss",
+      "before": "8.4.49",
+      "after": "8.5.23"
+    },
+    {
+      "path": "node_modules/postcss-selector-parser",
+      "before": "6.1.4",
+      "after": "6.1.6"
+    },
+    {
+      "path": "node_modules/source-map-js",
+      "before": "1.2.1",
+      "after": "1.2.2"
+    },
+    {
+      "path": "node_modules/vite",
+      "before": "6.0.7",
+      "after": "6.4.6"
+    },
+    {
+      "path": "node_modules/vite/node_modules/fdir",
+      "before": null,
+      "after": "6.5.0"
+    },
+    {
+      "path": "node_modules/vite/node_modules/picomatch",
+      "before": null,
+      "after": "4.0.7"
+    }
+  ]
+}

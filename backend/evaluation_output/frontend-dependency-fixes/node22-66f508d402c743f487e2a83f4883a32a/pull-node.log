@@ -1,0 +1,18 @@
+22-alpine: Pulling from library/node
+177fffbd7f51: Pulling fs layer
+87aaee1f6667: Pulling fs layer
+881fc932939e: Pulling fs layer
+e868d1035e50: Pulling fs layer
+468bdce65ff1: Download complete
+bf6e4951a281: Download complete
+177fffbd7f51: Download complete
+e868d1035e50: Download complete
+881fc932939e: Download complete
+881fc932939e: Pull complete
+87aaee1f6667: Download complete
+87aaee1f6667: Pull complete
+177fffbd7f51: Pull complete
+e868d1035e50: Pull complete
+Digest: sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a
+Status: Downloaded newer image for node:22-alpine
+docker.io/library/node:22-alpine

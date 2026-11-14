@@ -1,0 +1,1754 @@
+[
+  {
+    "name": "minimatch",
+    "version": "3.1.5",
+    "location": "node_modules/minimatch",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "minimatch",
+        "spec": "^3.1.2",
+        "from": {
+          "name": "eslint",
+          "version": "9.27.0",
+          "location": "node_modules/eslint",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "dev",
+              "name": "eslint",
+              "spec": "9.27.0",
+              "from": {
+                "location": "E:\\Empathy-Copilot\\frontend"
+              }
+            },
+            {
+              "type": "peer",
+              "name": "eslint",
+              "spec": "^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0",
+              "from": {
+                "name": "eslint-plugin-react-hooks",
+                "version": "5.1.0",
+                "location": "node_modules/eslint-plugin-react-hooks",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "eslint-plugin-react-hooks",
+                    "spec": "5.1.0",
+                    "from": {
+                      "location": "E:\\Empathy-Copilot\\frontend"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "eslint",
+              "spec": ">=8.40",
+              "from": {
+                "name": "eslint-plugin-react-refresh",
+                "version": "0.4.16",
+                "location": "node_modules/eslint-plugin-react-refresh",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "eslint-plugin-react-refresh",
+                    "spec": "0.4.16",
+                    "from": {
+                      "location": "E:\\Empathy-Copilot\\frontend"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "eslint",
+              "spec": "^8.57.0 || ^9.0.0",
+              "from": {
+                "name": "typescript-eslint",
+                "version": "8.18.2",
+                "location": "node_modules/typescript-eslint",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "typescript-eslint",
+                    "spec": "8.18.2",
+                    "from": {
+                      "location": "E:\\Empathy-Copilot\\frontend"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "eslint",
+              "spec": "^6.0.0 || ^7.0.0 || >=8.0.0",
+              "from": {
+                "name": "@eslint-community/eslint-utils",
+                "version": "4.10.1",
+                "location": "node_modules/@eslint-community/eslint-utils",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@eslint-community/eslint-utils",
+                    "spec": "^4.2.0",
+                    "from": {
+                      "name": "eslint",
+                      "version": "9.27.0"
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "@eslint-community/eslint-utils",
+                    "spec": "^4.4.0",
+                    "from": {
+                      "name": "@typescript-eslint/utils",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/type-utils",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/type-utils",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/type-utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "@typescript-eslint/eslint-plugin",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/@typescript-eslint/eslint-plugin",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "@typescript-eslint/eslint-plugin",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "name": "typescript-eslint",
+                                        "version": "8.18.2",
+                                        "location": "node_modules/typescript-eslint",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "typescript-eslint",
+                                            "spec": "8.18.2",
+                                            "from": {
+                                              "location": "E:\\Empathy-Copilot\\frontend"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "eslint",
+              "spec": "^8.57.0 || ^9.0.0",
+              "from": {
+                "name": "@typescript-eslint/eslint-plugin",
+                "version": "8.18.2",
+                "location": "node_modules/@typescript-eslint/eslint-plugin",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/eslint-plugin",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "typescript-eslint",
+                      "version": "8.18.2",
+                      "location": "node_modules/typescript-eslint",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "typescript-eslint",
+                          "spec": "8.18.2",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "eslint",
+              "spec": "^8.57.0 || ^9.0.0",
+              "from": {
+                "name": "@typescript-eslint/parser",
+                "version": "8.18.2",
+                "location": "node_modules/@typescript-eslint/parser",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/parser",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "typescript-eslint",
+                      "version": "8.18.2",
+                      "location": "node_modules/typescript-eslint",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "typescript-eslint",
+                          "spec": "8.18.2",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "@typescript-eslint/parser",
+                    "spec": "^8.0.0 || ^8.0.0-alpha.0",
+                    "from": {
+                      "name": "@typescript-eslint/eslint-plugin",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/eslint-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/eslint-plugin",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "eslint",
+              "spec": "^8.57.0 || ^9.0.0",
+              "from": {
+                "name": "@typescript-eslint/type-utils",
+                "version": "8.18.2",
+                "location": "node_modules/@typescript-eslint/type-utils",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/type-utils",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "@typescript-eslint/eslint-plugin",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/eslint-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/eslint-plugin",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "eslint",
+              "spec": "^8.57.0 || ^9.0.0",
+              "from": {
+                "name": "@typescript-eslint/utils",
+                "version": "8.18.2",
+                "location": "node_modules/@typescript-eslint/utils",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/utils",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "typescript-eslint",
+                      "version": "8.18.2",
+                      "location": "node_modules/typescript-eslint",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "typescript-eslint",
+                          "spec": "8.18.2",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/utils",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "@typescript-eslint/eslint-plugin",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/eslint-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/eslint-plugin",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/utils",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "@typescript-eslint/type-utils",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/type-utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/type-utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "prod",
+        "name": "minimatch",
+        "spec": "^3.1.2",
+        "from": {
+          "name": "@eslint/config-array",
+          "version": "0.20.1",
+          "location": "node_modules/@eslint/config-array",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "@eslint/config-array",
+              "spec": "^0.20.0",
+              "from": {
+                "name": "eslint",
+                "version": "9.27.0",
+                "location": "node_modules/eslint",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "eslint",
+                    "spec": "9.27.0",
+                    "from": {
+                      "location": "E:\\Empathy-Copilot\\frontend"
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0",
+                    "from": {
+                      "name": "eslint-plugin-react-hooks",
+                      "version": "5.1.0",
+                      "location": "node_modules/eslint-plugin-react-hooks",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "eslint-plugin-react-hooks",
+                          "spec": "5.1.0",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": ">=8.40",
+                    "from": {
+                      "name": "eslint-plugin-react-refresh",
+                      "version": "0.4.16",
+                      "location": "node_modules/eslint-plugin-react-refresh",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "eslint-plugin-react-refresh",
+                          "spec": "0.4.16",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "typescript-eslint",
+                      "version": "8.18.2",
+                      "location": "node_modules/typescript-eslint",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "typescript-eslint",
+                          "spec": "8.18.2",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^6.0.0 || ^7.0.0 || >=8.0.0",
+                    "from": {
+                      "name": "@eslint-community/eslint-utils",
+                      "version": "4.10.1",
+                      "location": "node_modules/@eslint-community/eslint-utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@eslint-community/eslint-utils",
+                          "spec": "^4.2.0",
+                          "from": {
+                            "name": "eslint",
+                            "version": "9.27.0"
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "@eslint-community/eslint-utils",
+                          "spec": "^4.4.0",
+                          "from": {
+                            "name": "@typescript-eslint/utils",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/utils",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "@typescript-eslint/eslint-plugin",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/@typescript-eslint/eslint-plugin",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "@typescript-eslint/eslint-plugin",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "name": "typescript-eslint",
+                                        "version": "8.18.2",
+                                        "location": "node_modules/typescript-eslint",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "typescript-eslint",
+                                            "spec": "8.18.2",
+                                            "from": {
+                                              "location": "E:\\Empathy-Copilot\\frontend"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "@typescript-eslint/type-utils",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/@typescript-eslint/type-utils",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "@typescript-eslint/type-utils",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "name": "@typescript-eslint/eslint-plugin",
+                                        "version": "8.18.2",
+                                        "location": "node_modules/@typescript-eslint/eslint-plugin",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "prod",
+                                            "name": "@typescript-eslint/eslint-plugin",
+                                            "spec": "8.18.2",
+                                            "from": {
+                                              "name": "typescript-eslint",
+                                              "version": "8.18.2",
+                                              "location": "node_modules/typescript-eslint",
+                                              "isWorkspace": false,
+                                              "dependents": [
+                                                {
+                                                  "type": "dev",
+                                                  "name": "typescript-eslint",
+                                                  "spec": "8.18.2",
+                                                  "from": {
+                                                    "location": "E:\\Empathy-Copilot\\frontend"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "@typescript-eslint/eslint-plugin",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/eslint-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/eslint-plugin",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "@typescript-eslint/parser",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/parser",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/parser",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "peer",
+                          "name": "@typescript-eslint/parser",
+                          "spec": "^8.0.0 || ^8.0.0-alpha.0",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "@typescript-eslint/type-utils",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/type-utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/type-utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "@typescript-eslint/utils",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/type-utils",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/type-utils",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/type-utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "@typescript-eslint/eslint-plugin",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/@typescript-eslint/eslint-plugin",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "@typescript-eslint/eslint-plugin",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "name": "typescript-eslint",
+                                        "version": "8.18.2",
+                                        "location": "node_modules/typescript-eslint",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "typescript-eslint",
+                                            "spec": "8.18.2",
+                                            "from": {
+                                              "location": "E:\\Empathy-Copilot\\frontend"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "prod",
+        "name": "minimatch",
+        "spec": "^3.1.5",
+        "from": {
+          "name": "@eslint/eslintrc",
+          "version": "3.3.7",
+          "location": "node_modules/@eslint/eslintrc",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "@eslint/eslintrc",
+              "spec": "^3.3.1",
+              "from": {
+                "name": "eslint",
+                "version": "9.27.0",
+                "location": "node_modules/eslint",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "eslint",
+                    "spec": "9.27.0",
+                    "from": {
+                      "location": "E:\\Empathy-Copilot\\frontend"
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0",
+                    "from": {
+                      "name": "eslint-plugin-react-hooks",
+                      "version": "5.1.0",
+                      "location": "node_modules/eslint-plugin-react-hooks",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "eslint-plugin-react-hooks",
+                          "spec": "5.1.0",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": ">=8.40",
+                    "from": {
+                      "name": "eslint-plugin-react-refresh",
+                      "version": "0.4.16",
+                      "location": "node_modules/eslint-plugin-react-refresh",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "eslint-plugin-react-refresh",
+                          "spec": "0.4.16",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "typescript-eslint",
+                      "version": "8.18.2",
+                      "location": "node_modules/typescript-eslint",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "typescript-eslint",
+                          "spec": "8.18.2",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^6.0.0 || ^7.0.0 || >=8.0.0",
+                    "from": {
+                      "name": "@eslint-community/eslint-utils",
+                      "version": "4.10.1",
+                      "location": "node_modules/@eslint-community/eslint-utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@eslint-community/eslint-utils",
+                          "spec": "^4.2.0",
+                          "from": {
+                            "name": "eslint",
+                            "version": "9.27.0"
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "@eslint-community/eslint-utils",
+                          "spec": "^4.4.0",
+                          "from": {
+                            "name": "@typescript-eslint/utils",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/utils",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "@typescript-eslint/eslint-plugin",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/@typescript-eslint/eslint-plugin",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "@typescript-eslint/eslint-plugin",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "name": "typescript-eslint",
+                                        "version": "8.18.2",
+                                        "location": "node_modules/typescript-eslint",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "typescript-eslint",
+                                            "spec": "8.18.2",
+                                            "from": {
+                                              "location": "E:\\Empathy-Copilot\\frontend"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "@typescript-eslint/type-utils",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/@typescript-eslint/type-utils",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "@typescript-eslint/type-utils",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "name": "@typescript-eslint/eslint-plugin",
+                                        "version": "8.18.2",
+                                        "location": "node_modules/@typescript-eslint/eslint-plugin",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "prod",
+                                            "name": "@typescript-eslint/eslint-plugin",
+                                            "spec": "8.18.2",
+                                            "from": {
+                                              "name": "typescript-eslint",
+                                              "version": "8.18.2",
+                                              "location": "node_modules/typescript-eslint",
+                                              "isWorkspace": false,
+                                              "dependents": [
+                                                {
+                                                  "type": "dev",
+                                                  "name": "typescript-eslint",
+                                                  "spec": "8.18.2",
+                                                  "from": {
+                                                    "location": "E:\\Empathy-Copilot\\frontend"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "@typescript-eslint/eslint-plugin",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/eslint-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/eslint-plugin",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "@typescript-eslint/parser",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/parser",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/parser",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "peer",
+                          "name": "@typescript-eslint/parser",
+                          "spec": "^8.0.0 || ^8.0.0-alpha.0",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "@typescript-eslint/type-utils",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/type-utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/type-utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "eslint",
+                    "spec": "^8.57.0 || ^9.0.0",
+                    "from": {
+                      "name": "@typescript-eslint/utils",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/type-utils",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/type-utils",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/type-utils",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "@typescript-eslint/eslint-plugin",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/@typescript-eslint/eslint-plugin",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "@typescript-eslint/eslint-plugin",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "name": "typescript-eslint",
+                                        "version": "8.18.2",
+                                        "location": "node_modules/typescript-eslint",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "typescript-eslint",
+                                            "spec": "8.18.2",
+                                            "from": {
+                                              "location": "E:\\Empathy-Copilot\\frontend"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "minimatch",
+    "version": "9.0.9",
+    "location": "node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "minimatch",
+        "spec": "^9.0.4",
+        "from": {
+          "name": "@typescript-eslint/typescript-estree",
+          "version": "8.18.2",
+          "location": "node_modules/@typescript-eslint/typescript-estree",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "@typescript-eslint/typescript-estree",
+              "spec": "8.18.2",
+              "from": {
+                "name": "@typescript-eslint/parser",
+                "version": "8.18.2",
+                "location": "node_modules/@typescript-eslint/parser",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/parser",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "typescript-eslint",
+                      "version": "8.18.2",
+                      "location": "node_modules/typescript-eslint",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "typescript-eslint",
+                          "spec": "8.18.2",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "@typescript-eslint/parser",
+                    "spec": "^8.0.0 || ^8.0.0-alpha.0",
+                    "from": {
+                      "name": "@typescript-eslint/eslint-plugin",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/eslint-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/eslint-plugin",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "prod",
+              "name": "@typescript-eslint/typescript-estree",
+              "spec": "8.18.2",
+              "from": {
+                "name": "@typescript-eslint/type-utils",
+                "version": "8.18.2",
+                "location": "node_modules/@typescript-eslint/type-utils",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/type-utils",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "@typescript-eslint/eslint-plugin",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/eslint-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/eslint-plugin",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "prod",
+              "name": "@typescript-eslint/typescript-estree",
+              "spec": "8.18.2",
+              "from": {
+                "name": "@typescript-eslint/utils",
+                "version": "8.18.2",
+                "location": "node_modules/@typescript-eslint/utils",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/utils",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "typescript-eslint",
+                      "version": "8.18.2",
+                      "location": "node_modules/typescript-eslint",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "typescript-eslint",
+                          "spec": "8.18.2",
+                          "from": {
+                            "location": "E:\\Empathy-Copilot\\frontend"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/utils",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "@typescript-eslint/eslint-plugin",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/eslint-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/eslint-plugin",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "typescript-eslint",
+                            "version": "8.18.2",
+                            "location": "node_modules/typescript-eslint",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "typescript-eslint",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "location": "E:\\Empathy-Copilot\\frontend"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "@typescript-eslint/utils",
+                    "spec": "8.18.2",
+                    "from": {
+                      "name": "@typescript-eslint/type-utils",
+                      "version": "8.18.2",
+                      "location": "node_modules/@typescript-eslint/type-utils",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@typescript-eslint/type-utils",
+                          "spec": "8.18.2",
+                          "from": {
+                            "name": "@typescript-eslint/eslint-plugin",
+                            "version": "8.18.2",
+                            "location": "node_modules/@typescript-eslint/eslint-plugin",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "@typescript-eslint/eslint-plugin",
+                                "spec": "8.18.2",
+                                "from": {
+                                  "name": "typescript-eslint",
+                                  "version": "8.18.2",
+                                  "location": "node_modules/typescript-eslint",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "typescript-eslint",
+                                      "spec": "8.18.2",
+                                      "from": {
+                                        "location": "E:\\Empathy-Copilot\\frontend"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  }
+]

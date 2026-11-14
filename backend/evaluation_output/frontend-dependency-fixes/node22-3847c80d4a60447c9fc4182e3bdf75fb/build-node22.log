@@ -1,0 +1,82 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 339B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:22-alpine
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 74B done
+#3 DONE 0.0s
+
+#4 [build 1/6] FROM docker.io/library/node:22-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a
+#4 resolve docker.io/library/node:22-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a 0.0s done
+#4 DONE 0.0s
+
+#5 [build 2/6] WORKDIR /app
+#5 CACHED
+
+#6 [internal] load build context
+#6 transferring context: 3.25kB 0.0s done
+#6 DONE 0.0s
+
+#7 [build 3/6] COPY package.json package-lock.json ./
+#7 DONE 0.1s
+
+#8 [build 4/6] RUN npm ci
+#8 35.39 npm warn deprecated eslint@9.27.0: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+#8 57.37
+#8 57.37 added 232 packages, and audited 233 packages in 57s
+#8 57.37
+#8 57.37 60 packages are looking for funding
+#8 57.37   run `npm fund` for details
+#8 57.62
+#8 57.62 7 moderate severity vulnerabilities
+#8 57.62
+#8 57.62 To address issues that do not require attention, run:
+#8 57.62   npm audit fix
+#8 57.62
+#8 57.62 To address all issues (including breaking changes), run:
+#8 57.62   npm audit fix --force
+#8 57.62
+#8 57.62 Run `npm audit` for details.
+#8 57.63 npm notice
+#8 57.63 npm notice New major version of npm available! 10.9.9 -> 12.2.2
+#8 57.63 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+#8 57.63 npm notice To update run: npm install -g npm@12.2.2
+#8 57.63 npm notice
+#8 DONE 57.8s
+
+#9 [build 5/6] COPY . .
+#9 DONE 0.2s
+
+#10 [build 6/6] RUN npm run build
+#10 0.535
+#10 0.535 > resonique-plugin-ui@0.1.0 build
+#10 0.535 > tsc -b && vite build
+#10 0.535
+#10 4.569 vite v6.4.6 building for production...
+#10 5.204 transforming...
+#10 8.517 ✓ 1620 modules transformed.
+#10 8.731 rendering chunks...
+#10 8.743 computing gzip size...
+#10 8.758 dist/index.html                   0.56 kB │ gzip:  0.33 kB
+#10 8.758 dist/assets/index-KT6CyoyF.css   64.52 kB │ gzip: 12.31 kB
+#10 8.758 dist/assets/index-B_mE6WwW.js   244.68 kB │ gzip: 73.60 kB
+#10 8.759 ✓ built in 4.15s
+#10 DONE 8.9s
+
+#11 exporting to image
+#11 exporting layers
+#11 exporting layers 7.5s done
+#11 exporting manifest sha256:37868a00f0a6c8d9a2c7cdde73b5bffdc3f90271ac0d7b6c397b291074de6ee9 0.0s done
+#11 exporting config sha256:d6d731dd182108d9425fe633b3329c0bf7909da0cd1632c6da1a8428a5697652 0.0s done
+#11 exporting attestation manifest sha256:d0e8fb5854e5657524cca4aee6b3881480b3f0cf3c1e4662a42e63a6a5127f5c 0.0s done
+#11 exporting manifest list sha256:38a843f541a7acc00e3d117d9ff220fa53f2c0aad1b2ab773a835d79a48ccfd7
+#11 exporting manifest list sha256:38a843f541a7acc00e3d117d9ff220fa53f2c0aad1b2ab773a835d79a48ccfd7 0.0s done
+#11 naming to docker.io/library/resonique-node22-check:node22-3847c80d4a60447c9fc4182e3bdf75fb done
+#11 unpacking to docker.io/library/resonique-node22-check:node22-3847c80d4a60447c9fc4182e3bdf75fb
+#11 unpacking to docker.io/library/resonique-node22-check:node22-3847c80d4a60447c9fc4182e3bdf75fb 3.6s done
+#11 DONE 11.3s
