@@ -87,17 +87,17 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
   the PostgreSQL subset passed 20 checks with one official-data skip. Ruff and mypy passed.
   See [W0 validation](W0_VALIDATION.md) for scope, environment, and limitations. W0/E3.1 review was accepted on 2026-11-14; the frozen competition tag and commit remain unchanged.
 - **Implementation commit:** `a89bed63f5581280d4c2041016ba5f9645ec5a79`.
-- **Current phase:** W3 and F5 supplement accepted; **W4 交付待最终评审**.
+- **Current phase:** 沟通区最终评审通过；**E3.2 已完成，待合并**.
 - **W4 starting checkpoint:** `00b946368bc3a0f69f9ba139673fe5d569fe780b`.
   [Delivery record](W4_DELIVERY.md) covers clean-checkout verification, documentation and demo;
   video: 经负责人决定取消, with no video gate on final acceptance, merge or release.
   W4 acceptance covers code, tests, fault experiments, clean checkout, documentation and Git status.
-  Frontend dependency review remains a separate tracked item; main merge/release tag await final acceptance.
+  Frontend dependency remediation remains independently open; main merge and release tags require separate communication-area confirmation.
 - **W2 verification:** [Execution and validation handoff](W2_VALIDATION.md): 218 passed,
   28 external-input skips; PostgreSQL subset 36 passed / 1 official-data skip; Ruff and mypy passed.
   Implementation checked at `da131051af0f4849b6ae2a3677e15e7c887ba8f8`.
 - **Plan:** [Post-competition engineering plan](POST_COMPETITION_PLAN.md); further recovery work
-  follows the reviewed D2 contract; W3/F5 process verification passed review; W4 final acceptance remains pending.
+  follows the reviewed D2 contract; W3/F5 process verification passed review; E3.2 final acceptance passed; merge and release confirmation remain pending.
 - Keep the competition technical baseline and submission tag frozen during independent development.
 - **Accepted post-competition baseline:** `ff1e35b4ba67e952386253a09d772e0e6918965a`.
   W2 now implements manual readonly recovery; W3/F5 independent-process acceptance has passed communication-area review.
@@ -110,3 +110,14 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
   and the [operator guide](DEMO_OPERATOR_GUIDE.md) for the existing demonstration paths.
 - Historical phase requirements and submission records remain available as baseline evidence;
   they do not set new submission deadlines or replace current phase acceptance criteria.
+
+
+## E3.2 final acceptance boundary
+
+沟通区已确认本轮交付完成，完成前交付记录为 `6f5ca51ce368da348649a0b77a1e63d06a5b72a0`。
+验证依据沿用 [W2](W2_VALIDATION.md)、[W3](W3_VALIDATION.md)、[F5补验](W3_F5_SUPPLEMENT.md)
+和 [W4干净检出](W4_DELIVERY.md)，不因文档收尾声称重新运行测试。
+视频经负责人决定取消；27项官方工作簿和1项真实Qwen测试跳过范围保留。
+恢复限定本地单API工作进程；退出条件与操作者身份是声明，不是认证或跨主机fencing。
+旧程序读取新增字段的回滚限制保留，需配套数据库备份，不能删除恢复历史后降级。
+[前端依赖修复](FRONTEND_DEPENDENCY_REVIEW.md)独立开放；完成不代表漏洞已修复。
