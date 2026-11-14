@@ -1,0 +1,17 @@
+{
+  "version": "8.72.2",
+  "dependencies": {
+    "debug": "^4.4.3",
+    "semver": "^7.7.3",
+    "minimatch": "^10.2.2",
+    "tinyglobby": "^0.2.15",
+    "ts-api-utils": "^2.5.0",
+    "@typescript-eslint/types": "8.72.2",
+    "@typescript-eslint/visitor-keys": "8.72.2",
+    "@typescript-eslint/tsconfig-utils": "8.72.2",
+    "@typescript-eslint/project-service": "8.72.2"
+  },
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+  }
+}

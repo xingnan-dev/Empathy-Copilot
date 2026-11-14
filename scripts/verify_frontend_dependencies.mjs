@@ -62,8 +62,10 @@ const deniedPath = path.join(frontend, deniedName)
 const marker = randomUUID()
 let dev
 let built
+let probeCreated = false
 try {
   await writeFile(deniedPath, marker, { flag: 'wx' })
+  probeCreated = true
   dev = await createServer({ root: frontend, server: { host: '127.0.0.1', port: 0 } })
   await dev.listen()
   const base = `http://127.0.0.1:${dev.httpServer.address().port}`
@@ -103,7 +105,7 @@ try {
 } finally {
   if (built) await new Promise((resolve, reject) => built.httpServer.close(error => error ? reject(error) : resolve()))
   if (dev) await dev.close()
-  await unlink(deniedPath)
+  if (probeCreated) await unlink(deniedPath)
 }
 await writeFile(output, JSON.stringify(result, null, 2) + '\n')
 console.log(`${result.checks.length} HTTP/CSS checks passed; no browser interaction claimed.`)

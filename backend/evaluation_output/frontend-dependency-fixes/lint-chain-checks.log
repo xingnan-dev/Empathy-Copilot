@@ -1,0 +1,62 @@
+npm warn deprecated eslint@9.27.0: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 233 packages, and audited 234 packages in 15s
+
+60 packages are looking for funding
+  run `npm fund` for details
+
+7 moderate severity vulnerabilities
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+COMMAND: npm run test
+
+> resonique-plugin-ui@0.1.0 test
+> node --experimental-strip-types --test src/presentation/caseTruth.test.mjs
+
+✔ no restored history produces no returning-consumer support (1.2408ms)
+✔ restored history can support returning-consumer wording (0.1791ms)
+✔ no service-record evidence produces no service-record claim (0.221ms)
+✔ consumer-reported text cannot become a verified service-record claim (0.138ms)
+✔ authoritative service evidence enables supported service-record wording (0.2327ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 169.9564
+
+COMMAND: npm run typecheck
+
+> resonique-plugin-ui@0.1.0 typecheck
+> tsc -b --pretty false
+
+
+COMMAND: npm run lint
+
+> resonique-plugin-ui@0.1.0 lint
+> eslint .
+
+
+COMMAND: npm run build
+
+> resonique-plugin-ui@0.1.0 build
+> tsc -b && vite build
+
+vite v6.4.6 building for production...
+transforming...
+✓ 1620 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.54 kB │ gzip:  0.32 kB
+dist/assets/index-KT6CyoyF.css   64.52 kB │ gzip: 12.31 kB
+dist/assets/index-B_mE6WwW.js   244.68 kB │ gzip: 73.60 kB
+✓ built in 2.77s

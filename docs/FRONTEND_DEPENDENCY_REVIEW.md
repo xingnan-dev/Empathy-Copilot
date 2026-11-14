@@ -26,8 +26,8 @@ nginx镜像自身漏洞不属于npm审查覆盖；静态dist也不因此获得�
 已核对 [Vite跨源读取通告](https://github.com/advisories/GHSA-vg6x-rcgg-rjx6)、
 [PostCSS sourceMappingURL通告](https://github.com/advisories/GHSA-6g55-p6wh-862q)和
 [minimatch通告](https://github.com/advisories/GHSA-g3hv-75wg-m249)；其余链接保存在原始audit结果。
-单个通告修复版本不代表该包其他通告也已修复。当前未修改package.json或package-lock.json。
-本事项保持独立开放：视频取消只移除视频阻断，不能被解释为漏洞豁免。负责人在最终评审中
+单个通告修复版本不代表该包其他通告也已修复。以上原只读审查未修改package.json或package-lock.json。
+本事项独立处理：视频取消只移除视频阻断，不能被解释为漏洞豁免。负责人在最终评审中
 决定依赖修复与合并/发布的安排；代码、测试、故障实验、干净检出、文档和Git仍按既定范围验收。
 
 ## 修复执行起点（2026-11-14）
@@ -85,3 +85,70 @@ dev入口、S00154样本、runtime模块、preview及JS/CSS资源可访问；构
 核实视觉布局或调用真实后端操作；HTTP资源可用不能替代交互验收。
 检查器初始按字节相等断言失败，以上旧版重建与AST比较定位后修正检查方式；
 首次端口绑定受沙箱限制，取得环境权限后重跑通过，不将失败尝试算入通过数量。
+
+### 组合B：lint链与最终结果
+
+组合A提交 `d75ee6c0e27844ef86b69bc5e5bedf1790ad991f` 已推送后，升级
+`eslint`及配套 `@eslint/js`：9.17.0 → **9.27.0**。这是audit原受影响9.10–9.26范围之后
+的首个9系列版本；plugin-kit依赖范围提升至^0.3.1，锁定实际 **0.3.5**（原0.2.8），
+满足[plugin-kit公告](https://github.com/advisories/GHSA-xffm-g5w8-qvg7)修复下限0.3.4。
+ESLint声明Node ^18.18 / ^20.9 / >=21.1，本机24.16满足；旧typescript-eslint的ESLint9 peer满足。
+@eslint/core/config-array按上游范围更新，新增config-helpers；不修改规则、产品源码或构建配置。
+typescript-eslint8.18.2、TypeScript5.7.2和全部React相关直接依赖保持不变。
+
+最终再次执行npm ci；npm test **5通过/0失败/0跳过**，typecheck、lint、build全部退出0；
+`npm ls --all --json`退出0，无invalid/missing peer。
+[完整检查日志](../backend/evaluation_output/frontend-dependency-fixes/lint-chain-checks.log)、
+[安装树](../backend/evaluation_output/frontend-dependency-fixes/installed-tree.json)、
+[最终HTTP/CSS检查](../backend/evaluation_output/frontend-dependency-fixes/http-css-final.json)
+保留证据；最终组合15项HTTP/CSS检查通过，沿用上文的非浏览器层级限制。
+未改后端代码或恢复逻辑，未重复运行后端/官方数据/真实模型及W3进程实验；其原验证范围不变。
+Node22 Docker构建镜像未在本轮实际构建，浏览器交互与跨平台安装仍未验证。
+
+[最终audit](../backend/evaluation_output/frontend-dependency-fixes/audit-after.json)：
+**7中危/0低/0高/0严重**，退出1为仍有告警；非查询失败，不视为零漏洞。
+相较起点移除7个受影响包条目（Vite、esbuild、PostCSS、source-map-js、selector-parser、
+ESLint、plugin-kit），最终无新增包条目或新增公告。中间6.4.4特有告警未进入最终锁文件。
+[机器可读对比](../backend/evaluation_output/frontend-dependency-fixes/summary.json)列出公告集合及全部安装路径版本变化；
+锁文件累计41个节点变化：36个版本变化、4个新增、1个移除（含esbuild各平台optional包），不是41个业务包升级。
+最终锁文件SHA-256（Git内LF字节）：
+`b56b5887cab80c8227c3a8200059d9b2b526e483764f2686c43365a23ec24ed1`。
+
+### 剩余风险与需要沟通区决定的后续
+
+剩余7个audit条目均对应[同一minimatch公告](https://github.com/advisories/GHSA-g3hv-75wg-m249)，
+不是7个独立漏洞。受影响7–11.0.0，公告修复版11.0.1。
+实际安装 `node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch` **9.0.9**；
+这是旧eslint工具链的^9.0.4正常解析；另一根节点 `node_modules/minimatch` **3.1.5** 不在该公告范围。
+[修复前链](../backend/evaluation_output/frontend-dependency-fixes/minimatch-before.json)与
+[最终链](../backend/evaluation_output/frontend-dependency-fixes/minimatch-after.json)保留npm explain结果。
+
+| 剩余条目（均位于node_modules下） | 关系、暴露条件与处理 |
+| --- | --- |
+| @typescript-eslint/typescript-estree/node_modules/minimatch | 唯一直接公告节点；攻击者可控glob模式导致lint进程匹配工作量放大，不能据此认定浏览器页面可利用 |
+| @typescript-eslint/typescript-estree | 持有上述^9依赖，文件/项目匹配入口，保留告警 |
+| @typescript-eslint/parser | 传递依赖estree，保留告警，不换parser掩盖 |
+| @typescript-eslint/type-utils | 传递依赖estree/utils，保留告警 |
+| @typescript-eslint/utils | 传递依赖estree，保留告警 |
+| @typescript-eslint/eslint-plugin | 传递依赖type-utils/utils，保留告警 |
+| typescript-eslint | 顶层聚合工具，传递依赖以上节点，保留告警 |
+
+现有eslint.config.js使用固定本地files glob，不启用项目型parserOptions，也不从API接收glob；
+本项目常规lint的触发输入受控，但审查不可信PR、插件或修改后的配置仍可能让开发/CI进程暴露。
+生产最终nginx阶段不运行ESLint；这是静态暴露判断，未执行DoS PoC或证明不可利用。
+临时处理：只运行已审查的lint配置，不将不可信配置/任意glob接入有凭据的长驻进程；
+不把本轮结果视为风险接受或发布许可，剩余事项保持开放供负责人决定。
+
+本轮npm registry所列typescript-eslint最新为8.72.2（[版本快照](../backend/evaluation_output/frontend-dependency-fixes/typescript-eslint-latest.json)）；
+其estree仍声明minimatch **^10.2.2**（[上游约束](../backend/evaluation_output/frontend-dependency-fixes/upstream-estree.json)），
+升级至该8版本仍不能落到11.0.1，因此未作无效升级。8.73.0查询返回404，不将未发布版列为方案。
+audit建议降级typescript-eslint7.3.1跨越直接工具主版本，且需重核TypeScript5.7/ESLint9兼容性，
+不采用自动建议。将9/10传递依赖强制override到11同样超出声明范围，本轮不实施。
+建议优先等待上游8系列采用修复依赖或9/10得到正式回补，再评估最小兼容更新；若需要换主版本、
+换parser或调整TypeScript/ESLint主版本，应先提交独立兼容方案及回归范围，经沟通区确认后执行。
+
+### 交付状态
+
+**兼容升级已本地验证，待沟通区评审；minimatch剩余风险未关闭。**
+不创建PR、不合并main、不创建发布标签。已有E3.2历史、视频取消决定、外部输入跳过、
+单进程/身份声明及回滚限制均保留。文档本地链接与diff检查后按验证组合提交并推送。
