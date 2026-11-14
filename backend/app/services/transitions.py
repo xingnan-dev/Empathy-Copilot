@@ -6,7 +6,11 @@ from typing import Any
 from backend.app.domain.agent import (
     AgentAction,
     AgentStatus,
+    ContinuationStatus,
+    HumanReviewBlock,
     InvestigationState,
+    ToolCallStatus,
+    ToolRecoveryRecord,
     TransitionEvent,
 )
 from backend.app.domain.gaps import evaluate_p0_gaps, evaluate_scenario_gaps
@@ -101,6 +105,42 @@ class StateTransitionService:
         data = state.model_dump()
         if updates:
             data.update(updates)
+        # Settle only requests whose tool was already completed before this transition.
+        # The COMPLETED commit itself must leave continuation RUNNING for crash recovery.
+        completed_requests = {
+            call.recovery_request_id
+            for call in state.tool_calls
+            if call.status is ToolCallStatus.COMPLETED
+        }
+        records = [ToolRecoveryRecord.model_validate(record) for record in data["tool_recoveries"]]
+        data["tool_recoveries"] = [
+            ToolRecoveryRecord.model_validate(
+                {**record.model_dump(), "continuation": ContinuationStatus.SETTLED}
+            )
+            if record.request_id in completed_requests
+            and record.continuation is ContinuationStatus.RUNNING
+            else record
+            for record in records
+        ]
+        from backend.app.services.review_blocks import safety_blocks
+
+        blocks = set(state.human_review_blocks or []) | safety_blocks(state)
+        if to_status is AgentStatus.WAITING_FOR_HUMAN and not (
+            updates and "human_review_blocks" in updates
+        ):
+            if reason.startswith("Tool invocation ") and any(
+                reason == f"Tool invocation {call.invocation_id or call.id} "
+                "requires manual recovery before another execution."
+                for call in state.tool_calls
+            ):
+                blocks.add(HumanReviewBlock.TOOL_RECOVERY)
+            elif "cannot be asked again" in reason or "question guards" in reason:
+                blocks.add(HumanReviewBlock.QUESTION_LIMIT)
+            elif not blocks:
+                blocks.add(HumanReviewBlock.OTHER)
+            data["human_review_blocks"] = sorted(blocks)
+        elif to_status is AgentStatus.ESCALATED:
+            data["human_review_blocks"] = sorted(blocks | {HumanReviewBlock.SAFETY})
         data.update(
             {
                 "status": to_status,

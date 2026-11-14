@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -82,6 +83,15 @@ class RegisteredTool:
 class DurableToolExecution:
     state: InvestigationState
     persisted_revision: int
+
+
+@dataclass(frozen=True)
+class RecoveryExecutionPermit:
+    case_id: str
+    request_id: UUID
+    attempt_id: str
+    revision: int
+    token: UUID
 
 
 class BusinessToolSet:
@@ -184,6 +194,45 @@ class BusinessToolExecutionService:
         self.transitions = transitions
         self.grounding = grounding
         self.memory = memory
+        self._permits: dict[UUID, RecoveryExecutionPermit] = {}
+
+    def _issue_permit(
+        self, state: InvestigationState, call: ToolCallRecord
+    ) -> RecoveryExecutionPermit:
+        assert call.recovery_request_id is not None
+        permit = RecoveryExecutionPermit(
+            state.case_id, call.recovery_request_id, call.id, state.state_revision, uuid4()
+        )
+        self._permits[permit.token] = permit
+        return permit
+
+    def execute_recovery(
+        self,
+        permit: RecoveryExecutionPermit,
+        checkpoints: CheckpointStore,
+    ) -> DurableToolExecution:
+        if self._permits.pop(permit.token, None) is not permit:
+            raise ValueError("recovery permit is absent or already consumed")
+        state = checkpoints.load(permit.case_id)
+        if state.state_revision != permit.revision:
+            from backend.app.services.checkpoints import StateConflictError
+
+            raise StateConflictError("recovery claim revision changed")
+        pending = next(call for call in state.tool_calls if call.id == permit.attempt_id)
+        if (
+            pending.status is not ToolCallStatus.PENDING
+            or pending.recovery_request_id != permit.request_id
+        ):
+            raise ValueError("permit does not identify a pending recovery attempt")
+        result, revision = self._run_pending(
+            state,
+            pending,
+            AgentAction.CALL_TOOL,
+            lambda candidate, expected: checkpoints.save(candidate, expected_revision=expected),
+            permit.revision,
+        )
+        assert revision is not None
+        return DurableToolExecution(result, revision)
 
     def execute_once(
         self,
