@@ -1,6 +1,8 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 
 from backend.app.api.schemas.cases import (
     CaseView,
@@ -11,6 +13,8 @@ from backend.app.api.schemas.cases import (
     ResumeRequest,
 )
 from backend.app.api.services.case_application_service import CaseApplicationService
+from backend.app.domain.agent import ToolRecoveryRequest
+from backend.app.services.tool_recovery import RecoveryView, ToolRecoveryService
 
 router = APIRouter(prefix="/api/cases", tags=["cases"])
 
@@ -20,6 +24,23 @@ def unavailable_service() -> CaseApplicationService:
 
 
 CaseService = Annotated[CaseApplicationService, Depends(unavailable_service)]
+
+
+def recovery_response(case_id: str, view: RecoveryView, status: int) -> JSONResponse:
+    headers = {"Location": f"/api/cases/{case_id}/tool-recoveries/{view.request_id}"}
+    return JSONResponse(status_code=status, content=view.model_dump(mode="json"), headers=headers)
+
+
+@router.post("/{case_id}/tool-recoveries", response_model=RecoveryView)
+def recover_tool(case_id: str, request: ToolRecoveryRequest, service: CaseService) -> JSONResponse:
+    view, status = service.recover_tool(case_id, request)
+    return recovery_response(case_id, view, status)
+
+
+@router.get("/{case_id}/tool-recoveries/{request_id}", response_model=RecoveryView)
+def get_tool_recovery(case_id: str, request_id: UUID, service: CaseService) -> JSONResponse:
+    view = service.get_tool_recovery(case_id, request_id)
+    return recovery_response(case_id, view, ToolRecoveryService.http_status(view))
 
 
 @router.get("/{case_id}", response_model=CaseView)

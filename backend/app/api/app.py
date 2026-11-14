@@ -18,6 +18,7 @@ from backend.app.persistence.config import DatabaseSettings
 from backend.app.persistence.database import create_database_engine, create_session_factory
 from backend.app.persistence.factory import build_postgres_workflow
 from backend.app.services.checkpoints import StateConflictError
+from backend.app.services.tool_recovery import RecoveryError
 from backend.app.services.transitions import InvalidStateTransitionError
 from backend.app.vision import VisionService
 from backend.app.vision.qwen import QwenVisionProvider
@@ -112,6 +113,10 @@ def create_app(
     async def conflict(_request: Request, _exc: StateConflictError) -> JSONResponse:
         return error("STATE_CONFLICT", "Case updated elsewhere. Refresh current state.", 409)
 
+    @app.exception_handler(RecoveryError)
+    async def recovery_error(_request: Request, exc: RecoveryError) -> JSONResponse:
+        return error(exc.code, "Recovery request could not be completed.", exc.status)
+
     @app.exception_handler(ModelProviderError)
     async def model_error(_request: Request, exc: ModelProviderError) -> JSONResponse:
         return error("MODEL_UNAVAILABLE", f"Model operation unavailable ({exc.category}).", 503)
@@ -129,6 +134,8 @@ def create_app(
 
     @app.exception_handler(RequestValidationError)
     async def request_invalid(_request: Request, _exc: RequestValidationError) -> JSONResponse:
+        if "/tool-recoveries" in _request.url.path:
+            return error("INVALID_REQUEST", "Recovery request fields are invalid.", 422)
         return error("VALIDATION_ERROR", "Submitted event could not be validated.", 422)
 
     return app
