@@ -53,9 +53,9 @@ For completed-query crash continuation and its separate positive control:
 ```
 
 Use [F5 supplementary evidence](W3_F5_SUPPLEMENT.md) for the zero-CLI-query conclusion. Parent process
-execution_counts alone cannot establish it. Video status is **pending delivery**: this execution
-session has no available screen-capture interface and neither FFmpeg nor OBS was found. Actual
-terminal/API execution evidence is retained in [W4 delivery](W4_DELIVERY.md); no video is claimed.
+execution_counts alone cannot establish it. Video status: **经负责人决定取消**. Recording is not a gate for final acceptance, merge or release.
+Commands, narration and actual execution evidence in [W4 delivery](W4_DELIVERY.md) remain available
+for reproduction.
 
 ## Existing baseline demonstrations
 

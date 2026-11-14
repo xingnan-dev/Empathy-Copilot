@@ -43,7 +43,7 @@ W2, W3 and the F5 observation supplement have passed communication-area review. 
 - [W3 process matrix](docs/W3_VALIDATION.md): 13 variants, one initial + three repeat rounds = 52 runs.
 - [F5 corrective verification](docs/W3_F5_SUPPLEMENT.md): three separate positive controls and
   three observed CLI continuations; this is the evidence for zero CLI order calls.
-- [W4 clean checkout](docs/W4_DELIVERY.md): fresh dependencies, build/run results and pending video.
+- [W4 clean checkout](docs/W4_DELIVERY.md): fresh dependencies and build/run results; video 经负责人决定取消.
 
 Historical reports are retained. Test counts, experiment runs and positive controls measure
 separate things. Model quality and official-data licensing are not established by these checks.

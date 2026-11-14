@@ -90,7 +90,9 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 - **Current phase:** W3 and F5 supplement accepted; **W4 交付待最终评审**.
 - **W4 starting checkpoint:** `00b946368bc3a0f69f9ba139673fe5d569fe780b`.
   [Delivery record](W4_DELIVERY.md) covers clean-checkout verification, documentation and demo;
-  video remains pending for the recorded environment limitation. Main merge/release tag await final acceptance.
+  video: 经负责人决定取消, with no video gate on final acceptance, merge or release.
+  W4 acceptance covers code, tests, fault experiments, clean checkout, documentation and Git status.
+  Frontend dependency review remains a separate tracked item; main merge/release tag await final acceptance.
 - **W2 verification:** [Execution and validation handoff](W2_VALIDATION.md): 218 passed,
   28 external-input skips; PostgreSQL subset 36 passed / 1 official-data skip; Ruff and mypy passed.
   Implementation checked at `da131051af0f4849b6ae2a3677e15e7c887ba8f8`.
