@@ -5,7 +5,11 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
+from backend.app.agent.workflow import InvestigationWorkflow
 from backend.app.domain.agent import (
+    AgentAction,
+    AgentStatus,
+    ContinuationStatus,
     InvestigationState,
     ToolCallRecord,
     ToolCallStatus,
@@ -111,3 +115,28 @@ def test_request_fields_are_strict_and_nonblank() -> None:
     ):
         with pytest.raises(ValidationError):
             ToolRecoveryRequest.model_validate({**request, **change})
+
+
+def test_completed_successor_unblocks_history_but_pending_cannot_execute_normally() -> None:
+    data = chain_data()
+    pending = InvestigationState.model_validate(data)
+    workflow = InvestigationWorkflow()
+    assert (
+        workflow.tool_execution.execute_once(
+            pending,
+            tool_name="get_order_history",
+            action=AgentAction.CALL_TOOL,
+            arguments={"consumer_id": CONSUMER_ID},
+        )
+        == pending
+    )
+    assert workflow.tools.execution_counts == {}
+    data["tool_calls"][1].update(status=ToolCallStatus.COMPLETED, completed_at=datetime.now(UTC))
+    data["tool_recoveries"][0]["continuation"] = ContinuationStatus.RUNNING
+    completed = InvestigationState.model_validate(data)
+    result = workflow.run(completed)
+    assert result.status is AgentStatus.WAITING_FOR_USER
+    assert workflow.tools.execution_counts == {}
+    passport = workflow.passports.build(result)
+    assert len(passport.tool_attempts) == 2 and len(passport.tool_recoveries) == 1
+    assert passport.completed_tools == ["get_order_history"]

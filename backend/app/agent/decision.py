@@ -11,6 +11,8 @@ from backend.app.domain.agent import (
     ToolCallStatus,
 )
 from backend.app.domain.gaps import EvidenceGap, GapStatus, GapType
+from backend.app.domain.tool_history import logical_call_id
+from backend.app.services.tool_attempts import effective_tool_calls
 
 
 class NextActionDecision(BaseModel):
@@ -63,7 +65,7 @@ class DeterministicDecisionPolicy:
         unsafe_tool_call = next(
             (
                 call
-                for call in reversed(state.tool_calls)
+                for call in effective_tool_calls(state).values()
                 if call.status
                 in {ToolCallStatus.PENDING, ToolCallStatus.RUNNING, ToolCallStatus.FAILED}
             ),
@@ -180,10 +182,16 @@ class DeterministicDecisionPolicy:
 
     @staticmethod
     def _completed_tool(state: InvestigationState, tool_name: str) -> bool:
-        return any(
-            call.tool_name == tool_name and call.status is ToolCallStatus.COMPLETED
-            for call in state.tool_calls
+        if tool_name in {"get_order_history", "get_service_history", "get_consumer_memory"}:
+            arguments = {"consumer_id": state.consumer_id}
+        elif tool_name == "get_logistics_status":
+            arguments = {"case_id": state.case_id}
+        else:
+            arguments = {"policy_id": "beauty_service_default"}
+        call = effective_tool_calls(state).get(
+            logical_call_id(state.case_id, tool_name, dict(arguments))
         )
+        return call is not None and call.status is ToolCallStatus.COMPLETED
 
     @staticmethod
     def _boolean_evidence(state: InvestigationState, key: str) -> bool:

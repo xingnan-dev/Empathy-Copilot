@@ -7,11 +7,14 @@ from backend.app.domain.agent import (
     AgentStatus,
     AskedQuestion,
     InvestigationState,
+    ToolCallRecord,
     ToolCallStatus,
+    ToolRecoveryRecord,
 )
 from backend.app.domain.business import EvidenceBackedFact
 from backend.app.domain.evidence import EvidenceType
 from backend.app.domain.gaps import GapStatus, GapType
+from backend.app.services.tool_attempts import effective_tool_calls
 
 
 class ContextPassport(BaseModel):
@@ -23,6 +26,8 @@ class ContextPassport(BaseModel):
     open_gaps: list[GapType] = Field(default_factory=list)
     asked_questions: list[AskedQuestion] = Field(default_factory=list)
     completed_tools: list[str] = Field(default_factory=list)
+    tool_attempts: list[ToolCallRecord] = Field(default_factory=list)
+    tool_recoveries: list[ToolRecoveryRecord] = Field(default_factory=list)
     service_history_summary: list[EvidenceBackedFact] = Field(default_factory=list)
     current_status: AgentStatus
     next_action: AgentAction | None = None
@@ -33,22 +38,21 @@ class ContextPassportService:
         confirmed = [
             EvidenceBackedFact(key=item.key, value=item.value, evidence_ids=[item.id])
             for item in state.evidence
-            if item.evidence_type
-            not in {EvidenceType.AI_INFERENCE, EvidenceType.UNKNOWN}
+            if item.evidence_type not in {EvidenceType.AI_INFERENCE, EvidenceType.UNKNOWN}
         ]
         return ContextPassport(
             case_id=state.case_id,
             consumer_id=state.consumer_id,
             confirmed_facts=confirmed,
-            open_gaps=[
-                gap.gap_type for gap in state.evidence_gaps if gap.status is GapStatus.OPEN
-            ],
+            open_gaps=[gap.gap_type for gap in state.evidence_gaps if gap.status is GapStatus.OPEN],
             asked_questions=list(state.asked_questions),
             completed_tools=[
                 call.tool_name
-                for call in state.tool_calls
+                for call in effective_tool_calls(state).values()
                 if call.status is ToolCallStatus.COMPLETED
             ],
+            tool_attempts=list(state.tool_calls),
+            tool_recoveries=list(state.tool_recoveries),
             service_history_summary=[
                 fact for fact in confirmed if fact.key == "previous_service_contact"
             ],
