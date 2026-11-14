@@ -87,26 +87,23 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
   the PostgreSQL subset passed 20 checks with one official-data skip. Ruff and mypy passed.
   See [W0 validation](W0_VALIDATION.md) for scope, environment, and limitations. W0/E3.1 review was accepted on 2026-11-14; the frozen competition tag and commit remain unchanged.
 - **Implementation commit:** `a89bed63f5581280d4c2041016ba5f9645ec5a79`.
-- **Current phase:** W1 and its supplement accepted; W2 implementation and local validation
-  accepted by static review; W3 independent-process acceptance completed against [D2 / E3.2](phases/PHASE_E3_2.md) at
-  `af52b577ac8b69daca0e97995c613efd2427c124`.
-  W3 starting checkpoint: `3893e68012c2236cdfa5844b27430656bc8357cf`.
-  [W3 handoff](W3_VALIDATION.md): 13 initial + 39 repeated process experiments passed;
-  full regression 221 passed / 28 external-input skips. W3 F5 observation supplement completed, awaiting review; W4 remains deferred.
-  See [F5 supplement](W3_F5_SUPPLEMENT.md): three positive controls and three zero-query continuations passed.
+- **Current phase:** W3 and F5 supplement accepted; **W4 交付待最终评审**.
+- **W4 starting checkpoint:** `00b946368bc3a0f69f9ba139673fe5d569fe780b`.
+  [Delivery record](W4_DELIVERY.md) covers clean-checkout verification, documentation and demo;
+  video remains pending for the recorded environment limitation. Main merge/release tag await final acceptance.
 - **W2 verification:** [Execution and validation handoff](W2_VALIDATION.md): 218 passed,
   28 external-input skips; PostgreSQL subset 36 passed / 1 official-data skip; Ruff and mypy passed.
   Implementation checked at `da131051af0f4849b6ae2a3677e15e7c887ba8f8`.
 - **Plan:** [Post-competition engineering plan](POST_COMPETITION_PLAN.md); further recovery work
-  follows the reviewed D2 contract; W3 process-fault acceptance remains pending.
+  follows the reviewed D2 contract; W3/F5 process verification passed review; W4 final acceptance remains pending.
 - Keep the competition technical baseline and submission tag frozen during independent development.
 - **Accepted post-competition baseline:** `ff1e35b4ba67e952386253a09d772e0e6918965a`.
-  W2 now implements manual readonly recovery; independent process fault acceptance is not complete.
+  W2 now implements manual readonly recovery; W3/F5 independent-process acceptance has passed communication-area review.
 
 ## Reading and operation
 
 - Follow [AGENTS.md](../AGENTS.md) for the required development reading order; the active phase
-  is [E3.2 / W2](phases/PHASE_E3_2.md).
+  is [E3.2 / W4](phases/PHASE_E3_2.md).
 - Use the [run guide](COMPETITION_RUN_GUIDE.md) for local setup and data-source requirements,
   and the [operator guide](DEMO_OPERATOR_GUIDE.md) for the existing demonstration paths.
 - Historical phase requirements and submission records remain available as baseline evidence;

@@ -9,17 +9,22 @@ now continuing as an independent post-competition development project. The compe
 ended and the team did not advance, as reported by the project owner. The competition release
 remains a frozen historical baseline.
 
-The runtime is React → FastAPI → deterministic domain/agent workflow → PostgreSQL, with
-optional Qwen language and vision providers. W0 / E3.1 validation was accepted on 2026-11-14.
-The [reviewed recovery specification](docs/phases/PHASE_E3_2.md) has been implemented in W2 with
-local-sample and isolated PostgreSQL verification. See the [W2 handoff](docs/W2_VALIDATION.md)
-for operation, results and limitations. W2 awaits review; W3 independent process-fault acceptance
-has not started. The [W0 validation record](docs/W0_VALIDATION.md) remains the original baseline.
+The runtime is React → FastAPI → deterministic investigation workflow → PostgreSQL, with
+optional Qwen language and vision providers. Existing capabilities include structured Evidence
+provenance, bounded investigation, deterministic safety/attribution rules, durable checkpoints,
+and a React operator interface. Post-competition work adds explicit human-triggered readonly
+order recovery, preserved attempt history, revision-guarded execution, and process-fault validation.
+
+W2, W3 and the F5 observation supplement have passed communication-area review. Current status:
+**W4 delivery pending final review**. Start with the local synthetic-data path in the
+[run guide](docs/COMPETITION_RUN_GUIDE.md). A
+[three-minute demonstration and script](docs/DEMO_OPERATOR_GUIDE.md) and
+[clean-checkout delivery record](docs/W4_DELIVERY.md) describe what was actually verified.
 
 ## Reading guide
 
 - **Current development:** [Project state](docs/PROJECT_STATE.md),
-  [Phase E3.1](docs/phases/PHASE_E3_1.md), and
+  [E3.2 recovery contract](docs/phases/PHASE_E3_2.md), and
   [post-competition plan](docs/POST_COMPETITION_PLAN.md). Coding agents must first follow
   the reading order in [AGENTS.md](AGENTS.md), including the [PRD](docs/PRD.md) and
   [Agent Design](docs/AGENT_DESIGN.md).
@@ -31,6 +36,18 @@ has not started. The [W0 validation record](docs/W0_VALIDATION.md) remains the o
   [delivery freeze](docs/phases/PHASE_10_1.md), [phase records](docs/phases/),
   [early Golden Demo](docs/DEMO_SCRIPT.md), and [evaluation records](backend/evaluation_output/).
   The preserved release tag is `v1.0.0-competition-submission`.
+
+## Verification entry points
+
+- [W2 implementation and tests](docs/W2_VALIDATION.md): 218 passed, 28 external-input skips.
+- [W3 process matrix](docs/W3_VALIDATION.md): 13 variants, one initial + three repeat rounds = 52 runs.
+- [F5 corrective verification](docs/W3_F5_SUPPLEMENT.md): three separate positive controls and
+  three observed CLI continuations; this is the evidence for zero CLI order calls.
+- [W4 clean checkout](docs/W4_DELIVERY.md): fresh dependencies, build/run results and pending video.
+
+Historical reports are retained. Test counts, experiment runs and positive controls measure
+separate things. Model quality and official-data licensing are not established by these checks.
+See [architecture and contribution boundaries](docs/ARCHITECTURE.md).
 
 ## Development
 
