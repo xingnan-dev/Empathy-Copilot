@@ -1,0 +1,1709 @@
+{
+  "run_id": "893937d2215641848ab45c4b111e9145",
+  "started_at": "2026-11-14T12:42:24.316718+00:00",
+  "git_commit": "00b946368bc3a0f69f9ba139673fe5d569fe780b",
+  "environment": {
+    "python": "3.13.14 (main, Jul 18 2026, 17:10:39) [MSC v.1944 64 bit (AMD64)]",
+    "postgres": "sha256:3c5c8892d184f738f4fe282d14ddaa613a38f00f4189d2d94725ebe6f2909ddb",
+    "database": "empathy_w3_test",
+    "host_binding": "127.0.0.1",
+    "tmpfs": true
+  },
+  "sample_sha256": {
+    "backend\\data\\demo\\consumers.json": "4acde76fcdd03de46a833d9215d487ae68ee077f95383c56b67cc9565eb7c212",
+    "backend\\data\\demo\\orders.json": "5dab98ca562af40a8f452d0ca8b084e6535c8586d7f3b81f02cf4ff56754243a",
+    "backend\\data\\demo\\service_records.json": "e2ee173ed92b1c78116f4e589777f37ddeb02375c58deef6fe35f457159d2afe"
+  },
+  "results": [
+    {
+      "scenario": "F0",
+      "iteration": 1,
+      "experiment": "f0-b5f92ff659794ed28518ddd1f88d05ec",
+      "checkpoints": [
+        {
+          "label": "final",
+          "state": {
+            "case_id": "f0-b5f92ff659794ed28518ddd1f88d05ec",
+            "consumer_id": "consumer_001",
+            "current_issue": "W3 fixed local readonly order investigation",
+            "scenario": null,
+            "evidence": [
+              {
+                "id": "ev-order-A1001-first_purchase",
+                "case_id": "f0-b5f92ff659794ed28518ddd1f88d05ec",
+                "key": "first_purchase",
+                "value": {
+                  "order_id": "A1001",
+                  "quantity": 1,
+                  "ordered_at": "2026-07-10T10:00:00+00:00",
+                  "product_id": "a_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "A Serum",
+                  "first_purchase": true
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1001",
+                  "source_label": "Order A1001"
+                },
+                "observed_at": "2026-07-10T10:00:00Z",
+                "created_at": "2026-11-14T12:42:28.315408Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              },
+              {
+                "id": "ev-order-A1010-repeat_purchase",
+                "case_id": "f0-b5f92ff659794ed28518ddd1f88d05ec",
+                "key": "repeat_purchase",
+                "value": {
+                  "order_id": "A1010",
+                  "quantity": 1,
+                  "ordered_at": "2026-08-15T10:00:00+00:00",
+                  "product_id": "a_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "A Serum",
+                  "first_purchase": false
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1010",
+                  "source_label": "Order A1010"
+                },
+                "observed_at": "2026-08-15T10:00:00Z",
+                "created_at": "2026-11-14T12:42:28.315463Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              },
+              {
+                "id": "ev-order-A1024-first_purchase",
+                "case_id": "f0-b5f92ff659794ed28518ddd1f88d05ec",
+                "key": "first_purchase",
+                "value": {
+                  "order_id": "A1024",
+                  "quantity": 1,
+                  "ordered_at": "2026-09-10T10:00:00+00:00",
+                  "product_id": "c_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "C Serum",
+                  "first_purchase": true
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1024",
+                  "source_label": "Order A1024"
+                },
+                "observed_at": "2026-09-10T10:00:00Z",
+                "created_at": "2026-11-14T12:42:28.315477Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              }
+            ],
+            "evidence_gaps": [
+              {
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "FEEDBACK_ONSET_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "RECENT_REGIMEN_CHANGES",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "REPORTED_SEVERITY",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              }
+            ],
+            "asked_questions": [
+              {
+                "id": "q-f0-b5f92ff659794ed28518ddd1f88d05ec-actual_first_use_time-1",
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "text": "请问您第一次实际使用 A Serum 是什么时候？",
+                "normalized_text": "请问您第一次实际使用aserum是什么时候",
+                "status": "ASKED",
+                "asked_at": "2026-11-14T12:42:28.323995Z",
+                "answered_by_evidence_ids": []
+              }
+            ],
+            "tool_calls": [
+              {
+                "id": "tool-3ab76c5ed1393c85979d811ec3acc012",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "COMPLETED",
+                "created_at": "2026-11-14T12:42:28.286509Z",
+                "completed_at": "2026-11-14T12:42:28.315506Z",
+                "result_evidence_ids": [
+                  "ev-order-A1001-first_purchase",
+                  "ev-order-A1010-repeat_purchase",
+                  "ev-order-A1024-first_purchase"
+                ],
+                "invocation_id": "3ab76c5ed1393c85979d811ec3acc012",
+                "attempt_count": 1,
+                "failure_kind": null,
+                "error_summary": null,
+                "attempt_sequence": 1,
+                "previous_attempt_id": null,
+                "recovery_request_id": null
+              }
+            ],
+            "tool_recoveries": [],
+            "human_review_blocks": null,
+            "transition_events": [
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Prepared business tool call get_order_history.",
+                "state_revision": 1,
+                "timestamp": "2026-11-14T12:42:28.286544Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 2,
+                "timestamp": "2026-11-14T12:42:28.296332Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Grounded and completed business tool get_order_history.",
+                "state_revision": 3,
+                "timestamp": "2026-11-14T12:42:28.315549Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "WAITING_FOR_USER",
+                "action": "ASK_USER",
+                "reason": "Required evidence gap ACTUAL_FIRST_USE_TIME remains open.",
+                "state_revision": 4,
+                "timestamp": "2026-11-14T12:42:28.324003Z"
+              }
+            ],
+            "investigation_result": null,
+            "consumer_memory": null,
+            "question_count": 1,
+            "step_count": 4,
+            "max_steps": 30,
+            "max_questions": 6,
+            "current_action": "ASK_USER",
+            "status": "WAITING_FOR_USER",
+            "next_question": "请问您第一次实际使用 A Serum 是什么时候？",
+            "next_action_reason": "Required evidence gap ACTUAL_FIRST_USE_TIME remains open.",
+            "created_at": "2026-11-14T12:42:26.125756Z",
+            "updated_at": "2026-11-14T12:42:28.324003Z",
+            "state_schema_version": 1,
+            "state_revision": 4
+          },
+          "counts": {
+            "TOOL_ENTRY": 1,
+            "TOOL_RETURN": 1,
+            "SIDE_EFFECT_MARKER": 0
+          }
+        }
+      ],
+      "requests": [],
+      "status": "PASS",
+      "processes": [
+        {
+          "actor": "api-a646ae44",
+          "pid": 30104,
+          "started_at": "2026-11-14T12:42:26.170408+00:00",
+          "single_api_worker": true,
+          "exit_code": 1,
+          "wait_confirmed": true,
+          "stop_method": "terminate-or-exited"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "actor": "api-a646ae44",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 1,
+            "attempt_id": "tool-3ab76c5ed1393c85979d811ec3acc012",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:28.294126+00:00"
+        },
+        {
+          "id": 2,
+          "actor": "api-a646ae44",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 2,
+            "attempt_id": "tool-3ab76c5ed1393c85979d811ec3acc012",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:28.301784+00:00"
+        },
+        {
+          "id": 3,
+          "actor": "api-a646ae44",
+          "kind": "TOOL_ENTRY",
+          "details": {
+            "revision": 2,
+            "attempt_id": "tool-3ab76c5ed1393c85979d811ec3acc012",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:28.304956+00:00"
+        },
+        {
+          "id": 4,
+          "actor": "api-a646ae44",
+          "kind": "TOOL_RETURN",
+          "details": {
+            "revision": 2,
+            "attempt_id": "tool-3ab76c5ed1393c85979d811ec3acc012",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:28.314221+00:00"
+        },
+        {
+          "id": 5,
+          "actor": "api-a646ae44",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 3,
+            "attempt_id": "tool-3ab76c5ed1393c85979d811ec3acc012",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:28.321439+00:00"
+        },
+        {
+          "id": 6,
+          "actor": "api-a646ae44",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 4,
+            "attempt_id": "tool-3ab76c5ed1393c85979d811ec3acc012",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:28.330046+00:00"
+        }
+      ],
+      "exit_declarations": []
+    },
+    {
+      "scenario": "F6",
+      "iteration": 1,
+      "experiment": "f6-6ae8ed2cf9994e96ab60478967850b9d",
+      "checkpoints": [
+        {
+          "label": "failure_before_restart",
+          "state": {
+            "case_id": "f6-6ae8ed2cf9994e96ab60478967850b9d",
+            "consumer_id": "consumer_001",
+            "current_issue": "W3 fixed local readonly order investigation",
+            "scenario": null,
+            "evidence": [],
+            "evidence_gaps": [
+              {
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "FEEDBACK_ONSET_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "RECENT_REGIMEN_CHANGES",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "REPORTED_SEVERITY",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              }
+            ],
+            "asked_questions": [],
+            "tool_calls": [
+              {
+                "id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "FAILED",
+                "created_at": "2026-11-14T12:42:30.611787Z",
+                "completed_at": "2026-11-14T12:42:30.631504Z",
+                "result_evidence_ids": [],
+                "invocation_id": "0f9e1d4cb1540cdc930e12a4d3947d7b",
+                "attempt_count": 1,
+                "failure_kind": "RETRYABLE",
+                "error_summary": "Read-only tool is temporarily unavailable.",
+                "attempt_sequence": 1,
+                "previous_attempt_id": null,
+                "recovery_request_id": null
+              }
+            ],
+            "tool_recoveries": [],
+            "human_review_blocks": [
+              "TOOL_RECOVERY"
+            ],
+            "transition_events": [
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Prepared business tool call get_order_history.",
+                "state_revision": 1,
+                "timestamp": "2026-11-14T12:42:30.611814Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 2,
+                "timestamp": "2026-11-14T12:42:30.621301Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "WAITING_FOR_HUMAN",
+                "action": "WAIT_FOR_HUMAN",
+                "reason": "Business tool get_order_history failed; manual recovery is required.",
+                "state_revision": 3,
+                "timestamp": "2026-11-14T12:42:30.631536Z"
+              }
+            ],
+            "investigation_result": null,
+            "consumer_memory": null,
+            "question_count": 0,
+            "step_count": 3,
+            "max_steps": 30,
+            "max_questions": 6,
+            "current_action": "WAIT_FOR_HUMAN",
+            "status": "WAITING_FOR_HUMAN",
+            "next_question": null,
+            "next_action_reason": "Business tool get_order_history failed; manual recovery is required.",
+            "created_at": "2026-11-14T12:42:28.458998Z",
+            "updated_at": "2026-11-14T12:42:30.631536Z",
+            "state_schema_version": 1,
+            "state_revision": 3
+          },
+          "counts": {
+            "TOOL_ENTRY": 1,
+            "TOOL_RETURN": 0,
+            "SIDE_EFFECT_MARKER": 0
+          }
+        },
+        {
+          "label": "final",
+          "state": {
+            "case_id": "f6-6ae8ed2cf9994e96ab60478967850b9d",
+            "consumer_id": "consumer_001",
+            "current_issue": "W3 fixed local readonly order investigation",
+            "scenario": null,
+            "evidence": [
+              {
+                "id": "ev-order-A1001-first_purchase",
+                "case_id": "f6-6ae8ed2cf9994e96ab60478967850b9d",
+                "key": "first_purchase",
+                "value": {
+                  "order_id": "A1001",
+                  "quantity": 1,
+                  "ordered_at": "2026-07-10T10:00:00+00:00",
+                  "product_id": "a_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "A Serum",
+                  "first_purchase": true
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1001",
+                  "source_label": "Order A1001"
+                },
+                "observed_at": "2026-07-10T10:00:00Z",
+                "created_at": "2026-11-14T12:42:32.834910Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              },
+              {
+                "id": "ev-order-A1010-repeat_purchase",
+                "case_id": "f6-6ae8ed2cf9994e96ab60478967850b9d",
+                "key": "repeat_purchase",
+                "value": {
+                  "order_id": "A1010",
+                  "quantity": 1,
+                  "ordered_at": "2026-08-15T10:00:00+00:00",
+                  "product_id": "a_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "A Serum",
+                  "first_purchase": false
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1010",
+                  "source_label": "Order A1010"
+                },
+                "observed_at": "2026-08-15T10:00:00Z",
+                "created_at": "2026-11-14T12:42:32.834946Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              },
+              {
+                "id": "ev-order-A1024-first_purchase",
+                "case_id": "f6-6ae8ed2cf9994e96ab60478967850b9d",
+                "key": "first_purchase",
+                "value": {
+                  "order_id": "A1024",
+                  "quantity": 1,
+                  "ordered_at": "2026-09-10T10:00:00+00:00",
+                  "product_id": "c_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "C Serum",
+                  "first_purchase": true
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1024",
+                  "source_label": "Order A1024"
+                },
+                "observed_at": "2026-09-10T10:00:00Z",
+                "created_at": "2026-11-14T12:42:32.834958Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              }
+            ],
+            "evidence_gaps": [
+              {
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "FEEDBACK_ONSET_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "RECENT_REGIMEN_CHANGES",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "REPORTED_SEVERITY",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              }
+            ],
+            "asked_questions": [
+              {
+                "id": "q-f6-6ae8ed2cf9994e96ab60478967850b9d-actual_first_use_time-1",
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "text": "请问您第一次实际使用 A Serum 是什么时候？",
+                "normalized_text": "请问您第一次实际使用aserum是什么时候",
+                "status": "ASKED",
+                "asked_at": "2026-11-14T12:42:32.847072Z",
+                "answered_by_evidence_ids": []
+              }
+            ],
+            "tool_calls": [
+              {
+                "id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "FAILED",
+                "created_at": "2026-11-14T12:42:30.611787Z",
+                "completed_at": "2026-11-14T12:42:30.631504Z",
+                "result_evidence_ids": [],
+                "invocation_id": "0f9e1d4cb1540cdc930e12a4d3947d7b",
+                "attempt_count": 1,
+                "failure_kind": "RETRYABLE",
+                "error_summary": "Read-only tool is temporarily unavailable.",
+                "attempt_sequence": 1,
+                "previous_attempt_id": null,
+                "recovery_request_id": null
+              },
+              {
+                "id": "attempt-25ad0016-ab11-4928-a4e2-a6a7ca7cbd4e",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "COMPLETED",
+                "created_at": "2026-11-14T12:42:32.797307Z",
+                "completed_at": "2026-11-14T12:42:32.834987Z",
+                "result_evidence_ids": [
+                  "ev-order-A1001-first_purchase",
+                  "ev-order-A1010-repeat_purchase",
+                  "ev-order-A1024-first_purchase"
+                ],
+                "invocation_id": "0f9e1d4cb1540cdc930e12a4d3947d7b",
+                "attempt_count": 1,
+                "failure_kind": null,
+                "error_summary": null,
+                "attempt_sequence": 2,
+                "previous_attempt_id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+                "recovery_request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75"
+              }
+            ],
+            "tool_recoveries": [
+              {
+                "request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75",
+                "target_attempt_id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+                "expected_revision": 3,
+                "operator_id": "W3-local-harness",
+                "reason": "Managed previous API process has exited; explicit readonly recovery",
+                "previous_process_exited": true,
+                "new_attempt_id": "attempt-25ad0016-ab11-4928-a4e2-a6a7ca7cbd4e",
+                "logical_call_id": "0f9e1d4cb1540cdc930e12a4d3947d7b",
+                "accepted_at": "2026-11-14T12:42:32.797357Z",
+                "interrupted_status": null,
+                "continuation": "SETTLED"
+              }
+            ],
+            "human_review_blocks": [],
+            "transition_events": [
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Prepared business tool call get_order_history.",
+                "state_revision": 1,
+                "timestamp": "2026-11-14T12:42:30.611814Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 2,
+                "timestamp": "2026-11-14T12:42:30.621301Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "WAITING_FOR_HUMAN",
+                "action": "WAIT_FOR_HUMAN",
+                "reason": "Business tool get_order_history failed; manual recovery is required.",
+                "state_revision": 3,
+                "timestamp": "2026-11-14T12:42:30.631536Z"
+              },
+              {
+                "from_status": "WAITING_FOR_HUMAN",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Explicit readonly recovery claimed.",
+                "state_revision": 4,
+                "timestamp": "2026-11-14T12:42:32.797397Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 5,
+                "timestamp": "2026-11-14T12:42:32.816322Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Grounded and completed business tool get_order_history.",
+                "state_revision": 6,
+                "timestamp": "2026-11-14T12:42:32.835032Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "WAITING_FOR_USER",
+                "action": "ASK_USER",
+                "reason": "Required evidence gap ACTUAL_FIRST_USE_TIME remains open.",
+                "state_revision": 7,
+                "timestamp": "2026-11-14T12:42:32.847080Z"
+              }
+            ],
+            "investigation_result": null,
+            "consumer_memory": null,
+            "question_count": 1,
+            "step_count": 7,
+            "max_steps": 30,
+            "max_questions": 6,
+            "current_action": "ASK_USER",
+            "status": "WAITING_FOR_USER",
+            "next_question": "请问您第一次实际使用 A Serum 是什么时候？",
+            "next_action_reason": "Required evidence gap ACTUAL_FIRST_USE_TIME remains open.",
+            "created_at": "2026-11-14T12:42:28.458998Z",
+            "updated_at": "2026-11-14T12:42:32.847080Z",
+            "state_schema_version": 1,
+            "state_revision": 7
+          },
+          "counts": {
+            "TOOL_ENTRY": 2,
+            "TOOL_RETURN": 1,
+            "SIDE_EFFECT_MARKER": 0
+          }
+        }
+      ],
+      "requests": [
+        {
+          "request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75",
+          "target_attempt_id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+          "expected_revision": 3,
+          "operator_id": "W3-local-harness",
+          "reason": "Managed previous API process has exited; explicit readonly recovery",
+          "previous_process_exited": true
+        }
+      ],
+      "status": "PASS",
+      "processes": [
+        {
+          "actor": "api-80a17dc1",
+          "pid": 48824,
+          "started_at": "2026-11-14T12:42:28.486293+00:00",
+          "single_api_worker": true,
+          "exit_code": 1,
+          "wait_confirmed": true,
+          "stop_method": "terminate-or-exited"
+        },
+        {
+          "actor": "api-1512bca7",
+          "pid": 76584,
+          "started_at": "2026-11-14T12:42:30.675168+00:00",
+          "single_api_worker": true,
+          "exit_code": 1,
+          "wait_confirmed": true,
+          "stop_method": "terminate-or-exited"
+        }
+      ],
+      "events": [
+        {
+          "id": 7,
+          "actor": "api-80a17dc1",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 1,
+            "attempt_id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:30.619670+00:00"
+        },
+        {
+          "id": 8,
+          "actor": "api-80a17dc1",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 2,
+            "attempt_id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:30.627214+00:00"
+        },
+        {
+          "id": 9,
+          "actor": "api-80a17dc1",
+          "kind": "TOOL_ENTRY",
+          "details": {
+            "revision": 2,
+            "attempt_id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:30.630441+00:00"
+        },
+        {
+          "id": 10,
+          "actor": "api-80a17dc1",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 3,
+            "attempt_id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:30.637210+00:00"
+        },
+        {
+          "id": 11,
+          "actor": "api-1512bca7",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 4,
+            "attempt_id": "attempt-25ad0016-ab11-4928-a4e2-a6a7ca7cbd4e",
+            "request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75"
+          },
+          "recorded_at": "2026-11-14T12:42:32.806646+00:00"
+        },
+        {
+          "id": 12,
+          "actor": "api-1512bca7",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 5,
+            "attempt_id": "attempt-25ad0016-ab11-4928-a4e2-a6a7ca7cbd4e",
+            "request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75"
+          },
+          "recorded_at": "2026-11-14T12:42:32.823177+00:00"
+        },
+        {
+          "id": 13,
+          "actor": "api-1512bca7",
+          "kind": "TOOL_ENTRY",
+          "details": {
+            "revision": 5,
+            "attempt_id": "attempt-25ad0016-ab11-4928-a4e2-a6a7ca7cbd4e",
+            "request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75"
+          },
+          "recorded_at": "2026-11-14T12:42:32.826035+00:00"
+        },
+        {
+          "id": 14,
+          "actor": "api-1512bca7",
+          "kind": "TOOL_RETURN",
+          "details": {
+            "revision": 5,
+            "attempt_id": "attempt-25ad0016-ab11-4928-a4e2-a6a7ca7cbd4e",
+            "request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75"
+          },
+          "recorded_at": "2026-11-14T12:42:32.833928+00:00"
+        },
+        {
+          "id": 15,
+          "actor": "api-1512bca7",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 6,
+            "attempt_id": "attempt-25ad0016-ab11-4928-a4e2-a6a7ca7cbd4e",
+            "request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75"
+          },
+          "recorded_at": "2026-11-14T12:42:32.841940+00:00"
+        },
+        {
+          "id": 16,
+          "actor": "api-1512bca7",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 7,
+            "attempt_id": "attempt-25ad0016-ab11-4928-a4e2-a6a7ca7cbd4e",
+            "request_id": "9a4ee047-f8dc-4d8a-9aaf-9ae578bc9d75"
+          },
+          "recorded_at": "2026-11-14T12:42:32.853774+00:00"
+        }
+      ],
+      "exit_declarations": [
+        {
+          "target_attempt_id": "tool-0f9e1d4cb1540cdc930e12a4d3947d7b",
+          "old_actor": "api-80a17dc1",
+          "old_pid": 48824,
+          "wait_confirmed": true,
+          "exit_code": 1
+        }
+      ]
+    },
+    {
+      "scenario": "F5",
+      "iteration": 1,
+      "experiment": "f5-74164d6730794f35a1ec566b470e153e",
+      "checkpoints": [
+        {
+          "label": "failure_before_restart",
+          "state": {
+            "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+            "consumer_id": "consumer_001",
+            "current_issue": "W3 fixed local readonly order investigation",
+            "scenario": null,
+            "evidence": [],
+            "evidence_gaps": [
+              {
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "FEEDBACK_ONSET_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "RECENT_REGIMEN_CHANGES",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "REPORTED_SEVERITY",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              }
+            ],
+            "asked_questions": [],
+            "tool_calls": [
+              {
+                "id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "FAILED",
+                "created_at": "2026-11-14T12:42:34.620246Z",
+                "completed_at": "2026-11-14T12:42:34.642370Z",
+                "result_evidence_ids": [],
+                "invocation_id": "51c6e632384a93ff9513c6a01e0c8a40",
+                "attempt_count": 1,
+                "failure_kind": "RETRYABLE",
+                "error_summary": "Read-only tool is temporarily unavailable.",
+                "attempt_sequence": 1,
+                "previous_attempt_id": null,
+                "recovery_request_id": null
+              }
+            ],
+            "tool_recoveries": [],
+            "human_review_blocks": [
+              "TOOL_RECOVERY"
+            ],
+            "transition_events": [
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Prepared business tool call get_order_history.",
+                "state_revision": 1,
+                "timestamp": "2026-11-14T12:42:34.620279Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 2,
+                "timestamp": "2026-11-14T12:42:34.631877Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "WAITING_FOR_HUMAN",
+                "action": "WAIT_FOR_HUMAN",
+                "reason": "Business tool get_order_history failed; manual recovery is required.",
+                "state_revision": 3,
+                "timestamp": "2026-11-14T12:42:34.642413Z"
+              }
+            ],
+            "investigation_result": null,
+            "consumer_memory": null,
+            "question_count": 0,
+            "step_count": 3,
+            "max_steps": 30,
+            "max_questions": 6,
+            "current_action": "WAIT_FOR_HUMAN",
+            "status": "WAITING_FOR_HUMAN",
+            "next_question": null,
+            "next_action_reason": "Business tool get_order_history failed; manual recovery is required.",
+            "created_at": "2026-11-14T12:42:33.003994Z",
+            "updated_at": "2026-11-14T12:42:34.642413Z",
+            "state_schema_version": 1,
+            "state_revision": 3
+          },
+          "counts": {
+            "TOOL_ENTRY": 1,
+            "TOOL_RETURN": 0,
+            "SIDE_EFFECT_MARKER": 0
+          }
+        },
+        {
+          "label": "recovery_handshake_before_kill",
+          "state": {
+            "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+            "consumer_id": "consumer_001",
+            "current_issue": "W3 fixed local readonly order investigation",
+            "scenario": null,
+            "evidence": [
+              {
+                "id": "ev-order-A1001-first_purchase",
+                "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+                "key": "first_purchase",
+                "value": {
+                  "order_id": "A1001",
+                  "quantity": 1,
+                  "ordered_at": "2026-07-10T10:00:00+00:00",
+                  "product_id": "a_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "A Serum",
+                  "first_purchase": true
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1001",
+                  "source_label": "Order A1001"
+                },
+                "observed_at": "2026-07-10T10:00:00Z",
+                "created_at": "2026-11-14T12:42:36.816207Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              },
+              {
+                "id": "ev-order-A1010-repeat_purchase",
+                "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+                "key": "repeat_purchase",
+                "value": {
+                  "order_id": "A1010",
+                  "quantity": 1,
+                  "ordered_at": "2026-08-15T10:00:00+00:00",
+                  "product_id": "a_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "A Serum",
+                  "first_purchase": false
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1010",
+                  "source_label": "Order A1010"
+                },
+                "observed_at": "2026-08-15T10:00:00Z",
+                "created_at": "2026-11-14T12:42:36.816245Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              },
+              {
+                "id": "ev-order-A1024-first_purchase",
+                "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+                "key": "first_purchase",
+                "value": {
+                  "order_id": "A1024",
+                  "quantity": 1,
+                  "ordered_at": "2026-09-10T10:00:00+00:00",
+                  "product_id": "c_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "C Serum",
+                  "first_purchase": true
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1024",
+                  "source_label": "Order A1024"
+                },
+                "observed_at": "2026-09-10T10:00:00Z",
+                "created_at": "2026-11-14T12:42:36.816258Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              }
+            ],
+            "evidence_gaps": [
+              {
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "FEEDBACK_ONSET_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "RECENT_REGIMEN_CHANGES",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "REPORTED_SEVERITY",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              }
+            ],
+            "asked_questions": [],
+            "tool_calls": [
+              {
+                "id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "FAILED",
+                "created_at": "2026-11-14T12:42:34.620246Z",
+                "completed_at": "2026-11-14T12:42:34.642370Z",
+                "result_evidence_ids": [],
+                "invocation_id": "51c6e632384a93ff9513c6a01e0c8a40",
+                "attempt_count": 1,
+                "failure_kind": "RETRYABLE",
+                "error_summary": "Read-only tool is temporarily unavailable.",
+                "attempt_sequence": 1,
+                "previous_attempt_id": null,
+                "recovery_request_id": null
+              },
+              {
+                "id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "COMPLETED",
+                "created_at": "2026-11-14T12:42:36.783714Z",
+                "completed_at": "2026-11-14T12:42:36.816288Z",
+                "result_evidence_ids": [
+                  "ev-order-A1001-first_purchase",
+                  "ev-order-A1010-repeat_purchase",
+                  "ev-order-A1024-first_purchase"
+                ],
+                "invocation_id": "51c6e632384a93ff9513c6a01e0c8a40",
+                "attempt_count": 1,
+                "failure_kind": null,
+                "error_summary": null,
+                "attempt_sequence": 2,
+                "previous_attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+                "recovery_request_id": "cbd53700-9e5d-4e68-9705-b22194875015"
+              }
+            ],
+            "tool_recoveries": [
+              {
+                "request_id": "cbd53700-9e5d-4e68-9705-b22194875015",
+                "target_attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+                "expected_revision": 3,
+                "operator_id": "W3-local-harness",
+                "reason": "Managed previous API process has exited; explicit readonly recovery",
+                "previous_process_exited": true,
+                "new_attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+                "logical_call_id": "51c6e632384a93ff9513c6a01e0c8a40",
+                "accepted_at": "2026-11-14T12:42:36.783797Z",
+                "interrupted_status": null,
+                "continuation": "RUNNING"
+              }
+            ],
+            "human_review_blocks": [],
+            "transition_events": [
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Prepared business tool call get_order_history.",
+                "state_revision": 1,
+                "timestamp": "2026-11-14T12:42:34.620279Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 2,
+                "timestamp": "2026-11-14T12:42:34.631877Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "WAITING_FOR_HUMAN",
+                "action": "WAIT_FOR_HUMAN",
+                "reason": "Business tool get_order_history failed; manual recovery is required.",
+                "state_revision": 3,
+                "timestamp": "2026-11-14T12:42:34.642413Z"
+              },
+              {
+                "from_status": "WAITING_FOR_HUMAN",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Explicit readonly recovery claimed.",
+                "state_revision": 4,
+                "timestamp": "2026-11-14T12:42:36.783872Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 5,
+                "timestamp": "2026-11-14T12:42:36.798154Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Grounded and completed business tool get_order_history.",
+                "state_revision": 6,
+                "timestamp": "2026-11-14T12:42:36.816335Z"
+              }
+            ],
+            "investigation_result": null,
+            "consumer_memory": null,
+            "question_count": 0,
+            "step_count": 6,
+            "max_steps": 30,
+            "max_questions": 6,
+            "current_action": "CALL_TOOL",
+            "status": "INVESTIGATING",
+            "next_question": null,
+            "next_action_reason": "Grounded and completed business tool get_order_history.",
+            "created_at": "2026-11-14T12:42:33.003994Z",
+            "updated_at": "2026-11-14T12:42:36.816335Z",
+            "state_schema_version": 1,
+            "state_revision": 6
+          },
+          "counts": {
+            "TOOL_ENTRY": 2,
+            "TOOL_RETURN": 1,
+            "SIDE_EFFECT_MARKER": 0
+          }
+        },
+        {
+          "label": "final",
+          "state": {
+            "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+            "consumer_id": "consumer_001",
+            "current_issue": "W3 fixed local readonly order investigation",
+            "scenario": null,
+            "evidence": [
+              {
+                "id": "ev-order-A1001-first_purchase",
+                "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+                "key": "first_purchase",
+                "value": {
+                  "order_id": "A1001",
+                  "quantity": 1,
+                  "ordered_at": "2026-07-10T10:00:00+00:00",
+                  "product_id": "a_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "A Serum",
+                  "first_purchase": true
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1001",
+                  "source_label": "Order A1001"
+                },
+                "observed_at": "2026-07-10T10:00:00Z",
+                "created_at": "2026-11-14T12:42:36.816207Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              },
+              {
+                "id": "ev-order-A1010-repeat_purchase",
+                "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+                "key": "repeat_purchase",
+                "value": {
+                  "order_id": "A1010",
+                  "quantity": 1,
+                  "ordered_at": "2026-08-15T10:00:00+00:00",
+                  "product_id": "a_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "A Serum",
+                  "first_purchase": false
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1010",
+                  "source_label": "Order A1010"
+                },
+                "observed_at": "2026-08-15T10:00:00Z",
+                "created_at": "2026-11-14T12:42:36.816245Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              },
+              {
+                "id": "ev-order-A1024-first_purchase",
+                "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+                "key": "first_purchase",
+                "value": {
+                  "order_id": "A1024",
+                  "quantity": 1,
+                  "ordered_at": "2026-09-10T10:00:00+00:00",
+                  "product_id": "c_serum",
+                  "consumer_id": "consumer_001",
+                  "product_name": "C Serum",
+                  "first_purchase": true
+                },
+                "evidence_type": "VERIFIED_BUSINESS_FACT",
+                "source": {
+                  "source_type": "ORDER_SYSTEM",
+                  "source_id": "A1024",
+                  "source_label": "Order A1024"
+                },
+                "observed_at": "2026-09-10T10:00:00Z",
+                "created_at": "2026-11-14T12:42:36.816258Z",
+                "extraction_confidence": 1.0,
+                "metadata": {}
+              }
+            ],
+            "evidence_gaps": [
+              {
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "FEEDBACK_ONSET_TIME",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "RECENT_REGIMEN_CHANGES",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              },
+              {
+                "gap_type": "REPORTED_SEVERITY",
+                "status": "OPEN",
+                "required": true,
+                "resolved_by_evidence_ids": []
+              }
+            ],
+            "asked_questions": [
+              {
+                "id": "q-f5-74164d6730794f35a1ec566b470e153e-actual_first_use_time-1",
+                "gap_type": "ACTUAL_FIRST_USE_TIME",
+                "text": "请问您第一次实际使用 A Serum 是什么时候？",
+                "normalized_text": "请问您第一次实际使用aserum是什么时候",
+                "status": "ASKED",
+                "asked_at": "2026-11-14T12:42:39.599363Z",
+                "answered_by_evidence_ids": []
+              }
+            ],
+            "tool_calls": [
+              {
+                "id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "FAILED",
+                "created_at": "2026-11-14T12:42:34.620246Z",
+                "completed_at": "2026-11-14T12:42:34.642370Z",
+                "result_evidence_ids": [],
+                "invocation_id": "51c6e632384a93ff9513c6a01e0c8a40",
+                "attempt_count": 1,
+                "failure_kind": "RETRYABLE",
+                "error_summary": "Read-only tool is temporarily unavailable.",
+                "attempt_sequence": 1,
+                "previous_attempt_id": null,
+                "recovery_request_id": null
+              },
+              {
+                "id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+                "tool_name": "get_order_history",
+                "arguments": {
+                  "consumer_id": "consumer_001"
+                },
+                "status": "COMPLETED",
+                "created_at": "2026-11-14T12:42:36.783714Z",
+                "completed_at": "2026-11-14T12:42:36.816288Z",
+                "result_evidence_ids": [
+                  "ev-order-A1001-first_purchase",
+                  "ev-order-A1010-repeat_purchase",
+                  "ev-order-A1024-first_purchase"
+                ],
+                "invocation_id": "51c6e632384a93ff9513c6a01e0c8a40",
+                "attempt_count": 1,
+                "failure_kind": null,
+                "error_summary": null,
+                "attempt_sequence": 2,
+                "previous_attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+                "recovery_request_id": "cbd53700-9e5d-4e68-9705-b22194875015"
+              }
+            ],
+            "tool_recoveries": [
+              {
+                "request_id": "cbd53700-9e5d-4e68-9705-b22194875015",
+                "target_attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+                "expected_revision": 3,
+                "operator_id": "W3-local-harness",
+                "reason": "Managed previous API process has exited; explicit readonly recovery",
+                "previous_process_exited": true,
+                "new_attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+                "logical_call_id": "51c6e632384a93ff9513c6a01e0c8a40",
+                "accepted_at": "2026-11-14T12:42:36.783797Z",
+                "interrupted_status": null,
+                "continuation": "SETTLED"
+              }
+            ],
+            "human_review_blocks": [],
+            "transition_events": [
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Prepared business tool call get_order_history.",
+                "state_revision": 1,
+                "timestamp": "2026-11-14T12:42:34.620279Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 2,
+                "timestamp": "2026-11-14T12:42:34.631877Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "WAITING_FOR_HUMAN",
+                "action": "WAIT_FOR_HUMAN",
+                "reason": "Business tool get_order_history failed; manual recovery is required.",
+                "state_revision": 3,
+                "timestamp": "2026-11-14T12:42:34.642413Z"
+              },
+              {
+                "from_status": "WAITING_FOR_HUMAN",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Explicit readonly recovery claimed.",
+                "state_revision": 4,
+                "timestamp": "2026-11-14T12:42:36.783872Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Running business tool get_order_history.",
+                "state_revision": 5,
+                "timestamp": "2026-11-14T12:42:36.798154Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "INVESTIGATING",
+                "action": "CALL_TOOL",
+                "reason": "Grounded and completed business tool get_order_history.",
+                "state_revision": 6,
+                "timestamp": "2026-11-14T12:42:36.816335Z"
+              },
+              {
+                "from_status": "INVESTIGATING",
+                "to_status": "WAITING_FOR_USER",
+                "action": "ASK_USER",
+                "reason": "Required evidence gap ACTUAL_FIRST_USE_TIME remains open.",
+                "state_revision": 7,
+                "timestamp": "2026-11-14T12:42:39.599372Z"
+              }
+            ],
+            "investigation_result": null,
+            "consumer_memory": null,
+            "question_count": 1,
+            "step_count": 7,
+            "max_steps": 30,
+            "max_questions": 6,
+            "current_action": "ASK_USER",
+            "status": "WAITING_FOR_USER",
+            "next_question": "请问您第一次实际使用 A Serum 是什么时候？",
+            "next_action_reason": "Required evidence gap ACTUAL_FIRST_USE_TIME remains open.",
+            "created_at": "2026-11-14T12:42:33.003994Z",
+            "updated_at": "2026-11-14T12:42:39.599372Z",
+            "state_schema_version": 1,
+            "state_revision": 7
+          },
+          "counts": {
+            "TOOL_ENTRY": 2,
+            "TOOL_RETURN": 1,
+            "SIDE_EFFECT_MARKER": 0
+          }
+        }
+      ],
+      "requests": [
+        {
+          "request_id": "cbd53700-9e5d-4e68-9705-b22194875015",
+          "target_attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+          "expected_revision": 3,
+          "operator_id": "W3-local-harness",
+          "reason": "Managed previous API process has exited; explicit readonly recovery",
+          "previous_process_exited": true
+        },
+        {
+          "request_id": "cbd53700-9e5d-4e68-9705-b22194875015",
+          "target_attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+          "expected_revision": 3,
+          "operator_id": "W3-local-harness",
+          "reason": "Managed previous API process has exited; explicit readonly recovery",
+          "previous_process_exited": true
+        }
+      ],
+      "http_response_lost": true,
+      "offline_control": {
+        "experiment": "f5-control-c8f0f8ab8cc64ef6bdf61e2df2480a9a",
+        "before": {
+          "TOOL_ENTRY": 0,
+          "TOOL_RETURN": 0,
+          "SIDE_EFFECT_MARKER": 0
+        },
+        "after": {
+          "TOOL_ENTRY": 1,
+          "TOOL_RETURN": 1,
+          "SIDE_EFFECT_MARKER": 0
+        },
+        "events": [
+          {
+            "id": 27,
+            "actor": "offline-cli-635553185f0f49bcadc3337e0bf4c5dd",
+            "kind": "CLI_OBSERVER_INSTALLED",
+            "details": {
+              "pid": 7968,
+              "path": "original CLI factory wrapper"
+            },
+            "recorded_at": "2026-11-14T12:42:38.049114+00:00"
+          },
+          {
+            "id": 28,
+            "actor": "offline-cli-635553185f0f49bcadc3337e0bf4c5dd",
+            "kind": "TOOL_ENTRY",
+            "details": {
+              "pid": 7968,
+              "path": "original CLI factory wrapper"
+            },
+            "recorded_at": "2026-11-14T12:42:38.063508+00:00"
+          },
+          {
+            "id": 29,
+            "actor": "offline-cli-635553185f0f49bcadc3337e0bf4c5dd",
+            "kind": "TOOL_RETURN",
+            "details": {
+              "pid": 7968,
+              "path": "original CLI factory wrapper"
+            },
+            "recorded_at": "2026-11-14T12:42:38.072055+00:00"
+          }
+        ]
+      },
+      "offline_cli": {
+        "case_id": "f5-74164d6730794f35a1ec566b470e153e",
+        "request_id": "cbd53700-9e5d-4e68-9705-b22194875015",
+        "logical_call_id": "51c6e632384a93ff9513c6a01e0c8a40",
+        "target_attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+        "attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+        "attempt_status": "COMPLETED",
+        "failure_kind": null,
+        "error_summary": null,
+        "result_evidence_ids": [
+          "ev-order-A1001-first_purchase",
+          "ev-order-A1010-repeat_purchase",
+          "ev-order-A1024-first_purchase"
+        ],
+        "accepted_revision": 4,
+        "current_revision": 7,
+        "lifecycle": "WAITING_FOR_USER",
+        "current_action": "ASK_USER",
+        "continuation": "SETTLED",
+        "replayed": false
+      },
+      "offline_observation": {
+        "before": {
+          "TOOL_ENTRY": 2,
+          "TOOL_RETURN": 1,
+          "SIDE_EFFECT_MARKER": 0
+        },
+        "after": {
+          "TOOL_ENTRY": 2,
+          "TOOL_RETURN": 1,
+          "SIDE_EFFECT_MARKER": 0
+        },
+        "cli_events": [
+          {
+            "id": 30,
+            "actor": "offline-cli-b0100b033e2540aabab6496967bd269f",
+            "kind": "CLI_OBSERVER_INSTALLED",
+            "details": {
+              "pid": 32068,
+              "path": "original CLI factory wrapper"
+            },
+            "recorded_at": "2026-11-14T12:42:39.543198+00:00"
+          }
+        ],
+        "new_order_calls": 0
+      },
+      "status": "PASS",
+      "processes": [
+        {
+          "actor": "api-737c8b68",
+          "pid": 71752,
+          "started_at": "2026-11-14T12:42:33.032598+00:00",
+          "single_api_worker": true,
+          "exit_code": 1,
+          "wait_confirmed": true,
+          "stop_method": "terminate-or-exited"
+        },
+        {
+          "actor": "api-47d1fc37",
+          "pid": 68416,
+          "started_at": "2026-11-14T12:42:34.687737+00:00",
+          "single_api_worker": true,
+          "exit_code": 1,
+          "wait_confirmed": true,
+          "stop_method": "kill"
+        },
+        {
+          "actor": "api-9e4d5c5e",
+          "pid": 52452,
+          "started_at": "2026-11-14T12:42:39.876394+00:00",
+          "single_api_worker": true,
+          "exit_code": 1,
+          "wait_confirmed": true,
+          "stop_method": "terminate-or-exited"
+        }
+      ],
+      "events": [
+        {
+          "id": 17,
+          "actor": "api-737c8b68",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 1,
+            "attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:34.629965+00:00"
+        },
+        {
+          "id": 18,
+          "actor": "api-737c8b68",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 2,
+            "attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:34.638310+00:00"
+        },
+        {
+          "id": 19,
+          "actor": "api-737c8b68",
+          "kind": "TOOL_ENTRY",
+          "details": {
+            "revision": 2,
+            "attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:34.641362+00:00"
+        },
+        {
+          "id": 20,
+          "actor": "api-737c8b68",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 3,
+            "attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+            "request_id": "None"
+          },
+          "recorded_at": "2026-11-14T12:42:34.648206+00:00"
+        },
+        {
+          "id": 21,
+          "actor": "api-47d1fc37",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 4,
+            "attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+            "request_id": "cbd53700-9e5d-4e68-9705-b22194875015"
+          },
+          "recorded_at": "2026-11-14T12:42:36.792360+00:00"
+        },
+        {
+          "id": 22,
+          "actor": "api-47d1fc37",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 5,
+            "attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+            "request_id": "cbd53700-9e5d-4e68-9705-b22194875015"
+          },
+          "recorded_at": "2026-11-14T12:42:36.804195+00:00"
+        },
+        {
+          "id": 23,
+          "actor": "api-47d1fc37",
+          "kind": "TOOL_ENTRY",
+          "details": {
+            "revision": 5,
+            "attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+            "request_id": "cbd53700-9e5d-4e68-9705-b22194875015"
+          },
+          "recorded_at": "2026-11-14T12:42:36.806997+00:00"
+        },
+        {
+          "id": 24,
+          "actor": "api-47d1fc37",
+          "kind": "TOOL_RETURN",
+          "details": {
+            "revision": 5,
+            "attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+            "request_id": "cbd53700-9e5d-4e68-9705-b22194875015"
+          },
+          "recorded_at": "2026-11-14T12:42:36.815209+00:00"
+        },
+        {
+          "id": 25,
+          "actor": "api-47d1fc37",
+          "kind": "SNAPSHOT_COMMITTED",
+          "details": {
+            "revision": 6,
+            "attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+            "request_id": "cbd53700-9e5d-4e68-9705-b22194875015"
+          },
+          "recorded_at": "2026-11-14T12:42:36.822899+00:00"
+        },
+        {
+          "id": 26,
+          "actor": "api-47d1fc37",
+          "kind": "GATE",
+          "details": {
+            "boundary": "AFTER_COMPLETED",
+            "revision": 6,
+            "attempt_id": "attempt-25c27e6c-9de0-408e-9274-e94f155448f9",
+            "request_id": "cbd53700-9e5d-4e68-9705-b22194875015"
+          },
+          "recorded_at": "2026-11-14T12:42:36.825632+00:00"
+        },
+        {
+          "id": 30,
+          "actor": "offline-cli-b0100b033e2540aabab6496967bd269f",
+          "kind": "CLI_OBSERVER_INSTALLED",
+          "details": {
+            "pid": 32068,
+            "path": "original CLI factory wrapper"
+          },
+          "recorded_at": "2026-11-14T12:42:39.543198+00:00"
+        }
+      ],
+      "exit_declarations": [
+        {
+          "target_attempt_id": "tool-51c6e632384a93ff9513c6a01e0c8a40",
+          "old_actor": "api-737c8b68",
+          "old_pid": 71752,
+          "wait_confirmed": true,
+          "exit_code": 1
+        }
+      ]
+    }
+  ],
+  "regression": {
+    "exit_code": 0,
+    "junit": "regression.xml",
+    "log": "regression.log"
+  }
+}

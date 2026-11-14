@@ -15,6 +15,41 @@ from backend.app.domain.business import (
 from backend.app.domain.evidence import Evidence, EvidenceSource, EvidenceType, SourceType
 
 
+class EvidenceContentConflict(ValueError):
+    """A whole candidate batch must be rejected without exposing source contents."""
+
+
+def strict_equal(left: object, right: object) -> bool:
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict) and isinstance(right, dict):
+        return left.keys() == right.keys() and all(
+            strict_equal(v, right[k]) for k, v in left.items()
+        )
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(
+            strict_equal(a, b) for a, b in zip(left, right, strict=True)
+        )
+    return left == right
+
+
+def merge_evidence_batch(existing: list[Evidence], candidates: list[Evidence]) -> list[Evidence]:
+    """Check the complete batch before returning any additions; keep original objects."""
+    by_id = {item.id: item for item in existing}
+    additions = []
+    for item in candidates:
+        previous = by_id.get(item.id)
+        if previous is not None:
+            left = previous.model_dump(mode="json", exclude={"created_at"})
+            right = item.model_dump(mode="json", exclude={"created_at"})
+            if not strict_equal(left, right):
+                raise EvidenceContentConflict("Evidence content conflict.")
+        else:
+            by_id[item.id] = item
+            additions.append(item)
+    return [*existing, *additions]
+
+
 class EvidenceGroundingService:
     """Ground typed raw records without inferring usage, regimen, or causality."""
 

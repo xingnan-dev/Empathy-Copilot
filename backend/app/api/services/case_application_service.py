@@ -2,11 +2,16 @@
 
 from collections.abc import Mapping
 from datetime import UTC, datetime
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from backend.app.agent.guardrails import assess_attribution
 from backend.app.agent.workflow import InvestigationWorkflow
-from backend.app.domain.agent import AgentAction, AgentStatus, InvestigationState
+from backend.app.domain.agent import (
+    AgentAction,
+    AgentStatus,
+    InvestigationState,
+    ToolRecoveryRequest,
+)
 from backend.app.domain.evidence import Evidence, EvidenceType, SourceType
 from backend.app.domain.gaps import GapType, evaluate_p0_gaps, evaluate_scenario_gaps
 from backend.app.domain.regimen import build_regimen_changes
@@ -20,6 +25,7 @@ from backend.app.official_dataset.cases import OfficialCaseFactory
 from backend.app.official_dataset.models import OfficialDataset
 from backend.app.services.checkpoints import CheckpointStore, StateConflictError
 from backend.app.services.context_passport import ContextPassportService
+from backend.app.services.tool_recovery import RecoveryView, ToolRecoveryService
 from backend.app.services.transitions import InvalidStateTransitionError, StateTransitionService
 from backend.app.vision import VisionService
 from backend.app.vision.schemas import ImageCategory, VisionSourceIdentity
@@ -65,6 +71,13 @@ class CaseApplicationService:
         self.safety = SafetyGateService()
         self.service_strategy = ServiceStrategyPolicy()
         self.ingredients = IngredientContextChecker()
+        self.tool_recovery = ToolRecoveryService(workflow)
+
+    def recover_tool(self, case_id: str, request: ToolRecoveryRequest) -> tuple[RecoveryView, int]:
+        return self.tool_recovery.recover(case_id, request)
+
+    def get_tool_recovery(self, case_id: str, request_id: UUID) -> RecoveryView:
+        return self.tool_recovery.get(case_id, request_id)
 
     def ensure_integration_fixture(self) -> None:
         fixture = s00154_waiting_for_human()

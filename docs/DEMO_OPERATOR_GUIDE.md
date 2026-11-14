@@ -1,6 +1,68 @@
 # Resonique Demo Operator Guide
 
-## Before the judges arrive
+These existing case demonstrations remain useful for local review of the preserved baseline.
+Current development scope and pending verification are recorded in
+[PROJECT_STATE.md](PROJECT_STATE.md); startup and data-use requirements are in the
+[run guide](COMPETITION_RUN_GUIDE.md). Competition submission and judging constraints do not
+apply to this operating checklist.
+
+## Current three-minute synthetic-data recovery demo
+
+This terminal/API demonstration uses two independent synthetic cases: a normal-query control,
+then a comparable case with an injected readonly timeout. A completed logical query is not forced
+back into failure. React retains its existing case display; recovery is operated through API/CLI.
+Start from the environment in the [run guide](COMPETITION_RUN_GUIDE.md).
+
+```powershell
+.\.venv\Scripts\python scripts/tool_recovery_experiment.py --cases F0 F6 --repetitions 1
+```
+
+Copy the printed report directory into `$reportDirectory`, then inspect the actual run:
+
+```powershell
+$run = Get-Content (Join-Path $reportDirectory 'report.json') -Raw | ConvertFrom-Json
+$normal = $run.results | Where-Object scenario -eq 'F0'
+$recovery = $run.results | Where-Object scenario -eq 'F6'
+$failure = $recovery.checkpoints | Where-Object label -eq 'failure_before_restart'
+$final = $recovery.checkpoints | Where-Object label -eq 'final'
+$failure.state | Select-Object status,state_revision,tool_calls
+$final.state.tool_calls | Format-Table id,status,attempt_sequence,previous_attempt_id
+$final.state.evidence | Select-Object id,key,source
+$final.counts
+```
+
+The harness actually starts a single API, injects TimeoutError in the readonly experimental tool,
+waits for the old API to exit, starts a new one, sends an explicit recovery request, then repeats
+the identical request. That replay must return200 without another tool entry. The F6 final total
+is2 entries/1 return: one failed call plus one successful recovery; replay adds0. Request history,
+source Evidence and wait-confirmed process records are in the report. No real provider outage or
+business transaction is being simulated as a measured production result.
+
+| Time | Show | Suggested narration |
+| --- | --- | --- |
+| 0:00–0:30 | F0 final state and sourced order | “先看正常查询：购买来自订单记录，仍不代表实际使用，更不能证明因果。” |
+| 0:30–1:10 | F6 failure snapshot and FAILED record | “另一个本地合成案件注入只读超时。失败被保存，没有成功证据，系统暂停等待人工处理。” |
+| 1:10–1:45 | Old process exit record, new API, recovery request | “脚本确认原API进程退出后重启。人工请求携带目标尝试、修订号和恢复原因。” |
+| 1:45–2:25 | FAILED parent, COMPLETED child, Evidence source | “恢复创建新尝试，保留失败历史。结果继续经过Grounding，随后调查进入下一条追问。” |
+| 2:25–3:00 | Replay result/count invariant and limitations | “重复同一请求只读已有进度，不重新查询。这是本地单进程人工恢复；跨主机接管和真实权限认证仍不在范围内。” |
+
+For completed-query crash continuation and its separate positive control:
+
+```powershell
+.\.venv\Scripts\python scripts/tool_recovery_experiment.py --cases F5 --repetitions 1
+```
+
+Use [F5 supplementary evidence](W3_F5_SUPPLEMENT.md) for the zero-CLI-query conclusion. Parent process
+execution_counts alone cannot establish it. Video status: **经负责人决定取消**. Recording is not a gate for final acceptance, merge or release.
+Commands, narration and actual execution evidence in [W4 delivery](W4_DELIVERY.md) remain available
+for reproduction.
+
+## Existing baseline demonstrations
+
+The sections below retain the accepted S00154/supporting-case paths. Official cases require the
+workbook and verified usage permission; they are not prerequisites for the synthetic recovery demo.
+
+## Before a local demonstration
 
 1. Start with `docker compose up --build` and wait for all three services to become healthy.
 2. Confirm `http://localhost:8000/health` returns `{"status":"ok"}`.

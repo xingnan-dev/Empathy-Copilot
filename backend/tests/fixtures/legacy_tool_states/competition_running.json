@@ -1,0 +1,37 @@
+{
+  "case_id": "case_c_serum_001",
+  "consumer_id": "consumer_001",
+  "current_issue": "Local fixture",
+  "scenario": null,
+  "evidence": [],
+  "evidence_gaps": [],
+  "asked_questions": [],
+  "tool_calls": [
+    {
+      "id": "legacy-model-only",
+      "tool_name": "get_order_history",
+      "arguments": {
+        "consumer_id": "consumer_001"
+      },
+      "status": "RUNNING",
+      "created_at": "2026-11-14T10:17:16.044149Z",
+      "completed_at": null,
+      "result_evidence_ids": []
+    }
+  ],
+  "transition_events": [],
+  "investigation_result": null,
+  "consumer_memory": null,
+  "question_count": 0,
+  "step_count": 0,
+  "max_steps": 30,
+  "max_questions": 6,
+  "current_action": null,
+  "status": "INVESTIGATING",
+  "next_question": null,
+  "next_action_reason": null,
+  "created_at": "2026-11-14T10:17:16.044144Z",
+  "updated_at": "2026-11-14T10:17:16.044145Z",
+  "state_schema_version": 1,
+  "state_revision": 0
+}
