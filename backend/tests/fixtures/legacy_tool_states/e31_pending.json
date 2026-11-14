@@ -1,0 +1,75 @@
+{
+  "case_id": "case_c_serum_001",
+  "consumer_id": "consumer_001",
+  "current_issue": "Local fixture",
+  "scenario": null,
+  "evidence": [],
+  "evidence_gaps": [
+    {
+      "gap_type": "ACTUAL_FIRST_USE_TIME",
+      "status": "OPEN",
+      "required": true,
+      "resolved_by_evidence_ids": []
+    },
+    {
+      "gap_type": "FEEDBACK_ONSET_TIME",
+      "status": "OPEN",
+      "required": true,
+      "resolved_by_evidence_ids": []
+    },
+    {
+      "gap_type": "RECENT_REGIMEN_CHANGES",
+      "status": "OPEN",
+      "required": true,
+      "resolved_by_evidence_ids": []
+    },
+    {
+      "gap_type": "REPORTED_SEVERITY",
+      "status": "OPEN",
+      "required": true,
+      "resolved_by_evidence_ids": []
+    }
+  ],
+  "asked_questions": [],
+  "tool_calls": [
+    {
+      "id": "tool-919af19ff34af67fd135c16070791318",
+      "tool_name": "get_order_history",
+      "arguments": {
+        "consumer_id": "consumer_001"
+      },
+      "status": "PENDING",
+      "created_at": "2026-11-14T10:17:19.395623Z",
+      "completed_at": null,
+      "result_evidence_ids": [],
+      "invocation_id": "919af19ff34af67fd135c16070791318",
+      "attempt_count": 0,
+      "failure_kind": null,
+      "error_summary": null
+    }
+  ],
+  "transition_events": [
+    {
+      "from_status": "INVESTIGATING",
+      "to_status": "INVESTIGATING",
+      "action": "CALL_TOOL",
+      "reason": "Prepared business tool call get_order_history.",
+      "state_revision": 1,
+      "timestamp": "2026-11-14T10:17:19.395636Z"
+    }
+  ],
+  "investigation_result": null,
+  "consumer_memory": null,
+  "question_count": 0,
+  "step_count": 1,
+  "max_steps": 30,
+  "max_questions": 6,
+  "current_action": "CALL_TOOL",
+  "status": "INVESTIGATING",
+  "next_question": null,
+  "next_action_reason": "Prepared business tool call get_order_history.",
+  "created_at": "2026-11-14T10:17:19.394515Z",
+  "updated_at": "2026-11-14T10:17:19.395636Z",
+  "state_schema_version": 1,
+  "state_revision": 1
+}

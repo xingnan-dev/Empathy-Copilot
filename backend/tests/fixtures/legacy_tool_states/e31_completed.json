@@ -1,0 +1,186 @@
+{
+  "case_id": "case_c_serum_001",
+  "consumer_id": "consumer_001",
+  "current_issue": "Local fixture",
+  "scenario": null,
+  "evidence": [
+    {
+      "id": "ev-order-A1001-first_purchase",
+      "case_id": "case_c_serum_001",
+      "key": "first_purchase",
+      "value": {
+        "order_id": "A1001",
+        "consumer_id": "consumer_001",
+        "product_id": "a_serum",
+        "product_name": "A Serum",
+        "ordered_at": "2026-07-10T10:00:00+00:00",
+        "quantity": 1,
+        "first_purchase": true
+      },
+      "evidence_type": "VERIFIED_BUSINESS_FACT",
+      "source": {
+        "source_type": "ORDER_SYSTEM",
+        "source_id": "A1001",
+        "source_label": "Order A1001"
+      },
+      "observed_at": "2026-07-10T10:00:00Z",
+      "created_at": "2026-11-14T10:17:19.389264Z",
+      "extraction_confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "id": "ev-order-A1010-repeat_purchase",
+      "case_id": "case_c_serum_001",
+      "key": "repeat_purchase",
+      "value": {
+        "order_id": "A1010",
+        "consumer_id": "consumer_001",
+        "product_id": "a_serum",
+        "product_name": "A Serum",
+        "ordered_at": "2026-08-15T10:00:00+00:00",
+        "quantity": 1,
+        "first_purchase": false
+      },
+      "evidence_type": "VERIFIED_BUSINESS_FACT",
+      "source": {
+        "source_type": "ORDER_SYSTEM",
+        "source_id": "A1010",
+        "source_label": "Order A1010"
+      },
+      "observed_at": "2026-08-15T10:00:00Z",
+      "created_at": "2026-11-14T10:17:19.389294Z",
+      "extraction_confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "id": "ev-order-A1024-first_purchase",
+      "case_id": "case_c_serum_001",
+      "key": "first_purchase",
+      "value": {
+        "order_id": "A1024",
+        "consumer_id": "consumer_001",
+        "product_id": "c_serum",
+        "product_name": "C Serum",
+        "ordered_at": "2026-09-10T10:00:00+00:00",
+        "quantity": 1,
+        "first_purchase": true
+      },
+      "evidence_type": "VERIFIED_BUSINESS_FACT",
+      "source": {
+        "source_type": "ORDER_SYSTEM",
+        "source_id": "A1024",
+        "source_label": "Order A1024"
+      },
+      "observed_at": "2026-09-10T10:00:00Z",
+      "created_at": "2026-11-14T10:17:19.389321Z",
+      "extraction_confidence": 1.0,
+      "metadata": {}
+    }
+  ],
+  "evidence_gaps": [
+    {
+      "gap_type": "ACTUAL_FIRST_USE_TIME",
+      "status": "OPEN",
+      "required": true,
+      "resolved_by_evidence_ids": []
+    },
+    {
+      "gap_type": "FEEDBACK_ONSET_TIME",
+      "status": "OPEN",
+      "required": true,
+      "resolved_by_evidence_ids": []
+    },
+    {
+      "gap_type": "RECENT_REGIMEN_CHANGES",
+      "status": "OPEN",
+      "required": true,
+      "resolved_by_evidence_ids": []
+    },
+    {
+      "gap_type": "REPORTED_SEVERITY",
+      "status": "OPEN",
+      "required": true,
+      "resolved_by_evidence_ids": []
+    }
+  ],
+  "asked_questions": [
+    {
+      "id": "q-case_c_serum_001-actual_first_use_time-1",
+      "gap_type": "ACTUAL_FIRST_USE_TIME",
+      "text": "请问您第一次实际使用 A Serum 是什么时候？",
+      "normalized_text": "请问您第一次实际使用aserum是什么时候",
+      "status": "ASKED",
+      "asked_at": "2026-11-14T10:17:19.390564Z",
+      "answered_by_evidence_ids": []
+    }
+  ],
+  "tool_calls": [
+    {
+      "id": "tool-919af19ff34af67fd135c16070791318",
+      "tool_name": "get_order_history",
+      "arguments": {
+        "consumer_id": "consumer_001"
+      },
+      "status": "COMPLETED",
+      "created_at": "2026-11-14T10:17:19.388823Z",
+      "completed_at": "2026-11-14T10:17:19.389330Z",
+      "result_evidence_ids": [
+        "ev-order-A1001-first_purchase",
+        "ev-order-A1010-repeat_purchase",
+        "ev-order-A1024-first_purchase"
+      ],
+      "invocation_id": "919af19ff34af67fd135c16070791318",
+      "attempt_count": 1,
+      "failure_kind": null,
+      "error_summary": null
+    }
+  ],
+  "transition_events": [
+    {
+      "from_status": "INVESTIGATING",
+      "to_status": "INVESTIGATING",
+      "action": "CALL_TOOL",
+      "reason": "Prepared business tool call get_order_history.",
+      "state_revision": 1,
+      "timestamp": "2026-11-14T10:17:19.388856Z"
+    },
+    {
+      "from_status": "INVESTIGATING",
+      "to_status": "INVESTIGATING",
+      "action": "CALL_TOOL",
+      "reason": "Running business tool get_order_history.",
+      "state_revision": 2,
+      "timestamp": "2026-11-14T10:17:19.388991Z"
+    },
+    {
+      "from_status": "INVESTIGATING",
+      "to_status": "INVESTIGATING",
+      "action": "CALL_TOOL",
+      "reason": "Grounded and completed business tool get_order_history.",
+      "state_revision": 3,
+      "timestamp": "2026-11-14T10:17:19.389356Z"
+    },
+    {
+      "from_status": "INVESTIGATING",
+      "to_status": "WAITING_FOR_USER",
+      "action": "ASK_USER",
+      "reason": "Required evidence gap ACTUAL_FIRST_USE_TIME remains open.",
+      "state_revision": 4,
+      "timestamp": "2026-11-14T10:17:19.390570Z"
+    }
+  ],
+  "investigation_result": null,
+  "consumer_memory": null,
+  "question_count": 1,
+  "step_count": 4,
+  "max_steps": 30,
+  "max_questions": 6,
+  "current_action": "ASK_USER",
+  "status": "WAITING_FOR_USER",
+  "next_question": "请问您第一次实际使用 A Serum 是什么时候？",
+  "next_action_reason": "Required evidence gap ACTUAL_FIRST_USE_TIME remains open.",
+  "created_at": "2026-11-14T10:17:19.383504Z",
+  "updated_at": "2026-11-14T10:17:19.390570Z",
+  "state_schema_version": 1,
+  "state_revision": 4
+}

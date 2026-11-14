@@ -1,0 +1,54 @@
+{
+  "generator": "scripts/generate_legacy_tool_states.py",
+  "files": [
+    {
+      "file": "competition_completed.json",
+      "commit": "e77ef5a063179cba3c7aa3cc0a3438d89b5646c2",
+      "sha256": "47b182135d16e5a5740ec6f7035d62a8fbb9ec45529e845e5297bbfc1f88b972",
+      "python": "3.13.14",
+      "origin": "workflow execution"
+    },
+    {
+      "file": "competition_pending.json",
+      "commit": "e77ef5a063179cba3c7aa3cc0a3438d89b5646c2",
+      "sha256": "24e6e21e8894f0d26afd312d28d8c3ac4f4746b01ec881da28c117eef67042c4",
+      "python": "3.13.14",
+      "origin": "model-only intermediate"
+    },
+    {
+      "file": "competition_running.json",
+      "commit": "e77ef5a063179cba3c7aa3cc0a3438d89b5646c2",
+      "sha256": "9e1e7439b0e2475e09e41137ddd3988c1ca2e2c49f2387d43e431677dfdf9b54",
+      "python": "3.13.14",
+      "origin": "model-only intermediate"
+    },
+    {
+      "file": "e31_completed.json",
+      "commit": "ff1e35b4ba67e952386253a09d772e0e6918965a",
+      "sha256": "feae406028340d2bd04c6736786e44f2260bfc99a0914e0f6104bea5d012f805",
+      "python": "3.13.14",
+      "origin": "workflow execution"
+    },
+    {
+      "file": "e31_pending.json",
+      "commit": "ff1e35b4ba67e952386253a09d772e0e6918965a",
+      "sha256": "b8ba2d459144333aff8c7806c3fc90395d7bb7d496341cd71b2069a291bcaa37",
+      "python": "3.13.14",
+      "origin": "workflow execution"
+    },
+    {
+      "file": "e31_running.json",
+      "commit": "ff1e35b4ba67e952386253a09d772e0e6918965a",
+      "sha256": "dc5a09bc1cdeee9cc56107b0c7a0de3f13dac901f6f1c91b0d0f3ecec9d48382",
+      "python": "3.13.14",
+      "origin": "workflow execution"
+    },
+    {
+      "file": "e31_failed.json",
+      "commit": "ff1e35b4ba67e952386253a09d772e0e6918965a",
+      "sha256": "1769204a3f3b80a49aa83925b7a2a358f4e566254664ea1d96185cae1b764ac2",
+      "python": "3.13.14",
+      "origin": "workflow execution"
+    }
+  ]
+}
