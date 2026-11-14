@@ -1,5 +1,8 @@
 # W3 独立进程故障验收
 
+F5观测勘误：原报告的工具计数只覆盖实验worker，不能证明普通离线CLI无查询。
+原现场报告保留，其F5零查询结论由 [定向补验](W3_F5_SUPPLEMENT.md)替代。W4继续暂缓。
+
 起点：`3893e68012c2236cdfa5844b27430656bc8357cf`；分支：codex/phase-e3-2-readonly-recovery。
 实验基础设施提交：`609e12ad39d906fc4c09d1fa301bb0de3ec26173`。规格沿用
 [D2](phases/PHASE_E3_2.md)，原有回归层级见 [W2交接](W2_VALIDATION.md)。

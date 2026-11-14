@@ -196,7 +196,8 @@ def test_completed_recovery_cli_continues_without_requery(
     assert json.loads(again.stdout)["current_revision"] == state.state_revision
     assert len(state.tool_calls) == 2
     assert state.status is AgentStatus.WAITING_FOR_USER
-    # At this first-use question, another order execution would append/change a tool lifecycle.
+    # This parent counter covers only the pre-CLI query. It cannot observe child CLI calls.
+    # Cross-process zero-query evidence is provided by the W3 observed CLI + positive control.
     assert workflow.tools.execution_counts == {"get_order_history": 1}
     assert service.http_status(service.get(CASE_ID, request.request_id)) == 200
 

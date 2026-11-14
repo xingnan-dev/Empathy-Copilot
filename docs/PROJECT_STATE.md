@@ -92,7 +92,8 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
   `af52b577ac8b69daca0e97995c613efd2427c124`.
   W3 starting checkpoint: `3893e68012c2236cdfa5844b27430656bc8357cf`.
   [W3 handoff](W3_VALIDATION.md): 13 initial + 39 repeated process experiments passed;
-  full regression 221 passed / 28 external-input skips. W3 awaits review; W4 has not started.
+  full regression 221 passed / 28 external-input skips. W3 F5 observation supplement completed, awaiting review; W4 remains deferred.
+  See [F5 supplement](W3_F5_SUPPLEMENT.md): three positive controls and three zero-query continuations passed.
 - **W2 verification:** [Execution and validation handoff](W2_VALIDATION.md): 218 passed,
   28 external-input skips; PostgreSQL subset 36 passed / 1 official-data skip; Ruff and mypy passed.
   Implementation checked at `da131051af0f4849b6ae2a3677e15e7c887ba8f8`.

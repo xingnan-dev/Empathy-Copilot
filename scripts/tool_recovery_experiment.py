@@ -501,11 +501,47 @@ class ExperimentRun:
                         state = self.store.load(experiment)
                         assert state.tool_calls[-1].status.value == "COMPLETED"
                         assert state.tool_recoveries[-1].continuation.value == "RUNNING"
+                        control = "f5-control-" + uuid4().hex
+                        self.store.save(
+                            InvestigationState(
+                                case_id=control,
+                                consumer_id="consumer_001",
+                                current_issue="Independent observer positive control",
+                            )
+                        )
+                        control_before = self.counts(control)
+                        subprocess.run(
+                            [
+                                sys.executable,
+                                "scripts/observe_completed_recovery.py",
+                                "--observation-id",
+                                control,
+                                "--control-case",
+                                control,
+                            ],
+                            cwd=ROOT,
+                            env=self.env,
+                            capture_output=True,
+                            text=True,
+                            check=True,
+                            timeout=30,
+                        )
+                        assert self.counts(control) == dict(
+                            TOOL_ENTRY=1, TOOL_RETURN=1, SIDE_EFFECT_MARKER=0
+                        )
+                        result["offline_control"] = dict(
+                            experiment=control,
+                            before=control_before,
+                            after=self.counts(control),
+                            events=self.events(control),
+                        )
                         before = self.counts(experiment)
                         cli = subprocess.run(
                             [
                                 sys.executable,
-                                "scripts/resume_completed_recovery.py",
+                                "scripts/observe_completed_recovery.py",
+                                "--observation-id",
+                                experiment,
                                 "--case-id",
                                 experiment,
                                 "--request-id",
@@ -520,6 +556,27 @@ class ExperimentRun:
                         )
                         result["offline_cli"] = json.loads(cli.stdout)
                         assert self.counts(experiment) == before
+                        cli_events = [
+                            e
+                            for e in self.events(experiment)
+                            if e["actor"].startswith("offline-cli-")
+                        ]
+                        assert sum(e["kind"] == "CLI_OBSERVER_INSTALLED" for e in cli_events) == 1
+                        assert not any(
+                            e["kind"] in {"TOOL_ENTRY", "TOOL_RETURN"} for e in cli_events
+                        )
+                        after = self.store.load(experiment)
+                        assert (
+                            after.evidence == state.evidence
+                            and after.tool_calls == state.tool_calls
+                        )
+                        assert after.status.value == "WAITING_FOR_USER"
+                        result["offline_observation"] = dict(
+                            before=before,
+                            after=self.counts(experiment),
+                            cli_events=cli_events,
+                            new_order_calls=0,
+                        )
                     worker = Worker(self, experiment)
                     if name == "F9":
                         assert recover(worker)[0] == 201
