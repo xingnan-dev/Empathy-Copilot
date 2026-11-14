@@ -10,9 +10,8 @@ ended and the team did not advance, as reported by the project owner. The compet
 remains a frozen historical baseline.
 
 The runtime is React → FastAPI → deterministic domain/agent workflow → PostgreSQL, with
-optional Qwen language and vision providers. Current work is Phase E3.1 durable tool failure
-handling: local-sample and isolated PostgreSQL validation passed, while phase review remains
-pending. See the [W0 validation record](docs/W0_VALIDATION.md) for results and skipped checks.
+optional Qwen language and vision providers. W0 / E3.1 validation was accepted on 2026-11-14. Current work is
+[W1 recovery specification](docs/phases/PHASE_E3_2.md), delivered for review before W2. See the [W0 validation record](docs/W0_VALIDATION.md) for results and skipped checks.
 Human-triggered tool recovery is planned, not yet delivered.
 
 ## Reading guide

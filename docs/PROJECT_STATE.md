@@ -81,24 +81,23 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 
 ## Current work
 
-- **Productization branch:** `codex/phase-e3-1-tool-failures`
+- **Productization branch:** `codex/phase-e3-2-readonly-recovery`
 - **Phase E3.1:** Durable tool failure handling implemented and locally validated on isolated
   PostgreSQL: 159 tests passed, 28 skipped for documented official-data/real-model dependencies;
   the PostgreSQL subset passed 20 checks with one official-data skip. Ruff and mypy passed.
-  See [W0 validation](W0_VALIDATION.md) for scope, environment, and limitations. Phase review
-  remains pending; the frozen competition tag and commit remain unchanged.
+  See [W0 validation](W0_VALIDATION.md) for scope, environment, and limitations. W0/E3.1 review was accepted on 2026-11-14; the frozen competition tag and commit remain unchanged.
 - **Implementation commit:** `a89bed63f5581280d4c2041016ba5f9645ec5a79`.
-- **Next phase:** Await review of Phase E3.1 before beginning any further productization work.
+- **Current phase:** W1 recovery specification delivered for review in [D2 / E3.2](phases/PHASE_E3_2.md). W2 has not started.
 - **Plan:** [Post-competition engineering plan](POST_COMPETITION_PLAN.md); further recovery work
-  is planned and remains gated on E3.1 validation and review.
+  is planned and remains gated on D2 specification review.
 - Keep the competition technical baseline and submission tag frozen during independent development.
-- The E3.2 branch may be prepared from the W0 validated baseline; W1 specification work starts
-  only after the W0/E3.1 review. No recovery capability is claimed by this validation.
+- **Accepted post-competition baseline:** `ff1e35b4ba67e952386253a09d772e0e6918965a`.
+  W1 changes documentation only; recovery is not implemented.
 
 ## Reading and operation
 
 - Follow [AGENTS.md](../AGENTS.md) for the required development reading order; the active phase
-  is [E3.1](phases/PHASE_E3_1.md).
+  is [E3.2 / W1](phases/PHASE_E3_2.md).
 - Use the [run guide](COMPETITION_RUN_GUIDE.md) for local setup and data-source requirements,
   and the [operator guide](DEMO_OPERATOR_GUIDE.md) for the existing demonstration paths.
 - Historical phase requirements and submission records remain available as baseline evidence;
