@@ -87,7 +87,8 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
   the PostgreSQL subset passed 20 checks with one official-data skip. Ruff and mypy passed.
   See [W0 validation](W0_VALIDATION.md) for scope, environment, and limitations. W0/E3.1 review was accepted on 2026-11-14; the frozen competition tag and commit remain unchanged.
 - **Implementation commit:** `a89bed63f5581280d4c2041016ba5f9645ec5a79`.
-- **Current phase:** W1 recovery specification delivered for review in [D2 / E3.2](phases/PHASE_E3_2.md). W2 has not started.
+- **Current phase:** W1 and its supplement accepted; W2 implementation in progress against
+  [D2 / E3.2](phases/PHASE_E3_2.md) at `af52b577ac8b69daca0e97995c613efd2427c124`.
 - **Plan:** [Post-competition engineering plan](POST_COMPETITION_PLAN.md); further recovery work
   is planned and remains gated on D2 specification review.
 - Keep the competition technical baseline and submission tag frozen during independent development.

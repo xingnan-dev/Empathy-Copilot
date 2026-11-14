@@ -1,9 +1,18 @@
 """Agent actions, lifecycle records, and checkpoint-safe investigation state."""
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    field_validator,
+    model_validator,
+)
 
 from .business import ConsumerMemorySnapshot
 from .evidence import Evidence
@@ -73,6 +82,55 @@ class ToolFailureKind(StrEnum):
     UNKNOWN_OUTCOME = "UNKNOWN_OUTCOME"
 
 
+class ContinuationStatus(StrEnum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    SETTLED = "SETTLED"
+    INTERRUPTED = "INTERRUPTED"
+
+
+class HumanReviewBlock(StrEnum):
+    TOOL_RECOVERY = "TOOL_RECOVERY"
+    SAFETY = "SAFETY"
+    BUSINESS_REVIEW = "BUSINESS_REVIEW"
+    QUESTION_LIMIT = "QUESTION_LIMIT"
+    OTHER = "OTHER"
+
+
+class ToolRecoveryRequest(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    request_id: UUID
+    target_attempt_id: str = Field(min_length=1)
+    expected_revision: int = Field(ge=0, strict=True)
+    operator_id: str = Field(min_length=1, max_length=128)
+    reason: str = Field(min_length=1, max_length=1000)
+    previous_process_exited: bool = Field(strict=True)
+
+    @field_validator("target_attempt_id", "operator_id", "reason")
+    @classmethod
+    def nonblank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("blank recovery fields are not allowed")
+        return value
+
+
+class ToolRecoveryRecord(ToolRecoveryRequest):
+    new_attempt_id: str = Field(min_length=1)
+    logical_call_id: str = Field(min_length=1)
+    accepted_at: AwareDatetime
+    interrupted_status: ToolCallStatus | None
+    continuation: ContinuationStatus = ContinuationStatus.PENDING
+
+    @model_validator(mode="after")
+    def accepted_record(self) -> "ToolRecoveryRecord":
+        if not self.previous_process_exited or self.accepted_at.utcoffset() != timedelta(0):
+            raise ValueError("accepted recovery requires exit declaration and UTC time")
+        if self.interrupted_status not in {None, ToolCallStatus.PENDING, ToolCallStatus.RUNNING}:
+            raise ValueError("invalid interrupted status")
+        return self
+
+
 class ToolCallRecord(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -87,6 +145,9 @@ class ToolCallRecord(BaseModel):
     attempt_count: int = Field(default=0, ge=0)
     failure_kind: ToolFailureKind | None = None
     error_summary: str | None = None
+    attempt_sequence: int | None = Field(default=None, ge=1)
+    previous_attempt_id: str | None = Field(default=None, min_length=1)
+    recovery_request_id: UUID | None = None
 
     @model_validator(mode="after")
     def validate_lifecycle(self) -> "ToolCallRecord":
@@ -140,6 +201,8 @@ class InvestigationState(BaseModel):
     evidence_gaps: list[EvidenceGap] = Field(default_factory=list)
     asked_questions: list[AskedQuestion] = Field(default_factory=list)
     tool_calls: list[ToolCallRecord] = Field(default_factory=list)
+    tool_recoveries: list[ToolRecoveryRecord] = Field(default_factory=list)
+    human_review_blocks: list[HumanReviewBlock] | None = None
     transition_events: list[TransitionEvent] = Field(default_factory=list)
     investigation_result: InvestigationResult | None = None
     consumer_memory: ConsumerMemorySnapshot | None = None
@@ -158,6 +221,9 @@ class InvestigationState(BaseModel):
 
     @model_validator(mode="after")
     def validate_state(self) -> "InvestigationState":
+        from .tool_history import validate_tool_history
+
+        validate_tool_history(self)
         evidence_ids = {item.id for item in self.evidence}
         if any(item.case_id != self.case_id for item in self.evidence):
             raise ValueError("all evidence must belong to the State case")
