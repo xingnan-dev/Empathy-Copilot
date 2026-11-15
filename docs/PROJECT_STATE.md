@@ -141,3 +141,20 @@ audit由14条降至7条中危，均关联同一minimatch公告，剩余风险未
 Docker补验使用Node22.23.5/npm10.9.9、Linux/amd64及nginx1.27.5，同样5项测试通过；
 最终首页和JS/CSS均HTTP200，内容摘要匹配；本次容器/验证镜像标签已清理，既有业务容器保持原状态。
 Dockerfile与锁文件未改，minimatch风险独立开放；浏览器交互和基础镜像CVE扫描仍未验证，不重跑后端故障矩阵。
+
+## Basic CI implementation (2026-11-15)
+
+Active branch: `codex/basic-ci`, starting commit `e4c6f1215f1cbdbbd81887695e55744cc5524065` (latest remote main, clean worktree). Three independent jobs reuse existing checks; first real GitHub run passed; awaiting communication-area review. No product/dependency/migration changes, merge, branch protection change or release tag authorized. Official workbook/real Qwen inputs are absent; full W3 experiments are outside first required checks. Frontend minimatch risk remains open.
+
+### CI real-run evidence
+
+[PR #3](https://github.com/xingnan-dev/Empathy-Copilot/pull/3), [first Actions run](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43694363196).
+Source ab5e72fdd6dcb50c5affa90df5a43c3c6ea5e45c; checkout used GitHub PR synthetic merge 9bbf3c9 into main e4c6f12.
+- backend: pip install -e ".[dev]", Ruff check ., mypy, pytest -m "not postgres" -rs --tb=short; 185 passed/27 skipped/37 deselected, job48s, tests2.25s.
+- postgres: fresh postgres:16-alpine service, dedicated resonique_ci_test, health readiness, no volumes/business secrets; pytest -m postgres;36 passed/1 skipped/212 deselected, job47s, tests4.98s.
+- frontend: Node22, npm ci/test/typecheck/lint/build;5 passed/0 skipped, job54s.
+Skipped: backend26 official-workbook tests +1 real-Qwen credentials test; PostgreSQL1 official-import test. Full W3 process experiments not invoked. No skip is counted as passing. Remaining minimatch risk is not suppressed by disabling any job; npm audit is not a required check in this first scope.
+Actions checkout v4, setup-python v5, setup-node v4, upload-artifact v4 were verified against their official repository tag refs and pinned to full SHAs. Official usage documentation: [checkout](https://github.com/actions/checkout), [Python](https://github.com/actions/setup-python), [Node](https://github.com/actions/setup-node), [artifacts](https://github.com/actions/upload-artifact).
+All run commands use explicit bash -e -o pipefail; no continue-on-error. Read-only contents permission, no business credentials, checkout does not persist credentials. Logs and backend/PostgreSQL JUnit uploaded with always(), retained14days. Every job timeout15minutes. PR-to-main, main push and workflow_dispatch triggers; manual dispatch becomes generally available after workflow reaches default branch.
+Local Ruff/mypy passed; non-PostgreSQL local tests186 passed/26 skipped (local environment differed for Qwen opt-in; remote isolated result above is the CI baseline). Initial sandbox interpreter startup failed; environment permission allowed preflight to run. No remote job failures or CI compatibility patches were necessary. No dependency, behavior or migration change.
+Suggested stable required check names after review: `backend`, `postgres`, `frontend`. No branch-protection settings changed. Artifacts can expire; the run URL and summary remain the audit entry.
