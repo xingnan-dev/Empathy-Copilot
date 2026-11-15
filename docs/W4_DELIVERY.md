@@ -325,3 +325,24 @@ MessagePersistence.validate_links对LIVE记录关联的Evidence检查已有metad
 未改迁移、依赖、前端或E3.2边界，不重复不受影响的完整浏览器与W3实验；原实际验收证据范围不变。
 三个必需CI针对本轮最新提交运行，具体结论以PR检查及本轮交付回报为准，不引用旧提交替代。
 本轮仅创建带唯一名称/标签的临时数据库容器；实验结束删除该容器，既有业务容器保留。官方数据、真实模型及minimatch等原限制不变。
+
+
+### 消息持久化与浏览器验收合并完成（2026-11-15）
+
+沟通区批准[PR #5](https://github.com/xingnan-dev/Empathy-Copilot/pull/5)合并；源提交428849ce5543b3b46b1a710832f6874461a810b7，
+目标main未新增提交，原bb4916a。最新合成提交59ce94d9d9e7e50d498baeba709b3b106dff7232的
+[三个必需检查](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43706753218)全部通过。
+核查main严格检查、Actions来源、PR要求及禁止强推/删除规则仍有效，使用普通merge，不使用管理员绕过。
+GitHub完整diff因超过20000行不可展示，已用本地Git实际差异与九个源提交记录核对范围。
+
+merge commit：`2d0707f1dcded5c313c58da0ac22092b9a420e40`，父提交为bb4916a与已评审428849c，
+未squash/rebase，开发分支及历史标签保留。
+合并后实际main的[push CI](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43707162075)
+backend、postgres、frontend全部通过，不以合并前结果替代。本地main已快进同步。
+
+消息持久化及浏览器验收修复已完成、已合并；上文原“刷新部分通过”、后续修复及溯源补验报告均保留，
+其待评审/暂缓合并表述为当时阶段记录，不改写原结论。
+部署前必须停写备份并执行`python -m alembic upgrade head`到`20261115_0003`；本轮未连接业务数据库执行迁移或部署。
+已有消息时downgrade拒绝删表，回滚须保留原文与证据来源并配套匹配版本/备份。
+剩余minimatch、官方数据许可/隐私、真实Qwen与官方工作簿、镜像CVE、其他浏览器及单进程恢复/身份声明限制仍开放。
+视频经负责人决定取消，本轮不新增发布标签或部署流程。状态收尾仅文档，通过独立PR及相同三个检查交付；不声称重跑完整浏览器或W3实验。
