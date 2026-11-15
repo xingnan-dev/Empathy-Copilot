@@ -144,7 +144,7 @@ Dockerfile与锁文件未改，minimatch风险独立开放；浏览器交互和�
 
 ## Basic CI implementation (2026-11-15)
 
-Active branch: `codex/basic-ci`, starting commit `e4c6f1215f1cbdbbd81887695e55744cc5524065` (latest remote main, clean worktree). Three independent jobs reuse existing checks; first real GitHub run passed; awaiting communication-area review. No product/dependency/migration changes, merge, branch protection change or release tag authorized. Official workbook/real Qwen inputs are absent; full W3 experiments are outside first required checks. Frontend minimatch risk remains open.
+Active branch: `codex/basic-ci`, starting commit `e4c6f1215f1cbdbbd81887695e55744cc5524065` (latest remote main, clean worktree). Three independent jobs reuse existing checks; basic CI reviewed and merged via PR #3; main protection enabled by subsequent owner authorization. No product/dependency/migration changes or release tag authorized. Official workbook/real Qwen inputs are absent; full W3 experiments are outside first required checks. Frontend minimatch risk remains open.
 
 ### CI real-run evidence
 
@@ -158,3 +158,11 @@ Actions checkout v4, setup-python v5, setup-node v4, upload-artifact v4 were ver
 All run commands use explicit bash -e -o pipefail; no continue-on-error. Read-only contents permission, no business credentials, checkout does not persist credentials. Logs and backend/PostgreSQL JUnit uploaded with always(), retained14days. Every job timeout15minutes. PR-to-main, main push and workflow_dispatch triggers; manual dispatch becomes generally available after workflow reaches default branch.
 Local Ruff/mypy passed; non-PostgreSQL local tests186 passed/26 skipped (local environment differed for Qwen opt-in; remote isolated result above is the CI baseline). Initial sandbox interpreter startup failed; environment permission allowed preflight to run. No remote job failures or CI compatibility patches were necessary. No dependency, behavior or migration change.
 Suggested stable required check names after review: `backend`, `postgres`, `frontend`. No branch-protection settings changed. Artifacts can expire; the run URL and summary remain the audit entry.
+
+### CI merge and main gate (2026-11-15)
+
+PR #3 merged with merge commit `ce3bd82c2e2522f76c59b33dfed3112329d6cd36`, preserving ab5e72f and0b561e2. Latest source0b561e2 had all three checks pass on PR synthetic merge100963b before merge.
+The actual main push [run43695412924](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43695412924) independently completed successfully on ce3bd82: backend/postgres/frontend all passed, not inferred from PR results.
+Main branch protection was successfully applied and read back through GitHub REST API: PR required, zero approving reviewers, no code-owner or last-pusher approval; strict up-to-date backend/postgres/frontend checks bound to GitHub Actions App ID15368; administrators included; force pushes and main deletion prohibited. No prior branch protection or active rulesets existed to overwrite. Linear history is not required, so merge commits remain usable. No bypass allowances were added.
+[Protection API evidence](https://api.github.com/repos/xingnan-dev/Empathy-Copilot/branches/main/protection); [official API semantics](https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection).
+This status update itself follows a separate PR and the same three checks. Future documentation also follows PR/check delivery; no direct push to main. Remaining minimatch risk, official-data/Qwen skips, full W3 exclusion, browser and image-CVE unverified boundaries remain unchanged. No deployment or release tag added.
