@@ -1,0 +1,8 @@
+*
+!.gitignore
+!report.json
+!message.json
+!unavailable.json
+!approval.json
+!conflict.json
+!outage.json

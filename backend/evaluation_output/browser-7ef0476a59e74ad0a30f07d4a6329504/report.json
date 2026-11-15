@@ -1,0 +1,6 @@
+{
+  "starting_commit": "85fbac69936fceacfcf881eb973f84f9e3aedd49",
+  "run_id": "browser-7ef0476a59e74ad0a30f07d4a6329504",
+  "cases": {},
+  "cleanup": "owned browser contexts closed; own services stopped; own database container removed"
+}

@@ -1,0 +1,17 @@
+INFO:     Started server process [33320]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:62971 (Press CTRL+C to quit)
+INFO:     127.0.0.1:56848 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56858 - "OPTIONS /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56859 - "OPTIONS /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56858 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56859 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56863 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56859 - "OPTIONS /api/cases/S00154/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56858 - "POST /api/cases/S00154/messages HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:56863 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56858 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56859 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56863 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56863 - "GET /api/cases/S00154 HTTP/1.1" 200 OK

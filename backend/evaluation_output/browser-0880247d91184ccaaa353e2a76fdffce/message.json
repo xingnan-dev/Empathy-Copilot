@@ -1,0 +1,415 @@
+{
+  "mode": "message",
+  "checks": [
+    "source provenance present",
+    "gaps and lifecycle loaded",
+    "real case rendered",
+    "message accepted by real backend with fake provider",
+    "message evidence persisted",
+    "consumer evidence source retained",
+    "confirmed product resolves corresponding gap",
+    "page shows backend next action",
+    "message response next action matches reloaded state",
+    "refresh preserves evidence and revision",
+    "refreshed page shows persisted next action",
+    "no uncaught browser exceptions"
+  ],
+  "console": [],
+  "requests": [
+    {
+      "path": "/api/cases/S00154",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/cases/S00154",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/cases/S00154/messages",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/cases/S00154",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/cases/S00154",
+      "method": "GET",
+      "status": 200
+    }
+  ],
+  "browser": "157.0.8103.50",
+  "originalMessageBubbleAfterReload": 0,
+  "state": {
+    "case_id": "S00154",
+    "consumer": "蒋a**",
+    "lifecycle": "WAITING_FOR_HUMAN",
+    "current_action": "ESCALATE",
+    "safety_path": "ESCALATION",
+    "attribution_status": "INSUFFICIENT_EVIDENCE",
+    "evidence": [
+      {
+        "id": "consumer-message",
+        "fact": "你们这产品啥情况！我用了面霜整张脸肿了，今天去医院挂了皮肤科，医生说是接触性皮炎！",
+        "type": "CONSUMER_REPORTED",
+        "source": "Consumer message · S00154",
+        "provenance": "Consumer Message · 94422222481506.PNM",
+        "timestamp": "2026-05-11T16:20:00Z"
+      },
+      {
+        "id": "consumer-product-used",
+        "fact": "面霜",
+        "type": "CONSUMER_REPORTED",
+        "source": "Consumer message · S00154",
+        "provenance": "Consumer Message · 94422222481506.PNM",
+        "timestamp": "2026-05-11T16:20:00Z"
+      },
+      {
+        "id": "consumer-swelling",
+        "fact": "Consumer reports facial swelling after cream use",
+        "type": "CONSUMER_REPORTED",
+        "source": "Consumer message · S00154",
+        "provenance": "Consumer Message · 94422222481506.PNM",
+        "timestamp": "2026-05-11T16:20:00Z"
+      },
+      {
+        "id": "consumer-medical-attention",
+        "fact": "Consumer reports medical attention",
+        "type": "CONSUMER_REPORTED",
+        "source": "Consumer message · S00154",
+        "provenance": "Consumer Message · 94422222481506.PNM",
+        "timestamp": "2026-05-11T16:20:00Z"
+      },
+      {
+        "id": "order-purchase",
+        "fact": "Firming Gift Set purchased · ¥1,398",
+        "type": "VERIFIED_BUSINESS_FACT",
+        "source": "Order system",
+        "provenance": "Order System · 6920073444593979097",
+        "timestamp": "2026-04-27T07:24:00Z"
+      },
+      {
+        "id": "service-ticket",
+        "fact": "Adverse-reaction service case exists",
+        "type": "VERIFIED_BUSINESS_FACT",
+        "source": "Service record",
+        "provenance": "Service System · BLFY27898314",
+        "timestamp": "2026-05-11T16:49:00Z"
+      },
+      {
+        "id": "uploaded-material",
+        "fact": "Medical material uploaded; contents not medically verified",
+        "type": "AI_OBSERVATION",
+        "source": "Uploaded image",
+        "provenance": "Uploaded Image · 25581855302692.PNM",
+        "timestamp": "2026-05-11T16:21:00Z"
+      },
+      {
+        "id": "llm-87f1fb63-3301-4369-848a-007450388e05",
+        "fact": "exact product used",
+        "type": "CONSUMER_REPORTED",
+        "source": "Consumer message · web-1aa89095-a36b-4974-a288-5c6099b52345",
+        "provenance": "Consumer Message · web-1aa89095-a36b-4974-a288-5c6099b52345",
+        "timestamp": "2026-11-15T09:14:52.615961Z"
+      }
+    ],
+    "gaps": [
+      {
+        "id": "EXACT_PRODUCT_USED",
+        "label": "Exact product used",
+        "why": "Purchase of a gift set does not prove which item was actually used.",
+        "resolve": "Ask consumer",
+        "status": "RESOLVED"
+      },
+      {
+        "id": "ACTUAL_FIRST_USE_TIME",
+        "label": "Actual first-use time",
+        "why": "Purchase date does not prove actual usage date.",
+        "resolve": "Ask consumer",
+        "status": "OPEN"
+      },
+      {
+        "id": "RECENT_REGIMEN_CHANGES",
+        "label": "Recent routine changes",
+        "why": "Other recent product changes may affect attribution.",
+        "resolve": "Ask consumer",
+        "status": "OPEN"
+      },
+      {
+        "id": "CURRENT_SYMPTOM_PROGRESSION",
+        "label": "Current symptom progression",
+        "why": "Current symptom direction is absent from available records.",
+        "resolve": "Human follow-up",
+        "status": "OPEN"
+      }
+    ],
+    "questions": [],
+    "tool_activity": [
+      {
+        "id": "transition-0",
+        "label": "Reported facial swelling and medical attention require human-reviewed escalation.",
+        "status": "COMPLETED",
+        "technical": "WAIT_FOR_HUMAN"
+      },
+      {
+        "id": "transition-1",
+        "label": "Validated model candidates from consumer message.",
+        "status": "COMPLETED",
+        "technical": "INVESTIGATING"
+      },
+      {
+        "id": "transition-2",
+        "label": "A deterministic case flag requires human review.",
+        "status": "CURRENT",
+        "technical": "WAIT_FOR_HUMAN"
+      }
+    ],
+    "context_passport": {
+      "case_id": "S00154",
+      "consumer_id": "蒋a**",
+      "confirmed_facts": [
+        {
+          "key": "consumer_message",
+          "value": "你们这产品啥情况！我用了面霜整张脸肿了，今天去医院挂了皮肤科，医生说是接触性皮炎！",
+          "evidence_ids": [
+            "consumer-message"
+          ]
+        },
+        {
+          "key": "exact_product_used",
+          "value": "面霜",
+          "evidence_ids": [
+            "consumer-product-used"
+          ]
+        },
+        {
+          "key": "reported_facial_swelling",
+          "value": "Consumer reports facial swelling after cream use",
+          "evidence_ids": [
+            "consumer-swelling"
+          ]
+        },
+        {
+          "key": "reported_medical_attention",
+          "value": "Consumer reports medical attention",
+          "evidence_ids": [
+            "consumer-medical-attention"
+          ]
+        },
+        {
+          "key": "first_purchase",
+          "value": {
+            "paid": "¥1,398",
+            "order_id": "6920073444593979097",
+            "product_id": "firming_gift_set",
+            "consumer_id": "蒋a**",
+            "product_name": "Firming Gift Set",
+            "first_purchase": true
+          },
+          "evidence_ids": [
+            "order-purchase"
+          ]
+        },
+        {
+          "key": "previous_service_contact",
+          "value": {
+            "summary": "Adverse-reaction service case exists",
+            "ticket_id": "BLFY27898314",
+            "consumer_id": "蒋a**"
+          },
+          "evidence_ids": [
+            "service-ticket"
+          ]
+        },
+        {
+          "key": "uploaded_medical_material",
+          "value": "Medical material uploaded; contents not medically verified",
+          "evidence_ids": [
+            "uploaded-material"
+          ]
+        },
+        {
+          "key": "human_review_required",
+          "value": true,
+          "evidence_ids": [
+            "human-review-required"
+          ]
+        },
+        {
+          "key": "exact_product_used",
+          "value": {
+            "product_id": "firming_cream",
+            "product_name": "面霜"
+          },
+          "evidence_ids": [
+            "llm-87f1fb63-3301-4369-848a-007450388e05"
+          ]
+        }
+      ],
+      "open_gaps": [
+        "ACTUAL_FIRST_USE_TIME",
+        "FEEDBACK_ONSET_TIME",
+        "RECENT_REGIMEN_CHANGES",
+        "REPORTED_SEVERITY"
+      ],
+      "asked_questions": [],
+      "completed_tools": [],
+      "tool_attempts": [],
+      "tool_recoveries": [],
+      "service_history_summary": [
+        {
+          "key": "previous_service_contact",
+          "value": {
+            "summary": "Adverse-reaction service case exists",
+            "ticket_id": "BLFY27898314",
+            "consumer_id": "蒋a**"
+          },
+          "evidence_ids": [
+            "service-ticket"
+          ]
+        }
+      ],
+      "current_status": "WAITING_FOR_HUMAN",
+      "next_action": "WAIT_FOR_HUMAN"
+    },
+    "human_checkpoint": {
+      "state": "REQUIRED",
+      "can_approve": true
+    },
+    "response_context": {
+      "evidence_used_ids": [
+        "consumer-message",
+        "consumer-product-used",
+        "consumer-swelling",
+        "consumer-medical-attention",
+        "service-ticket",
+        "uploaded-material",
+        "human-review-required",
+        "llm-87f1fb63-3301-4369-848a-007450388e05"
+      ],
+      "next_best_question": "想再确认一下，您第一次使用这款产品的具体日期是什么时候？",
+      "question_resolves_gap": "ACTUAL_FIRST_USE_TIME"
+    },
+    "updated_at": "2026-11-15T09:14:52.621211Z",
+    "revision": 3,
+    "scenario": null,
+    "official_data": false,
+    "restored_context": true,
+    "previous_service_history": [
+      {
+        "summary": "Adverse-reaction service case exists",
+        "ticket_id": "BLFY27898314",
+        "consumer_id": "蒋a**"
+      }
+    ],
+    "evidence_conflicts": [],
+    "visual_observations": [],
+    "knowledge_context": [
+      {
+        "document_id": "DEMO-SAFETY-001",
+        "title": "Demo beauty-service safety boundary",
+        "source": "DEMO_FIXTURE",
+        "section": "Adverse reaction",
+        "content": "Visible redness or swelling must not be converted into diagnosis or product causality. Medical attention and severe reports require human-reviewed service escalation.",
+        "knowledge_type": "BEAUTY_SAFETY_KNOWLEDGE",
+        "version": "demo-2026-09-25",
+        "fixture": true,
+        "retrieval_score": 0.7142857142857143
+      },
+      {
+        "document_id": "DEMO-POLICY-DAMAGE-001",
+        "title": "Demo damaged-product handling policy",
+        "source": "DEMO_FIXTURE",
+        "section": "Visible damage review",
+        "content": "A consumer claim and image observation support investigation. Eligibility still requires an order match and service-policy review.",
+        "knowledge_type": "SERVICE_POLICY",
+        "version": "demo-2026-09-25",
+        "fixture": true,
+        "retrieval_score": 0.2857142857142857
+      }
+    ],
+    "safety_gate": "SAFETY",
+    "ingredient_context": [],
+    "why_sources": [
+      {
+        "kind": "CONSUMER_REPORTED",
+        "source_id": "94422222481506.PNM",
+        "label": "Consumer message · S00154"
+      },
+      {
+        "kind": "CONSUMER_REPORTED",
+        "source_id": "94422222481506.PNM",
+        "label": "Consumer message · S00154"
+      },
+      {
+        "kind": "CONSUMER_REPORTED",
+        "source_id": "94422222481506.PNM",
+        "label": "Consumer message · S00154"
+      },
+      {
+        "kind": "CONSUMER_REPORTED",
+        "source_id": "94422222481506.PNM",
+        "label": "Consumer message · S00154"
+      },
+      {
+        "kind": "VERIFIED_BUSINESS_FACT",
+        "source_id": "6920073444593979097",
+        "label": "Order system"
+      },
+      {
+        "kind": "VERIFIED_BUSINESS_FACT",
+        "source_id": "BLFY27898314",
+        "label": "Service record"
+      },
+      {
+        "kind": "AI_OBSERVATION",
+        "source_id": "25581855302692.PNM",
+        "label": "Uploaded image"
+      },
+      {
+        "kind": "VERIFIED_BUSINESS_FACT",
+        "source_id": "adverse-reaction-policy",
+        "label": "Adverse-reaction policy"
+      },
+      {
+        "kind": "CONSUMER_REPORTED",
+        "source_id": "web-1aa89095-a36b-4974-a288-5c6099b52345",
+        "label": "Consumer message · web-1aa89095-a36b-4974-a288-5c6099b52345"
+      },
+      {
+        "kind": "KNOWLEDGE_CONTEXT",
+        "source_id": "DEMO-SAFETY-001",
+        "label": "Demo beauty-service safety boundary"
+      },
+      {
+        "kind": "KNOWLEDGE_CONTEXT",
+        "source_id": "DEMO-POLICY-DAMAGE-001",
+        "label": "Demo damaged-product handling policy"
+      }
+    ],
+    "service_strategy": {
+      "consumer_signal": {
+        "label": "Language suggests urgency or distress.",
+        "source": "DETERMINISTIC_LANGUAGE_CUE",
+        "semantic_type": "AI_INFERENCE"
+      },
+      "communication": [
+        "Acknowledge the reported impact and explain the human-reviewed safety path.",
+        "Preserve evidence boundaries and do not imply causality."
+      ],
+      "investigation": [
+        "Use restored service context and avoid repeating known questions.",
+        "Ask one highest-value unresolved question: 想再确认一下，您第一次使用这款产品的具体日期是什么时候？",
+        "Explain that resolving ACTUAL_FIRST_USE_TIME matters while preserving uncertainty."
+      ],
+      "human_attention": "SAFETY_ESCALATION",
+      "critical_gap": "ACTUAL_FIRST_USE_TIME",
+      "next_question": "想再确认一下，您第一次使用这款产品的具体日期是什么时候？"
+    }
+  },
+  "status": "PASSED"
+}

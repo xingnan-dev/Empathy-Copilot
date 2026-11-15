@@ -1,0 +1,17 @@
+INFO:     Started server process [13164]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:62971 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51854 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51864 - "OPTIONS /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51865 - "OPTIONS /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51864 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51865 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51869 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51865 - "OPTIONS /api/cases/S00154/response-draft HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51864 - "POST /api/cases/S00154/response-draft HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51869 - "POST /api/cases/S00154/human-approval HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51864 - "OPTIONS /api/cases/S00154/human-approval HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51865 - "POST /api/cases/S00154/human-approval HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:51869 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51869 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
