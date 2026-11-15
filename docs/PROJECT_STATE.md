@@ -181,3 +181,7 @@ Documentation follows PR/required checks; no merge authorized. Existing limitati
 Preparation status above is historical at85fbac6. Owner authorized Playwright dev tooling; actual Chrome acceptance and a minimal favicon404 fix are in e8e8e31.
 [W4 results](W4_DELIVERY.md) distinguish five passing browser-script modes from six acceptance paths: path4 is PARTIAL because newly sent raw chat bubble disappears after reload, although Evidence and state persist. Other paths executed with real frontend/single-worker API/disposable PostgreSQL, fake or absent model, no real Qwen/workbook.
 Do not call full E2E accepted solely from green CI. Raw-message persistence/display contract needs communication-area review before expanding storage/API behavior. PR #5 remains unmerged; minimatch and previous external-input/image-CVE boundaries remain open.
+
+### Message persistence design pending review (2026-11-15)
+
+Owner confirmed raw chat refresh gap. [Minimal design](phases/PHASE_MESSAGE_PERSISTENCE.md) proposes a distinct inbound-message table and transaction-bound checkpoint adapter, preserving official history and E3.2 boundaries. Design only: no product/dependency/migration changes implemented. PR #5 stays unmerged; browser scripts, screenshots and partial acceptance results retained. Implementation waits for communication-area review.
