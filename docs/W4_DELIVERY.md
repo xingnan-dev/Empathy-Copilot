@@ -99,3 +99,48 @@ main未启用分支保护，仓库无活动ruleset、Actions工作流或PR状态
 合并后确认交付提交为远端main祖先，并将本地main快进同步。
 开发分支与比赛标签保留，不创建发布标签。合并后的状态同步仅修改文档，检查本地链接与diff，
 未重复运行业务测试；现有跳过与限制继续适用。
+
+## 浏览器验收准备与阻碍（2026-11-15）
+
+被审查提交 `bb4916a745556c2db3cb1030b022fbaaf7ef6dcf`，刷新后main无新增提交，
+起始工作区干净，分支codex/browser-acceptance。本轮仅准备验收，**六条真实浏览器路径均未执行，不能判为通过**。
+未启动数据库、前后端或浏览器实验进程，无需清理本轮运行资源，未操作既有业务环境。
+
+### 工具缺口与界面事实
+
+本会话工具目录没有Browser/Chrome/Computer控制会话；仓库node环境的playwright、puppeteer、
+@playwright/test均无法解析。Node REPL尝试import playwright失败：
+`The requested module './index.js' does not provide an export named 'default'`；其余两个模块不存在。
+本机有Chrome/Edge可执行文件，但没有本轮可直接复用的交互/截图/控制台采集会话。
+可以另建实验CDP适配器或接入现有浏览器插件后继续；本轮没有新增框架或把启动可执行文件当成验收完成。
+没有采集到浏览器版本、截图、控制台或网络日志，因此没有自动化或手动浏览器通过证据。
+
+静态检查：CaseRuntime固定getCase('S00154')，未提供案件选择器；界面有消息输入/Send、
+Response Studio审批、草稿，以及初次加载失败时的Retry/显式Demo Fixture Mode。
+消息接口在model_service未配置时拒绝处理；fixture模式消息亦明确不可用，不应断言消费者消息已持久化。
+有效消息成功路径需要实验专用确定性模型provider和真实后端验证，不能用浏览器网络mock替代证据落库。
+审批界面只按approved/approving隐藏或禁用按钮，不能仅据静态代码认定重复操作安全或错误提示可理解。
+本轮没有复现并确认产品缺陷，因此没有代码修复或新增领域测试。
+
+### 负责人可执行的人工步骤（待真实浏览器环境）
+
+按[运行指南](COMPETITION_RUN_GUIDE.md)的native migration/seed启动实际后端单worker及前端。
+使用独立带实验标识的临时PostgreSQL容器/数据库、随机loopback端口，无业务卷；显式设置独立DATABASE_URL、
+前端VITE_API_BASE_URL及匹配CORS origin，清除该进程模型凭据/官方数据配置，不读取工作区.env。
+各样本使用独立数据库快照、均以S00154作为界面入口，避免为了切换案件修改产品代码。
+记录两个服务PID、容器ID/标签、浏览器完整版本、被测SHA和测试时间；只删除自己创建且标签匹配的资源。
+
+| 路径 | 准备/操作及预期 | 本轮实际 |
+| --- | --- | --- |
+| 1 加载 | 合成S00154，打开实际前端；观察加载完成、来源、缺口、状态，与GET案件返回对照并截图 | 未执行 |
+| 2 消息 | 无凭据样本输入有效消息并Send；预期明确不可用且不伪造新增Evidence。成功写入路径另需批准的确定性provider样本，核对消息来源、revision与下一步 | 两个变体均未执行 |
+| 3 审批 | 独立具备can_approve条件的S00154，进入Response Studio点击Approve escalation；核对后端审批状态/一次性事件。双击及旧revision API提交分别记录，预期无重复动作、冲突反馈可理解 | 未执行 |
+| 4 刷新 | 对上一步已实际持久化状态刷新浏览器，与刷新前GET来源/消息/状态/revision对照；不可把fixture当作数据库恢复 | 未执行 |
+| 5 断网恢复 | 新独立样本，终止本轮后端并刷新；预期可见错误。原库重启单worker后点击Retry，确认重新GET真实状态，不能留在Demo Fixture模式冒充恢复 | 未执行 |
+| 6 异常 | DevTools启用Preserve log，逐路径保存console、请求method/path/status及必要脱敏响应；区分预期503/409与未处理异常、重复请求 | 未执行 |
+
+审批旧revision可由DevTools对本次独立样本重放原human-approval请求；保存其状态与事件计数，
+单独标记为API重放证据，不能替代真实重复点击验收。禁止记录Authorization、模型配置或完整环境变量。
+草稿无模型时记录明确fallback/不可用提示及标记；不能把合成回复说成真实模型输出。
+上述为执行清单而非结果。恢复能力仍通过API/CLI，未新增恢复按钮或重设计界面，ui-prototype未修改。
+剩余minimatch风险和此前官方数据/真实模型/镜像CVE边界不变。

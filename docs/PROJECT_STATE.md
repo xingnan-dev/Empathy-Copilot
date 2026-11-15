@@ -166,3 +166,12 @@ The actual main push [run43695412924](https://github.com/xingnan-dev/Empathy-Cop
 Main branch protection was successfully applied and read back through GitHub REST API: PR required, zero approving reviewers, no code-owner or last-pusher approval; strict up-to-date backend/postgres/frontend checks bound to GitHub Actions App ID15368; administrators included; force pushes and main deletion prohibited. No prior branch protection or active rulesets existed to overwrite. Linear history is not required, so merge commits remain usable. No bypass allowances were added.
 [Protection API evidence](https://api.github.com/repos/xingnan-dev/Empathy-Copilot/branches/main/protection); [official API semantics](https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection).
 This status update itself follows a separate PR and the same three checks. Future documentation also follows PR/check delivery; no direct push to main. Remaining minimatch risk, official-data/Qwen skips, full W3 exclusion, browser and image-CVE unverified boundaries remain unchanged. No deployment or release tag added.
+
+### Browser acceptance preparation (2026-11-15)
+
+Branch codex/browser-acceptance starts at latest main bb4916a745556c2db3cb1030b022fbaaf7ef6dcf.
+[Delivery record](W4_DELIVERY.md) contains actual UI entry inventory, browser-control tooling gap and manual checklist.
+All six browser acceptance paths remain UNEXECUTED; no screenshot/browser-version/console evidence exists.
+Installed browser executables do not imply a working browser-control session. No new framework, product change or temporary runtime resources created.
+Message success additionally needs a deterministic experimental model provider; no-credentials unavailable variant must remain explicit.
+Documentation follows PR/required checks; no merge authorized. Existing limitations and minimatch risk unchanged.
