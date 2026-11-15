@@ -175,3 +175,9 @@ All six browser acceptance paths remain UNEXECUTED; no screenshot/browser-versio
 Installed browser executables do not imply a working browser-control session. No new framework, product change or temporary runtime resources created.
 Message success additionally needs a deterministic experimental model provider; no-credentials unavailable variant must remain explicit.
 Documentation follows PR/required checks; no merge authorized. Existing limitations and minimatch risk unchanged.
+
+### Real browser acceptance follow-up (2026-11-15)
+
+Preparation status above is historical at85fbac6. Owner authorized Playwright dev tooling; actual Chrome acceptance and a minimal favicon404 fix are in e8e8e31.
+[W4 results](W4_DELIVERY.md) distinguish five passing browser-script modes from six acceptance paths: path4 is PARTIAL because newly sent raw chat bubble disappears after reload, although Evidence and state persist. Other paths executed with real frontend/single-worker API/disposable PostgreSQL, fake or absent model, no real Qwen/workbook.
+Do not call full E2E accepted solely from green CI. Raw-message persistence/display contract needs communication-area review before expanding storage/API behavior. PR #5 remains unmerged; minimatch and previous external-input/image-CVE boundaries remain open.

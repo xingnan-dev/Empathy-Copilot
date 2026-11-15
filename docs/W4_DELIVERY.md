@@ -144,3 +144,80 @@ Response Studio审批、草稿，以及初次加载失败时的Retry/显式Demo 
 草稿无模型时记录明确fallback/不可用提示及标记；不能把合成回复说成真实模型输出。
 上述为执行清单而非结果。恢复能力仍通过API/CLI，未新增恢复按钮或重设计界面，ui-prototype未修改。
 剩余minimatch风险和此前官方数据/真实模型/镜像CVE边界不变。
+
+## 真实浏览器自动化验收（2026-11-15，待评审）
+
+前一节及85fbac6只记录准备时的阻碍，不能当作浏览器通过证据。本轮负责人明确授权Playwright后，
+已安装开发依赖 `@playwright/test=1.65.1`（新增playwright/playwright-core及锁文件），
+通过本机Chrome **157.0.8103.50** 执行真实无头浏览器交互，而非HTTP替代或页面请求mock。
+Node24.16.0/npm11.13.0；调度Python3.14.4，API使用项目.venv的已验证Python环境。
+刷新远端main仍为bb4916a，工作区起点干净，继续PR #5分支。实验报告starting_commit=85fbac6
+是当时工作树父提交；实际执行的新增脚本和favicon修改由 **e8e8e31aeeb06f125ea0aa3c18c5e534783fe357** 保存。
+后续仅整理记录，不声称先前报告已运行尚未存在的提交。
+
+**总体：六条路径已实际执行；路径4关于原文聊天气泡恢复不满足预期，不能宣称端到端全部验收通过。**
+最终五个独立模式的脚本断言通过，只表示脚本所列40项断言成立，不覆盖该已观测限制。
+全部是Playwright自动操作真实浏览器，不是负责人手工点击验收；截图人工查看仅用于辅助核对。
+
+### 复现与隔离
+
+先在frontend运行npm ci，再从根目录运行 `python scripts/run_browser_acceptance.py`。
+需要Docker Linux容器权限、本机Chrome、项目.venv；不下载浏览器，不把完整浏览器套件接入CI。
+[调度器](../scripts/run_browser_acceptance.py)、[浏览器脚本](../scripts/browser_acceptance.mjs)、
+[实验API入口](../scripts/browser_acceptance_worker.py)均可重复使用。
+每轮唯一标签tmpfs PostgreSQL容器，五个数据库test_message/test_unavailable/test_approval/test_conflict/test_outage，
+均独立迁移/seed、使用同界面固定S00154入口；不共享前一模式状态或业务数据库/卷。
+使用仓库已有确定性integration fixture和demo seed，不读取官方工作簿；UI保留原有硬编码脱敏展示。
+API单worker、随机loopback端口；前端固定127.0.0.1:5173以符合当前CORS，端口占用即拒绝启动，不终止已有服务。
+子进程环境清除LLM/Qwen/vision/official相关配置。消息模式显式使用已有FakeModelProvider，
+返回固定EXACT_PRODUCT_USED候选“面霜”，仍经过真实ModelService领域验证、PostgreSQL保存与真实API投影；
+其他模式不配置模型，预期503/Fallback Draft，不冒充Qwen成功。实验入口不进入正常运行路径。
+API/浏览器握手管理断开与重启：旧进程terminate/wait后写api-stopped，新进程health成功后写api-restarted；
+不使用固定等待时长猜测故障边界。截图、trace及JSON不记录密钥或完整环境。
+
+### 最终证据与逐路径结果
+
+最终实验目录为[浏览器报告](../backend/evaluation_output/browser-0880247d91184ccaaa353e2a76fdffce/report.json)。
+每个模式的JSON包含断言、console错误位置、API请求状态和最终CaseView；*-checkpoint.json为数据库直接导出，
+逐项核对其state_revision与API一致（message3、unavailable1、approval2、conflict2、outage1）。
+*-trace.zip包含实际操作、DOM快照及网络证据，截图为真实浏览器，不是设计图。
+
+| 路径 | 预期与实际 | 判定 |
+| --- | --- | --- |
+| 1 打开案件 | 等待真实加载完成，S00154、WAITING_FOR_HUMAN、证据source/provenance和非空缺口与API一致；截图可核对界面 | 通过 |
+| 2 消息 | 实际输入并点击Send；fake模式POST200、revision1→3、新CONSUMER_REPORTED面霜证据、对应产品缺口不再OPEN，页面动作与重新GET一致。无模型独立样本POST503、可读不可用提示，revision不变 | 通过，fake与无模型变体分别标注 |
+| 3 审批 | 独立can_approve案件真实双击，revision仅1→2、APPROVED、后续按钮消失；原revision重放409且不增修订。另用独立conflict库先由第二客户端审批，再点击陈旧UI，浏览器显示“Case updated elsewhere. Refresh current state.”，仍只有一次审批 | 通过；API重放与UI冲突分别记录 |
+| 4 刷新 | Evidence、来源、状态、revision及下一步恢复，审批也持久化。**新增聊天原文气泡刷新后数量为0**；当前sentMessage仅React state，CaseView没有新增原文历史 | 部分通过；原文恢复未满足，不将其算作通过 |
+| 5 后端中断 | 真正停止本轮API，刷新后可见加载错误；同库重启后点击Retry，重新GET真实状态并保持revision，未进入Fixture Mode | 通过 |
+| 6 console/network | 无未捕获pageerror。favicon404定位并修复；最终正常消息无console错误；无模型503、陈旧审批409、断开时ERR_CONNECTION_REFUSED均对应故意注入条件，保留原始位置 | 通过所检查范围，不宣称无预期错误 |
+
+[消息截图](../backend/evaluation_output/browser-0880247d91184ccaaa353e2a76fdffce/message-message.png)、
+[刷新截图](../backend/evaluation_output/browser-0880247d91184ccaaa353e2a76fdffce/message-refreshed.png)、
+[审批截图](../backend/evaluation_output/browser-0880247d91184ccaaa353e2a76fdffce/approval-approved.png)、
+[冲突提示](../backend/evaluation_output/browser-0880247d91184ccaaa353e2a76fdffce/conflict-conflict-feedback.png)、
+[断开截图](../backend/evaluation_output/browser-0880247d91184ccaaa353e2a76fdffce/outage-offline.png)、
+[恢复截图](../backend/evaluation_output/browser-0880247d91184ccaaa353e2a76fdffce/outage-reconnected.png)。
+
+### 问题、修复与检查
+
+最小修复：index.html声明空内联favicon，避免浏览器隐式/favicon.ico的404，不改版式；
+现有node测试补充入口icon回归，初版测试路径多退一层导致失败，修正后6通过。最终真实Chrome轮已无该404。
+采集脚本首次导出中文checkpoint遇到Windows GBK解码错误；改用UTF-8后完整重跑。
+[该未完成轮](../backend/evaluation_output/browser-7ef0476a59e74ad0a30f07d4a6329504/report.json)没有PASSED状态，不算通过；清理完成。
+迭代共8轮、28次模式调用（不同覆盖，非28个独立测试），最终完整轮为5模式；
+早期轮次仅提交结构化摘要，重复截图/trace留本机忽略，最终轮保留完整证据。
+
+**待沟通区确定：聊天原文持久化/回显契约。** 当前后端持久化模型抽取Evidence，但页面聊天新增气泡是会话状态，
+CaseView不返回原文消息历史。本轮未自行增加个人数据留存、API历史投影或localStorage；
+这些会扩展产品数据/展示契约，需先明确保留范围、来源与显示规则，再安排修复和刷新回归。
+因此本PR不应仅凭CI绿色认定所有浏览器验收通过。
+
+npm ci、6项现有前端测试、typecheck/lint/build、Ruff通过；mypy与现有三个必需CI检查结果以PR #5运行记录为准。
+没有将浏览器套件纳入CI，没有改变现有领域安全或恢复机制；minimatch仍7项中危，真实Qwen、官方工作簿、
+Edge/Firefox/Safari、移动设备、镜像CVE及完整W3不在本轮新增验收范围。
+所有本次Chrome context/browser均finally关闭，前后端直接子进程terminate/wait，
+容器清理前核对独立标签并移除；数据库tmpfs随容器消失。已有业务容器未操作。
+
+代码/工具提交e8e8e31的[真实CI运行](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43698686487)
+backend41秒、postgres53秒、frontend42秒全部通过；本地mypy105文件通过。
+文档收尾另行提交并等待最新PR检查，不以此替代上述部分通过的验收结论。
