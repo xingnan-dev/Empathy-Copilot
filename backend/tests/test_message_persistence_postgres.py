@@ -552,3 +552,103 @@ def test_pg_committed_replay_does_not_repeat_real_readonly_tool_entries(
     assert replay.message_receipt is not None and replay.message_receipt.replayed
     assert replay.revision == first.revision
     assert service.workflow.tools.execution_counts == counts
+
+
+@pytest.mark.parametrize("stored_text", ["  我用的是面霜。\n", None])
+def test_pg_live_original_message_matching_or_missing_is_compatible(
+    postgres_sessions: sessionmaker[Session], stored_text: str | None
+) -> None:
+    service = message_service(postgres_sessions, True)
+    before = service.checkpoints.load("S00154")
+    raw = "  我用的是面霜。\n"
+    accepted = service.ingest_message(
+        "S00154", message=raw, message_id="provenance", expected_revision=before.state_revision
+    )
+    state = service.checkpoints.load("S00154")
+    ids = accepted.messages[-1].evidence_ids
+    assert ids
+    for evidence in state.evidence:
+        if evidence.id in ids:
+            assert evidence.metadata["original_message"] == raw
+            if stored_text is None:
+                evidence.metadata.pop("original_message")
+    if stored_text is None:
+        revision = state.state_revision
+        state.state_revision += 1
+        service.checkpoints.save(state, expected_revision=revision)
+    assert service.get_case("S00154").messages[-1].text == raw
+    restored = service.checkpoints.load("S00154")
+    if stored_text is None:
+        assert all("original_message" not in e.metadata for e in restored.evidence if e.id in ids)
+
+
+def test_pg_provenance_write_conflict_rolls_back_all_state(
+    postgres_sessions: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from backend.app.api.app import create_app
+
+    service = message_service(postgres_sessions, True)
+    before = service.checkpoints.load("S00154")
+    original = service._apply_message
+
+    def mismatched(*args: Any, **kwargs: Any) -> Any:
+        for evidence in args[1]:
+            evidence.metadata["original_message"] = "different raw text"
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(service, "_apply_message", mismatched)
+    response = TestClient(create_app(lambda: service)).post(
+        "/api/cases/S00154/messages",
+        json={
+            "message": "面霜",
+            "message_id": "conflicting-source",
+            "expected_revision": before.state_revision,
+        },
+    )
+    assert response.status_code == 409
+    assert response.json()["code"] == "MESSAGE_PROVENANCE_CONFLICT"
+    assert service.checkpoints.load("S00154") == before
+    with postgres_sessions() as session:
+        assert session.scalar(select(CaseInboundMessageRow)) is None
+
+
+@pytest.mark.parametrize("corrupt_text", ["我用的是面霜。", "  我用的是面霜。\n ", None])
+def test_pg_get_live_provenance_conflict_is_explicit_and_never_repaired(
+    postgres_sessions: sessionmaker[Session], corrupt_text: str | None
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from backend.app.api.app import create_app
+
+    service = message_service(postgres_sessions, True)
+    before = service.checkpoints.load("S00154")
+    raw = "  我用的是面霜。\n"
+    accepted = service.ingest_message(
+        "S00154", message=raw, message_id="read-conflict", expected_revision=before.state_revision
+    )
+    state = service.checkpoints.load("S00154")
+    for evidence in state.evidence:
+        if evidence.id in accepted.messages[-1].evidence_ids:
+            evidence.metadata["original_message"] = corrupt_text
+    revision = state.state_revision
+    state.state_revision += 1
+    service.checkpoints.save(state, expected_revision=revision)
+    client = TestClient(create_app(lambda: service))
+    for response in (
+        client.get("/api/cases/S00154"),
+        client.post(
+            "/api/cases/S00154/messages",
+            json={
+                "message": raw,
+                "message_id": "read-conflict",
+                "expected_revision": before.state_revision,
+            },
+        ),
+    ):
+        assert response.status_code == 409
+        assert response.json()["code"] == "MESSAGE_PROVENANCE_CONFLICT"
+    assert service.checkpoints.load("S00154") == state
+    with postgres_sessions() as session:
+        assert session.scalar(select(CaseInboundMessageRow.text)) == raw

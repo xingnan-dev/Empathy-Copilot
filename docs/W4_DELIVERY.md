@@ -307,3 +307,21 @@ browser-2edab238在PostgreSQL临时初始化socket已就绪、最终TCP尚未就
 所有本次Chrome与服务退出，独立标签容器移除，数据库tmpfs随之清理；原有业务容器保留。
 
 代码提交ff61ec7的[实际CI运行](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43705360330)中backend、postgres、frontend均通过；最后完整性标记修复及文档提交仍等待其最新PR检查，不以旧提交结果替代。
+
+
+### LIVE原文溯源一致性补验（2026-11-15，待评审）
+
+PR #5继续暂缓合并；本轮起点6a2416265014557df267108eb9b436eb0c25ed95，远端main仍bb4916a。
+MessagePersistence.validate_links对LIVE记录关联的Evidence检查已有metadata.original_message与表text精确相等，包含空白和换行，字段存在但null视为冲突；缺字段仍兼容，不补写、不从Evidence补造聊天历史。
+错误契约：HTTP409，code=MESSAGE_PROVENANCE_CONFLICT，message=“Message and Evidence original text disagree; no data was changed.”。
+写入提交前、GET和已提交请求重放投影均检查；冲突不成功、不覆盖，写入中的消息/Evidence/checkpoint整体回滚。
+
+命令：设置TEST_DATABASE_URL指向本轮新建tmpfs PostgreSQL16独立provenance_test后，
+`python -m pytest backend/tests/test_message_persistence_postgres.py backend/tests/test_inbound_messages.py -rs --tb=short --junitxml=backend/evaluation_output/message-provenance-20261115/verified.xml`。
+**31通过、0失败、0跳过，14.51秒**；Ruff通过，mypy110文件通过。
+新增6个参数化实例覆盖匹配、缺字段、写入回滚、GET/重放冲突及不自动修复；事务测试逐项核对消息行为空、完整checkpoint（含Evidence/计数/历史）不变。
+[通过JUnit](../backend/evaluation_output/message-provenance-20261115/verified.xml)、[日志](../backend/evaluation_output/message-provenance-20261115/verified.log)。
+首轮4失败/27通过来自夹具修改checkpoint但未推进revision，被现有CAS正确拒绝；修正夹具后通过，原tests.xml/tests.log保留。
+未改迁移、依赖、前端或E3.2边界，不重复不受影响的完整浏览器与W3实验；原实际验收证据范围不变。
+三个必需CI针对本轮最新提交运行，具体结论以PR检查及本轮交付回报为准，不引用旧提交替代。
+本轮仅创建带唯一名称/标签的临时数据库容器；实验结束删除该容器，既有业务容器保留。官方数据、真实模型及minimatch等原限制不变。

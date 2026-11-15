@@ -390,10 +390,24 @@ class MessagePersistence:
     @staticmethod
     def validate_links(state: InvestigationState, record: InboundMessage) -> None:
         for evidence_id in record.evidence_ids:
-            if not any(
-                e.id == evidence_id
-                and e.case_id == record.case_id
-                and e.source.source_id == record.message_id
-                for e in state.evidence
-            ):
+            linked = next(
+                (
+                    e
+                    for e in state.evidence
+                    if e.id == evidence_id
+                    and e.case_id == record.case_id
+                    and e.source.source_id == record.message_id
+                ),
+                None,
+            )
+            if linked is None:
                 raise ValueError("message evidence reference mismatch")
+            if (
+                "original_message" in linked.metadata
+                and linked.metadata["original_message"] != record.text
+            ):
+                raise MessageError(
+                    "MESSAGE_PROVENANCE_CONFLICT",
+                    "Message and Evidence original text disagree; no data was changed.",
+                    409,
+                )

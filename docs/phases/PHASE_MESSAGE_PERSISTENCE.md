@@ -46,6 +46,7 @@ State schema_version仍为1，原字段不变，不新增聊天数组。经负�
 新入站Evidence保持CONSUMER_REPORTED和CONSUMER_MESSAGE原语义：source_id=message_id，case_id相同，
 observed_at使用received_at；不能将接收时间当成症状或使用时间。
 最终事务校验evidence_ids全部存在于最终State，并指向本消息；无Evidence消息不创建伪Evidence。
+LIVE关联Evidence已有metadata.original_message时必须与入站text精确相等，不trim、不归一化；字段存在但null也不等于原文。缺字段兼容、不回填。写入提交前、GET及重放投影共用校验；冲突返回HTTP409 / MESSAGE_PROVENANCE_CONFLICT，既不覆盖任一方也不返回成功，写入事务整体回滚。此规则不把历史Evidence补造成聊天记录。
 
 ## HTTP及界面契约
 

@@ -1,0 +1,28 @@
+..................F.FFF........                                          [100%]
+================================== FAILURES ===================================
+____ test_pg_live_original_message_matching_or_missing_is_compatible[None] ____
+backend\tests\test_message_persistence_postgres.py:576: in test_pg_live_original_message_matching_or_missing_is_compatible
+    service.checkpoints.save(state, expected_revision=state.state_revision)
+backend\app\persistence\checkpoints.py:38: in save
+    raise StateConflictError(
+E   backend.app.services.checkpoints.StateConflictError: persisted state revision must advance beyond the expected revision
+_ test_pg_get_live_provenance_conflict_is_explicit_and_never_repaired[\u6211\u7528\u7684\u662f\u9762\u971c\u3002] _
+backend\tests\test_message_persistence_postgres.py:636: in test_pg_get_live_provenance_conflict_is_explicit_and_never_repaired
+    service.checkpoints.save(state, expected_revision=state.state_revision)
+backend\app\persistence\checkpoints.py:38: in save
+    raise StateConflictError(
+E   backend.app.services.checkpoints.StateConflictError: persisted state revision must advance beyond the expected revision
+_ test_pg_get_live_provenance_conflict_is_explicit_and_never_repaired[  \u6211\u7528\u7684\u662f\u9762\u971c\u3002\n ] _
+backend\tests\test_message_persistence_postgres.py:636: in test_pg_get_live_provenance_conflict_is_explicit_and_never_repaired
+    service.checkpoints.save(state, expected_revision=state.state_revision)
+backend\app\persistence\checkpoints.py:38: in save
+    raise StateConflictError(
+E   backend.app.services.checkpoints.StateConflictError: persisted state revision must advance beyond the expected revision
+__ test_pg_get_live_provenance_conflict_is_explicit_and_never_repaired[None] __
+backend\tests\test_message_persistence_postgres.py:636: in test_pg_get_live_provenance_conflict_is_explicit_and_never_repaired
+    service.checkpoints.save(state, expected_revision=state.state_revision)
+backend\app\persistence\checkpoints.py:38: in save
+    raise StateConflictError(
+E   backend.app.services.checkpoints.StateConflictError: persisted state revision must advance beyond the expected revision
+- generated xml file: E:\Empathy-Copilot\backend\evaluation_output\message-provenance-20261115\tests.xml -
+4 failed, 27 passed in 15.27s

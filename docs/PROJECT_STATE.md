@@ -194,3 +194,7 @@ M1–M6实现与本地验收结果见[W4新增记录](W4_DELIVERY.md)：246通�
 真实Chrome九模式90断言，原刷新缺口的新结果通过；旧部分通过记录不改写。
 负责人已确认保留Evidence.metadata.original_message作为既有溯源，消息表为展示/幂等权威来源，State不新增聊天数组。
 提交a7b91f9、f22b6f6、ff61ec7及后续交付记录更新PR #5；不合并、不发布。上线先备份/迁移，含消息降级拒绝删表；剩余授权、隐私、minimatch和外部输入边界保留。
+
+### LIVE原文溯源补订：已实施，待沟通区评审
+
+PR #5暂缓合并。关联Evidence已有original_message时与消息表text精确比较，冲突HTTP409 / MESSAGE_PROVENANCE_CONFLICT；写入整笔回滚，GET/重放同样拒绝冲突，缺字段兼容且不补造。针对性31项通过，Ruff/mypy通过；最新三个CI以PR检查为准。详见[W4补验记录](W4_DELIVERY.md)。本轮不重复完整浏览器/W3矩阵，原限制保留。
