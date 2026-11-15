@@ -1,0 +1,47 @@
+....................................................................F.F. [ 27%]
+...........................................s............................ [ 54%]
+..............s.s...ssssssss.......ss...s..s...sss.ssss.sss..ss......... [ 82%]
+..............................................                           [100%]
+================================== FAILURES ===================================
+________ test_pg_independent_processes_compete_for_message[False-True] ________
+backend\tests\test_message_persistence_postgres.py:373: in test_pg_independent_processes_compete_for_message
+    assert restored.revision == before.state_revision + 1
+E   AssertionError: assert 3 == (1 + 1)
+E    +  where 3 = CaseView(messages=[MessageView(id='94422222481506.PNM', case_id='S00154', role='CONSUMER', text='�������Ʒɶ�������������˪���������ˣ���..._ESCALATION: 'SAFETY_ESCALATION'>, critical_gap='ACTUAL_FIRST_USE_TIME', next_question='����ȷ��һ�£�����һ��ʹ������Ʒ�ľ���������ʲôʱ��')).revision
+E    +  and   1 = InvestigationState(case_id='S00154', consumer_id='��a**', current_issue='Consumer reports facial swelling and medical a...ated_at=datetime.datetime(2026, 11, 15, 10, 8, 57, 503462, tzinfo=TzInfo(0)), state_schema_version=1, state_revision=1).state_revision
+________ test_pg_independent_processes_compete_for_message[True-True] _________
+backend\tests\test_message_persistence_postgres.py:373: in test_pg_independent_processes_compete_for_message
+    assert restored.revision == before.state_revision + 1
+E   AssertionError: assert 3 == (1 + 1)
+E    +  where 3 = CaseView(messages=[MessageView(id='94422222481506.PNM', case_id='S00154', role='CONSUMER', text='�������Ʒɶ�������������˪���������ˣ���..._ESCALATION: 'SAFETY_ESCALATION'>, critical_gap='ACTUAL_FIRST_USE_TIME', next_question='����ȷ��һ�£�����һ��ʹ������Ʒ�ľ���������ʲôʱ��')).revision
+E    +  and   1 = InvestigationState(case_id='S00154', consumer_id='��a**', current_issue='Consumer reports facial swelling and medical a...dated_at=datetime.datetime(2026, 11, 15, 10, 9, 3, 145992, tzinfo=TzInfo(0)), state_schema_version=1, state_revision=1).state_revision
+- generated xml file: E:\Empathy-Copilot\backend\evaluation_output\message-final-1a8d4accdacb43489961a773bcb37446\tests.xml -
+=========================== short test summary info ===========================
+SKIPPED [1] backend\tests\test_phase4_postgres.py:149: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:141: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:164: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:307: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:366: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:401: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:428: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:450: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:470: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:539: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:555: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase8_multimodal.py:126: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase8_multimodal.py:142: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase8_multimodal.py:224: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase8_multimodal.py:268: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:64: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:76: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:87: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:156: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:167: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:179: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:190: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:216: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:229: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:239: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:291: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:298: OFFICIAL_DATASET_PATH is not configured
+2 failed, 233 passed, 27 skipped, 1 deselected in 20.84s

@@ -11,7 +11,20 @@ export interface ServiceStrategy {
   critical_gap?: string
   next_question?: string
 }
+export interface CaseMessage {
+  id: string; case_id: string; role: 'CONSUMER' | 'AGENT' | 'UNKNOWN'; text: string;
+  received_at: string | null; sent_at: string | null; sequence: number;
+  origin: 'LIVE' | 'OFFICIAL' | 'DEMO_FIXTURE'; content_type: 'TEXT' | 'IMAGE' | 'UNKNOWN';
+  evidence_ids: string[];
+}
+export interface MessageReceipt {
+  message_id: string; sequence: number; received_at: string; accepted_revision: number;
+  evidence_ids: string[]; replayed: boolean;
+}
 export interface CaseView {
+  messages: CaseMessage[]
+  message_history: { historical_source: string; historical_complete: boolean }
+  message_receipt: MessageReceipt | null
   case_id: string
   consumer: string
   lifecycle: string

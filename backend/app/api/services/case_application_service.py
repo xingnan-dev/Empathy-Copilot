@@ -40,6 +40,7 @@ from ..schemas.cases import (
     ResponseContextView,
     ResumeRequest,
 )
+from .message_persistence import MessagePersistence
 
 
 class CaseApplicationService:
@@ -72,6 +73,7 @@ class CaseApplicationService:
         self.service_strategy = ServiceStrategyPolicy()
         self.ingredients = IngredientContextChecker()
         self.tool_recovery = ToolRecoveryService(workflow)
+        self.messages = MessagePersistence(self)
 
     def recover_tool(self, case_id: str, request: ToolRecoveryRequest) -> tuple[RecoveryView, int]:
         return self.tool_recovery.recover(case_id, request)
@@ -85,7 +87,9 @@ class CaseApplicationService:
             self.checkpoints.save(fixture)
             return
         current = self.checkpoints.load(fixture.case_id)
-        if self._is_legacy_integration_fixture(current):
+        if self._is_legacy_integration_fixture(current) and not self.messages.records(
+            current.case_id
+        ):
             self._replace_checkpoint(current, fixture)
 
     def register_official_cases(
@@ -110,8 +114,7 @@ class CaseApplicationService:
                 continue
             current = self.checkpoints.load(case_id)
             if self._is_legacy_integration_fixture(current) or (
-                cutoff is not None
-                and self._official_message_sequence_cutoff(current) != cutoff
+                cutoff is not None and self._official_message_sequence_cutoff(current) != cutoff
             ):
                 self._replace_checkpoint(current, replacement)
 
@@ -138,6 +141,8 @@ class CaseApplicationService:
     def _replace_checkpoint(
         self, current: InvestigationState, replacement: InvestigationState
     ) -> None:
+        if self.messages.records(current.case_id):
+            raise ValueError("Cannot rebuild a case with accepted live messages")
         upgraded = replacement.model_copy(
             update={
                 "state_revision": current.state_revision + 1,
@@ -147,7 +152,7 @@ class CaseApplicationService:
         self.checkpoints.save(upgraded, expected_revision=current.state_revision)
 
     def get_case(self, case_id: str) -> CaseView:
-        return self._project(self.checkpoints.load(case_id))
+        return self.messages.get(case_id)
 
     def approve(self, case_id: str, expected_revision: int) -> CaseView:
         current = self.checkpoints.load(case_id)
@@ -192,30 +197,29 @@ class CaseApplicationService:
     def ingest_message(
         self, case_id: str, *, message: str, message_id: str, expected_revision: int
     ) -> CaseView:
-        if self.model_service is None:
-            raise ModelProviderError("UNAVAILABLE", "model provider is not configured")
-        current = self.checkpoints.load(case_id)
-        if current.state_revision != expected_revision:
-            raise StateConflictError(f"case {case_id} no longer has revision {expected_revision}")
-        if current.status in {AgentStatus.ESCALATED, AgentStatus.CONCLUDED, AgentStatus.TERMINATED}:
-            raise InvalidStateTransitionError("terminal case cannot ingest a consumer message")
-        now = datetime.now(UTC)
-        evidence, intent, emotion = self.model_service.understand(
-            case_id=case_id,
-            message_id=message_id,
-            message=message,
-            observed_at=now,
-            context={
-                "open_gaps": [gap.id for gap in self._presentation_gaps(current)],
-                "reference_date": now.date().isoformat(),
-            },
+        from ..schemas.cases import ConsumerMessageRequest
+
+        ConsumerMessageRequest(
+            message=message, message_id=message_id, expected_revision=expected_revision
         )
+        return self.messages.ingest(case_id, message, message_id, expected_revision)
+
+    def _apply_message(
+        self,
+        current: InvestigationState,
+        evidence: list[Evidence],
+        workflow: InvestigationWorkflow,
+        now: datetime,
+    ) -> InvestigationState:
+        case_id = current.case_id
         if not evidence:
-            return self._project(current, emotion=emotion)
-        if current.status is AgentStatus.WAITING_FOR_USER:
-            return self._project(
-                self.workflow.resume_with_evidence(current, evidence), emotion=emotion
+            return InvestigationState.model_validate(
+                current.model_copy(
+                    update={"state_revision": current.state_revision + 1, "updated_at": now}
+                ).model_dump()
             )
+        if current.status is AgentStatus.WAITING_FOR_USER:
+            return workflow.resume_with_evidence(current, evidence)
         all_evidence = [*current.evidence, *evidence]
         gaps = (
             evaluate_scenario_gaps(case_id, current.scenario, all_evidence)
@@ -233,10 +237,8 @@ class CaseApplicationService:
                 "next_question": None,
             },
         )
-        result = self.workflow.run(resumed, expected_revision=current.state_revision)
-        projected = self._project(result, emotion=emotion)
-        projected.context_passport["model_signals"] = {"intent": intent, "emotion": emotion}
-        return projected
+        result = workflow.run(resumed, expected_revision=current.state_revision)
+        return result
 
     def generate_response_draft(self, case_id: str, expected_revision: int) -> GeneratedDraft:
         if self.model_service is None:
@@ -372,6 +374,9 @@ class CaseApplicationService:
         return self._project(reviewed)
 
     def _project(self, state: InvestigationState, *, emotion: str | None = None) -> CaseView:
+        return self.messages.view(state)
+
+    def _project_state(self, state: InvestigationState, *, emotion: str | None = None) -> CaseView:
         primary_product = next(
             (
                 item.value.get("product_id")

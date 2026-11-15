@@ -74,3 +74,10 @@ test('authoritative service evidence enables supported service-record wording', 
   assert.deepEqual(currentServiceRecordEvidence(view), [serviceEvidence])
   assert.equal(decisionSupportLabels(view).includes('Current service record available'), true)
 })
+
+
+test('entry declares a local empty favicon to avoid browser implicit favicon 404', async () => {
+  const { readFile } = await import('node:fs/promises')
+  const html = await readFile(new URL('../../index.html', import.meta.url), 'utf8')
+  assert.match(html, /<link rel="icon" href="data:,"/)
+})

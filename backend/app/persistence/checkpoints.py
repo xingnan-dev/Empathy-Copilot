@@ -1,6 +1,7 @@
 """Durable, validated, optimistic-concurrency-safe PostgreSQL checkpoints."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from typing import Any
 
 from sqlalchemy import select, update
@@ -19,16 +20,25 @@ SessionFactory = Callable[[], Session]
 class PostgresCheckpointStore:
     def __init__(self, sessions: SessionFactory) -> None:
         self._sessions = sessions
+        self.session_factory = sessions
 
-    def save(
-        self, state: InvestigationState, *, expected_revision: int | None = None
-    ) -> None:
+    @contextmanager
+    def _read_session(self) -> Iterator[Session]:
+        with self._sessions() as session:
+            yield session
+
+    @contextmanager
+    def _write_session(self) -> Iterator[Session]:
+        with self._sessions() as session, session.begin():
+            yield session
+
+    def save(self, state: InvestigationState, *, expected_revision: int | None = None) -> None:
         snapshot = state.model_dump(mode="json")
         if expected_revision is not None and state.state_revision <= expected_revision:
             raise StateConflictError(
                 "persisted state revision must advance beyond the expected revision"
             )
-        with self._sessions() as session, session.begin():
+        with self._write_session() as session:
             if expected_revision is None:
                 self._insert(session, state, snapshot)
                 return
@@ -52,9 +62,7 @@ class PostgresCheckpointStore:
                 )
 
     @staticmethod
-    def _insert(
-        session: Session, state: InvestigationState, snapshot: dict[str, Any]
-    ) -> None:
+    def _insert(session: Session, state: InvestigationState, snapshot: dict[str, Any]) -> None:
         session.add(
             InvestigationCheckpointRow(
                 case_id=state.case_id,
@@ -73,7 +81,7 @@ class PostgresCheckpointStore:
             ) from error
 
     def load(self, case_id: str) -> InvestigationState:
-        with self._sessions() as session:
+        with self._read_session() as session:
             row = session.scalar(
                 select(InvestigationCheckpointRow).where(
                     InvestigationCheckpointRow.case_id == case_id
@@ -92,7 +100,7 @@ class PostgresCheckpointStore:
             return state
 
     def exists(self, case_id: str) -> bool:
-        with self._sessions() as session:
+        with self._read_session() as session:
             return (
                 session.scalar(
                     select(InvestigationCheckpointRow.case_id).where(
@@ -101,3 +109,20 @@ class PostgresCheckpointStore:
                 )
                 is not None
             )
+
+
+class TransactionBoundCheckpointStore(PostgresCheckpointStore):
+    """Reuse validation/CAS while the caller alone owns transaction commit/rollback."""
+
+    def __init__(self, session: Session) -> None:
+        super().__init__(lambda: session)
+        self.session = session
+
+    @contextmanager
+    def _read_session(self) -> Iterator[Session]:
+        yield self.session
+
+    @contextmanager
+    def _write_session(self) -> Iterator[Session]:
+        yield self.session
+        self.session.flush()

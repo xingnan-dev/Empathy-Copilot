@@ -18,6 +18,7 @@ from backend.app.persistence.config import DatabaseSettings
 from backend.app.persistence.database import create_database_engine, create_session_factory
 from backend.app.persistence.factory import build_postgres_workflow
 from backend.app.services.checkpoints import StateConflictError
+from backend.app.services.message_errors import MessageError
 from backend.app.services.tool_recovery import RecoveryError
 from backend.app.services.transitions import InvalidStateTransitionError
 from backend.app.vision import VisionService
@@ -108,6 +109,10 @@ def create_app(
     @app.exception_handler(KeyError)
     async def not_found(_request: Request, _exc: KeyError) -> JSONResponse:
         return error("CASE_NOT_FOUND", "Case was not found.", 404)
+
+    @app.exception_handler(MessageError)
+    async def message_error(_request: Request, exc: MessageError) -> JSONResponse:
+        return error(exc.code, exc.message, exc.status)
 
     @app.exception_handler(StateConflictError)
     async def conflict(_request: Request, _exc: StateConflictError) -> JSONResponse:

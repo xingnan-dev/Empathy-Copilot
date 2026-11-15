@@ -166,3 +166,35 @@ The actual main push [run43695412924](https://github.com/xingnan-dev/Empathy-Cop
 Main branch protection was successfully applied and read back through GitHub REST API: PR required, zero approving reviewers, no code-owner or last-pusher approval; strict up-to-date backend/postgres/frontend checks bound to GitHub Actions App ID15368; administrators included; force pushes and main deletion prohibited. No prior branch protection or active rulesets existed to overwrite. Linear history is not required, so merge commits remain usable. No bypass allowances were added.
 [Protection API evidence](https://api.github.com/repos/xingnan-dev/Empathy-Copilot/branches/main/protection); [official API semantics](https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection).
 This status update itself follows a separate PR and the same three checks. Future documentation also follows PR/check delivery; no direct push to main. Remaining minimatch risk, official-data/Qwen skips, full W3 exclusion, browser and image-CVE unverified boundaries remain unchanged. No deployment or release tag added.
+
+### Browser acceptance preparation (2026-11-15)
+
+Branch codex/browser-acceptance starts at latest main bb4916a745556c2db3cb1030b022fbaaf7ef6dcf.
+[Delivery record](W4_DELIVERY.md) contains actual UI entry inventory, browser-control tooling gap and manual checklist.
+All six browser acceptance paths remain UNEXECUTED; no screenshot/browser-version/console evidence exists.
+Installed browser executables do not imply a working browser-control session. No new framework, product change or temporary runtime resources created.
+Message success additionally needs a deterministic experimental model provider; no-credentials unavailable variant must remain explicit.
+Documentation follows PR/required checks; no merge authorized. Existing limitations and minimatch risk unchanged.
+
+### Real browser acceptance follow-up (2026-11-15)
+
+Preparation status above is historical at85fbac6. Owner authorized Playwright dev tooling; actual Chrome acceptance and a minimal favicon404 fix are in e8e8e31.
+[W4 results](W4_DELIVERY.md) distinguish five passing browser-script modes from six acceptance paths: path4 is PARTIAL because newly sent raw chat bubble disappears after reload, although Evidence and state persist. Other paths executed with real frontend/single-worker API/disposable PostgreSQL, fake or absent model, no real Qwen/workbook.
+Do not call full E2E accepted solely from green CI. Raw-message persistence/display contract needs communication-area review before expanding storage/API behavior. PR #5 remains unmerged; minimatch and previous external-input/image-CVE boundaries remain open.
+
+### Message persistence design pending review (2026-11-15)
+
+Owner confirmed raw chat refresh gap. [Minimal design](phases/PHASE_MESSAGE_PERSISTENCE.md) proposes a distinct inbound-message table and transaction-bound checkpoint adapter, preserving official history and E3.2 boundaries. Design only: no product/dependency/migration changes implemented. PR #5 stays unmerged; browser scripts, screenshots and partial acceptance results retained. Implementation waits for communication-area review.
+
+### 消息持久化修复：已实施，待沟通区评审
+
+规格17ac624已通过沟通区评审，按M1–M6实施；PR #5不合并，既有浏览器部分通过证据保留。
+
+M1–M6实现与本地验收结果见[W4新增记录](W4_DELIVERY.md)：246通过/27官方数据跳过/1真实Qwen排除，
+真实Chrome九模式90断言，原刷新缺口的新结果通过；旧部分通过记录不改写。
+负责人已确认保留Evidence.metadata.original_message作为既有溯源，消息表为展示/幂等权威来源，State不新增聊天数组。
+提交a7b91f9、f22b6f6、ff61ec7及后续交付记录更新PR #5；不合并、不发布。上线先备份/迁移，含消息降级拒绝删表；剩余授权、隐私、minimatch和外部输入边界保留。
+
+### LIVE原文溯源补订：已实施，待沟通区评审
+
+PR #5暂缓合并。关联Evidence已有original_message时与消息表text精确比较，冲突HTTP409 / MESSAGE_PROVENANCE_CONFLICT；写入整笔回滚，GET/重放同样拒绝冲突，缺字段兼容且不补造。针对性31项通过，Ruff/mypy通过；最新三个CI以PR检查为准。详见[W4补验记录](W4_DELIVERY.md)。本轮不重复完整浏览器/W3矩阵，原限制保留。

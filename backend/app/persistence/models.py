@@ -3,7 +3,18 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -87,3 +98,28 @@ class MessageRow(Base):
     image_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
     order_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     ticket_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+
+
+class CaseInboundMessageRow(Base):
+    __tablename__ = "case_inbound_messages"
+    __table_args__ = (
+        UniqueConstraint("case_id", "sequence"),
+        CheckConstraint("role = 'CONSUMER'"),
+        CheckConstraint("sequence > 0 AND request_revision >= 0"),
+        CheckConstraint("accepted_revision > request_revision"),
+        CheckConstraint("length(message_id) BETWEEN 1 AND 128"),
+        CheckConstraint("length(text) BETWEEN 1 AND 4000 AND length(btrim(text)) > 0"),
+        CheckConstraint("jsonb_typeof(evidence_ids) = 'array'"),
+    )
+    case_id: Mapped[str] = mapped_column(
+        ForeignKey("investigation_checkpoints.case_id", ondelete="RESTRICT"), primary_key=True
+    )
+    message_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    consumer_id: Mapped[str] = mapped_column(String(128))
+    role: Mapped[str] = mapped_column(String(16))
+    text: Mapped[str] = mapped_column(Text)
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    sequence: Mapped[int] = mapped_column(BigInteger)
+    request_revision: Mapped[int] = mapped_column(BigInteger)
+    accepted_revision: Mapped[int] = mapped_column(BigInteger)
+    evidence_ids: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")

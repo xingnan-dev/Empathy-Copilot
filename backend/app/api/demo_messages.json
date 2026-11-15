@@ -1,0 +1,28 @@
+{
+  "S00154": [
+    {
+      "id": "94422222481506.PNM",
+      "role": "CONSUMER",
+      "content_type": "TEXT",
+      "text": "你们这产品啥情况！我用了面霜整张脸肿了，今天去医院挂了皮肤科……"
+    },
+    {
+      "id": "26089175581339.PNM",
+      "role": "AGENT",
+      "content_type": "TEXT",
+      "text": "非常抱歉，您的情况我们高度重视。请先遵医嘱治疗，方便的话请上传相关材料……"
+    },
+    {
+      "id": "25581855302692.PNM",
+      "role": "CONSUMER",
+      "content_type": "IMAGE",
+      "text": "Medical material uploaded"
+    },
+    {
+      "id": "25330006295860.PNM",
+      "role": "AGENT",
+      "content_type": "TEXT",
+      "text": "资料已收到，正在为您升级至专项处理。"
+    }
+  ]
+}

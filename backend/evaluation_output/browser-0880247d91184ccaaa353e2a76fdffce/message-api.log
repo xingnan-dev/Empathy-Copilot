@@ -1,0 +1,17 @@
+INFO:     Started server process [30360]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:62971 (Press CTRL+C to quit)
+INFO:     127.0.0.1:62983 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62997 - "OPTIONS /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62998 - "OPTIONS /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62997 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62998 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63002 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62998 - "OPTIONS /api/cases/S00154/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62997 - "POST /api/cases/S00154/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63002 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62997 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62998 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63002 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63002 - "GET /api/cases/S00154 HTTP/1.1" 200 OK

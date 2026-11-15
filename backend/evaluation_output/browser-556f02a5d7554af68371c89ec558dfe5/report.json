@@ -1,0 +1,17 @@
+{
+  "starting_commit": "f22b6f6f53b2f067b287035e65c16463cb7493d7",
+  "run_id": "browser-556f02a5d7554af68371c89ec558dfe5",
+  "status": "PASSED",
+  "cases": {
+    "message": 0,
+    "no-evidence": 0,
+    "unavailable": 0,
+    "approval": 0,
+    "conflict": 0,
+    "outage": 0,
+    "db-failure": 0,
+    "commit-uncertain": 0,
+    "message-conflict": 0
+  },
+  "cleanup": "owned browser contexts closed; own services stopped; own database container removed"
+}

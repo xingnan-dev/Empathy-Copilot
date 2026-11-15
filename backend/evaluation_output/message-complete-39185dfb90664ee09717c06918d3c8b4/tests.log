@@ -1,0 +1,34 @@
+........................................................................ [ 26%]
+......................................................s................. [ 52%]
+.........................s.s...ssssssss.......ss...s..s...sss.ssss.sss.. [ 79%]
+ss.......................................................                [100%]
+- generated xml file: E:\Empathy-Copilot\backend\evaluation_output\message-complete-39185dfb90664ee09717c06918d3c8b4\tests.xml -
+=========================== short test summary info ===========================
+SKIPPED [1] backend\tests\test_phase4_postgres.py:149: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:141: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:164: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:307: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:366: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:401: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:428: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:450: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:470: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:539: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase7_official_dataset.py:555: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase8_multimodal.py:126: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase8_multimodal.py:142: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase8_multimodal.py:224: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase8_multimodal.py:268: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:64: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:76: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:87: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:156: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:167: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:179: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:190: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:216: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:229: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:239: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:291: OFFICIAL_DATASET_PATH is not configured
+SKIPPED [1] backend\tests\test_phase9_evaluation.py:298: OFFICIAL_DATASET_PATH is not configured
+246 passed, 27 skipped, 1 deselected in 25.98s
