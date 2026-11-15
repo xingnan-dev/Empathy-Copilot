@@ -99,3 +99,7 @@ docker compose up --build
 Open `http://localhost:5173/`. The backend health endpoint is
 `http://localhost:8000/health`. See the [run guide](docs/COMPETITION_RUN_GUIDE.md) for native development, supporting
 demo paths, fixture disclosure, evaluation limitations, and troubleshooting.
+
+## Basic CI
+
+[Workflow](.github/workflows/basic-ci.yml) runs independent `backend`, `postgres`, and `frontend` checks for main PRs/pushes and manual dispatch. Python3.13.14, ephemeral PostgreSQL16 and Node22 reuse existing commands. Logs/JUnit are retained for14 days even on failure. No business credentials or volumes are used. Official-workbook and real-Qwen tests skip without external inputs; full W3 process experiments are excluded. Remaining minimatch risk stays open; CI does not certify browser behavior or image CVEs.

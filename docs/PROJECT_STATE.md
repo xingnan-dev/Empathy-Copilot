@@ -141,3 +141,7 @@ audit由14条降至7条中危，均关联同一minimatch公告，剩余风险未
 Docker补验使用Node22.23.5/npm10.9.9、Linux/amd64及nginx1.27.5，同样5项测试通过；
 最终首页和JS/CSS均HTTP200，内容摘要匹配；本次容器/验证镜像标签已清理，既有业务容器保持原状态。
 Dockerfile与锁文件未改，minimatch风险独立开放；浏览器交互和基础镜像CVE扫描仍未验证，不重跑后端故障矩阵。
+
+## Basic CI implementation (2026-11-15)
+
+Active branch: `codex/basic-ci`, starting commit `e4c6f1215f1cbdbbd81887695e55744cc5524065` (latest remote main, clean worktree). Three independent jobs reuse existing checks; actual GitHub run pending. No product/dependency/migration changes, merge, branch protection change or release tag authorized. Official workbook/real Qwen inputs are absent; full W3 experiments are outside first required checks. Frontend minimatch risk remains open.

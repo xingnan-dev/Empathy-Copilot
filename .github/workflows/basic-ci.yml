@@ -1,0 +1,111 @@
+name: Basic CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  backend:
+    name: backend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13.14'
+      - name: Install
+        run: |
+          mkdir -p ci-results
+          python -m pip install -e ".[dev]" 2>&1 | tee ci-results/install.log
+      - name: Ruff
+        run: python -m ruff check . 2>&1 | tee ci-results/ruff.log
+      - name: mypy
+        run: python -m mypy 2>&1 | tee ci-results/mypy.log
+      - name: Tests
+        run: python -m pytest -m "not postgres" -rs --tb=short --junitxml=ci-results/tests.xml 2>&1 | tee ci-results/tests.log
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: backend-evidence
+          path: ci-results/
+          retention-days: 14
+          if-no-files-found: warn
+  postgres:
+    name: postgres
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci_ephemeral_only
+          POSTGRES_DB: resonique_ci_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d resonique_ci_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg://ci:ci_ephemeral_only@127.0.0.1:5432/resonique_ci_test
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13.14'
+      - name: Install
+        run: |
+          mkdir -p ci-results
+          python -m pip install -e ".[dev]" 2>&1 | tee ci-results/install.log
+      - name: Tests
+        run: python -m pytest -m "postgres" -rs --tb=short --junitxml=ci-results/tests.xml 2>&1 | tee ci-results/tests.log
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: postgres-evidence
+          path: ci-results/
+          retention-days: 14
+          if-no-files-found: warn
+  frontend:
+    name: frontend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Frontend checks
+        working-directory: frontend
+        run: |
+          mkdir -p ../ci-results
+          node --version | tee ../ci-results/node.log
+          npm --version | tee ../ci-results/npm.log
+          npm ci 2>&1 | tee ../ci-results/install.log
+          npm test 2>&1 | tee ../ci-results/tests.log
+          npm run typecheck 2>&1 | tee ../ci-results/typecheck.log
+          npm run lint 2>&1 | tee ../ci-results/lint.log
+          npm run build 2>&1 | tee ../ci-results/build.log
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: frontend-evidence
+          path: ci-results/
+          retention-days: 14
+          if-no-files-found: warn
