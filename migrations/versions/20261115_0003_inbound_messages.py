@@ -39,4 +39,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    if op.get_bind().scalar(sa.text("SELECT count(*) FROM case_inbound_messages")):
+        raise RuntimeError("Refusing downgrade with accepted messages; preserve a database backup.")
     op.drop_table("case_inbound_messages")

@@ -1,0 +1,26 @@
+[
+  {
+    "role": "CONSUMER",
+    "text": "我实际用的是面霜。",
+    "case_id": "S00154",
+    "sequence": 1,
+    "message_id": "web-15be33c4-f96d-40c9-b5fa-61ca642ab326",
+    "consumer_id": "蒋a**",
+    "received_at": "2026-11-15T10:33:30.540327+00:00",
+    "evidence_ids": [],
+    "request_revision": 1,
+    "accepted_revision": 2
+  },
+  {
+    "role": "CONSUMER",
+    "text": "我实际用的是面霜。",
+    "case_id": "S00154",
+    "sequence": 2,
+    "message_id": "web-71512470-7e68-41fd-aebd-f135d6d8a592",
+    "consumer_id": "蒋a**",
+    "received_at": "2026-11-15T10:33:31.204492+00:00",
+    "evidence_ids": [],
+    "request_revision": 2,
+    "accepted_revision": 3
+  }
+]

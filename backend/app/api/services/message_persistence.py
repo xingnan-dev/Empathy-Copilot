@@ -23,12 +23,39 @@ from backend.app.persistence.models import (
 )
 from backend.app.services.checkpoints import InMemoryCheckpointStore, StateConflictError
 from backend.app.services.message_errors import MessageError
+from backend.app.services.tools import ToolRegistry, ToolResult
 from backend.app.services.transitions import InvalidStateTransitionError
 
+from ..fixtures import s00154_waiting_for_human
 from ..schemas.cases import CaseView, MessageHistoryView, MessageReceipt, MessageView
 
 if TYPE_CHECKING:
     from .case_application_service import CaseApplicationService
+
+
+class MessageReadOnlyTools(ToolRegistry):
+    """A per-request guard, never a mutation of the shared registry."""
+
+    def __init__(self, parent: ToolRegistry) -> None:
+        super().__init__()
+        self.parent = parent
+
+    def is_side_effect_free(self, name: str) -> bool:
+        return self.parent.is_side_effect_free(name)
+
+    def execute(
+        self, name: str, state: InvestigationState, arguments: dict[str, str]
+    ) -> ToolResult:
+        allowed = {
+            "get_order_history",
+            "get_service_history",
+            "get_consumer_memory",
+            "get_logistics_status",
+            "retrieve_service_policy",
+        }
+        if name not in allowed or not self.parent.is_side_effect_free(name):
+            raise ValueError("message workflow only permits existing read-only tools")
+        return self.parent.execute(name, state, arguments)
 
 
 class MessagePersistence:
@@ -97,13 +124,22 @@ class MessagePersistence:
                     )
                 view.message_history = MessageHistoryView(
                     historical_source="OFFICIAL",
-                    historical_complete=bool(rows) and len({r.sequence for r in rows}) == len(rows),
+                    historical_complete=bool(rows)
+                    and set(r.sequence for r in rows) == set(range(1, cutoff + 1)),
                 )
         else:
             demo = json.loads(
                 (Path(__file__).parents[1] / "demo_messages.json").read_text(encoding="utf-8")
             )
-            if not view.official_data and (rows := demo.get(state.case_id)):
+            known = s00154_waiting_for_human()
+            known_sources = {e.id: e.source for e in known.evidence}
+            present_sources = {e.id: e.source for e in state.evidence}
+            if (
+                not view.official_data
+                and state.consumer_id == known.consumer_id
+                and all(present_sources.get(key) == source for key, source in known_sources.items())
+                and (rows := demo.get(state.case_id))
+            ):
                 history = [
                     MessageView(
                         **item, case_id=state.case_id, sequence=i + 1, origin="DEMO_FIXTURE"
@@ -119,6 +155,14 @@ class MessagePersistence:
                 for e in state.evidence
                 if e.case_id == state.case_id and e.source.source_id == message.id
             ]
+        records = self.records(state.case_id, session)
+        for record in records:
+            if (
+                record.consumer_id != state.consumer_id
+                or record.accepted_revision > state.state_revision
+            ):
+                raise ValueError("message/checkpoint metadata mismatch")
+            self.validate_links(state, record)
         live = [
             MessageView(
                 id=m.message_id,
@@ -131,7 +175,7 @@ class MessagePersistence:
                 content_type="TEXT",
                 evidence_ids=m.evidence_ids,
             )
-            for m in self.records(state.case_id, session)
+            for m in records
         ]
         view.messages = [*history, *live]
         return view
@@ -216,7 +260,8 @@ class MessagePersistence:
                         now = datetime.now(UTC)
                         evidence = [e.model_copy(update={"observed_at": now}) for e in candidates]
                         workflow = InvestigationWorkflow(
-                            checkpoint_store=bound, tool_registry=self.service.workflow.tools
+                            checkpoint_store=bound,
+                            tool_registry=MessageReadOnlyTools(self.service.workflow.tools),
                         )
                         result = self.service._apply_message(current, evidence, workflow, now)
                         if not evidence:
@@ -273,7 +318,8 @@ class MessagePersistence:
                     current,
                     evidence,
                     InvestigationWorkflow(
-                        checkpoint_store=scratch, tool_registry=self.service.workflow.tools
+                        checkpoint_store=scratch,
+                        tool_registry=MessageReadOnlyTools(self.service.workflow.tools),
                     ),
                     now,
                 )

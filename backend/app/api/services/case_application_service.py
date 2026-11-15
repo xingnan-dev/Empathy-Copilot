@@ -87,7 +87,9 @@ class CaseApplicationService:
             self.checkpoints.save(fixture)
             return
         current = self.checkpoints.load(fixture.case_id)
-        if self._is_legacy_integration_fixture(current):
+        if self._is_legacy_integration_fixture(current) and not self.messages.records(
+            current.case_id
+        ):
             self._replace_checkpoint(current, fixture)
 
     def register_official_cases(
@@ -139,6 +141,8 @@ class CaseApplicationService:
     def _replace_checkpoint(
         self, current: InvestigationState, replacement: InvestigationState
     ) -> None:
+        if self.messages.records(current.case_id):
+            raise ValueError("Cannot rebuild a case with accepted live messages")
         upgraded = replacement.model_copy(
             update={
                 "state_revision": current.state_revision + 1,

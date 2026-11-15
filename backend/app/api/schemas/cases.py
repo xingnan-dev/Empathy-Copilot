@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import Any, Literal
+from unicodedata import category
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -65,7 +66,7 @@ class ConsumerMessageRequest(BaseModel):
     @field_validator("message_id")
     @classmethod
     def valid_id(cls, value: str) -> str:
-        if not value or any(c.isspace() or ord(c) < 32 or ord(c) == 127 for c in value):
+        if not value or any(c.isspace() or category(c) == "Cc" for c in value):
             raise ValueError("invalid message id")
         return value
 

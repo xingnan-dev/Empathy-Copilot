@@ -60,13 +60,14 @@ def main():
     report = {
         "starting_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "run_id": run_id,
+        "status": "INCOMPLETE",
     }
     try:
         address = subprocess.check_output(["docker", "port", cid, "5432/tcp"], text=True).strip()
         for _ in range(60):
             if (
                 subprocess.run(
-                    ["docker", "exec", cid, "pg_isready", "-U", "experiment"],
+                    ["docker", "exec", cid, "pg_isready", "-h", "127.0.0.1", "-U", "experiment"],
                     stdout=subprocess.DEVNULL,
                 ).returncode
                 == 0
@@ -98,13 +99,31 @@ def main():
         )
         processes.append(frontend)
         report["cases"] = {}
-        for mode in ("message", "unavailable", "approval", "conflict", "outage"):
-            database = "test_" + mode
+        for mode in (
+            "message",
+            "no-evidence",
+            "unavailable",
+            "approval",
+            "conflict",
+            "outage",
+            "db-failure",
+            "commit-uncertain",
+            "message-conflict",
+        ):
+            env["BROWSER_MODE"] = mode
+            database = "test_" + mode.replace("-", "_")
             subprocess.run(
                 ["docker", "exec", cid, "createdb", "-U", "experiment", database], check=True
             )
             env["DATABASE_URL"] = f"postgresql+psycopg://experiment:experiment@{address}/{database}"
-            env["BROWSER_TEST_MODEL"] = "fake" if mode == "message" else "none"
+            env["BROWSER_TEST_MODEL"] = (
+                "fake"
+                if mode == "message"
+                else "empty"
+                if mode
+                in {"no-evidence", "outage", "db-failure", "commit-uncertain", "message-conflict"}
+                else "none"
+            )
             subprocess.run(
                 [python, "-m", "alembic", "upgrade", "head"],
                 cwd=ROOT,
@@ -205,10 +224,63 @@ def main():
                 encoding="utf-8",
             )
             (output / f"{mode}-checkpoint.json").write_text(snapshot, encoding="utf-8")
+            rows = json.loads(
+                subprocess.check_output(
+                    [
+                        "docker",
+                        "exec",
+                        cid,
+                        "psql",
+                        "-U",
+                        "experiment",
+                        "-d",
+                        database,
+                        "-At",
+                        "-c",
+                        "SELECT coalesce(jsonb_agg(to_jsonb(m) ORDER BY sequence),'[]'::jsonb) "
+                        "FROM case_inbound_messages m WHERE case_id='S00154'",
+                    ],
+                    text=True,
+                    encoding="utf-8",
+                )
+            )
+            (output / f"{mode}-messages.json").write_text(
+                json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            browser_result = json.loads((output / f"{mode}.json").read_text(encoding="utf-8"))
+            if browser_result.get("status") == "PASSED":
+                live = [m for m in browser_result["state"]["messages"] if m["origin"] == "LIVE"]
+                assert len(live) == len(rows)
+                for api_message, row in zip(live, rows, strict=True):
+                    assert (
+                        api_message["id"],
+                        api_message["text"],
+                        api_message["role"],
+                        api_message["sequence"],
+                        api_message["evidence_ids"],
+                    ) == (
+                        row["message_id"],
+                        row["text"],
+                        row["role"],
+                        row["sequence"],
+                        row["evidence_ids"],
+                    )
+                stored_state = json.loads(snapshot)
+                assert stored_state["state_revision"] == browser_result["state"]["revision"]
+                for row in rows:
+                    for evidence_id in row["evidence_ids"]:
+                        assert any(
+                            e["id"] == evidence_id and e["source"]["source_id"] == row["message_id"]
+                            for e in stored_state["evidence"]
+                        )
             report["cases"][mode] = returncode
             backend.terminate()
             backend.wait(timeout=15)
         report["status"] = "PASSED" if all(x == 0 for x in report["cases"].values()) else "FAILED"
+    except Exception as error:
+        report["status"] = "FAILED"
+        report["error"] = str(error)
+        raise
     finally:
         for process in reversed(processes):
             if process.poll() is None:

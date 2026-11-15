@@ -224,3 +224,311 @@ def test_pg_two_connections_only_winning_message_advances(
     assert [(m.sequence, m.text) for m in current.messages if m.origin == "LIVE"] == [
         (1, "same text")
     ]
+
+
+def test_pg_commit_ack_loss_is_unconfirmed_then_original_replay(
+    postgres_sessions: sessionmaker[Session],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from sqlalchemy import event
+    from sqlalchemy.exc import OperationalError
+
+    from backend.app.services.message_errors import MessageError
+
+    service = message_service(postgres_sessions)
+    before = service.get_case("S00154")
+
+    def lose_ack(session: Session) -> None:
+        if session.info.get("ack_injected"):
+            return
+        session.info["ack_injected"] = True
+        raise OperationalError("commit ack lost", {}, RuntimeError("injected"))
+
+    event.listen(Session, "after_commit", lose_ack)
+    try:
+        with pytest.raises(MessageError) as caught:
+            service.ingest_message(
+                "S00154",
+                message="persist once",
+                message_id="ack",
+                expected_revision=before.revision,
+            )
+        assert caught.value.code == "MESSAGE_COMMIT_UNCERTAIN"
+    finally:
+        event.remove(Session, "after_commit", lose_ack)
+    service.model_service = None
+    replay = service.ingest_message(
+        "S00154", message="persist once", message_id="ack", expected_revision=before.revision
+    )
+    assert replay.message_receipt is not None and replay.message_receipt.replayed
+    assert [(m.id, m.sequence) for m in replay.messages if m.origin == "LIVE"] == [("ack", 1)]
+
+
+def test_pg_model_failure_leaves_no_message_or_revision(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    from backend.app.llm.provider import ModelProviderError
+    from backend.app.llm.providers.fake import FakeModelProvider
+    from backend.app.llm.service import ModelService
+
+    service = message_service(postgres_sessions)
+    before = service.checkpoints.load("S00154")
+    service.model_service = ModelService(FakeModelProvider(error="UNAVAILABLE"))
+    with pytest.raises(ModelProviderError):
+        service.ingest_message(
+            "S00154",
+            message="not accepted",
+            message_id="failed-model",
+            expected_revision=before.state_revision,
+        )
+    assert service.checkpoints.load("S00154") == before
+    assert not any(m.origin == "LIVE" for m in service.get_case("S00154").messages)
+
+
+def _process_message(
+    url: str, barrier: Any, queue: Any, message_id: str, revision: int, with_evidence: bool
+) -> None:
+    from backend.app.api.services.case_application_service import CaseApplicationService
+    from backend.app.llm.providers.fake import FakeModelProvider
+    from backend.app.llm.schemas import ModelOutput
+    from backend.app.llm.service import ModelService
+    from backend.app.persistence.config import DatabaseSettings
+    from backend.app.persistence.database import create_database_engine, create_session_factory
+    from backend.app.persistence.factory import build_postgres_workflow
+    from backend.app.services.checkpoints import StateConflictError
+
+    engine = create_database_engine(DatabaseSettings(url))
+
+    class RacingProvider(FakeModelProvider):
+        def extract_facts(self, context: dict[str, object]) -> ModelOutput:
+            barrier.wait(timeout=20)
+            return super().extract_facts(context)
+
+    from backend.app.llm.schemas import CandidateFact, CandidateField, UnderstandingResult
+
+    understanding = UnderstandingResult(
+        candidate_facts=[
+            CandidateFact(field=CandidateField.EXACT_PRODUCT_USED, value="面霜", source_text="面霜")
+        ]
+        if with_evidence
+        else []
+    )
+    try:
+        workflow = build_postgres_workflow(create_session_factory(engine))
+        service = CaseApplicationService(
+            workflow, workflow.checkpoints, ModelService(RacingProvider(understanding))
+        )
+        try:
+            view = service.ingest_message(
+                "S00154",
+                message="面霜 process request",
+                message_id=message_id,
+                expected_revision=revision,
+            )
+            queue.put(("ok", view.revision, workflow.tools.execution_counts))
+        except StateConflictError:
+            queue.put(("conflict", None, workflow.tools.execution_counts))
+    finally:
+        engine.dispose()
+
+
+@pytest.mark.parametrize("with_evidence", [False, True])
+@pytest.mark.parametrize("same_request", [False, True])
+def test_pg_independent_processes_compete_for_message(
+    postgres_sessions: sessionmaker[Session],
+    same_request: bool,
+    with_evidence: bool,
+) -> None:
+    import multiprocessing
+    import os
+
+    service = message_service(postgres_sessions)
+    before = service.checkpoints.load("S00154")
+    ctx = multiprocessing.get_context("spawn")
+    barrier, queue = ctx.Barrier(2), ctx.Queue()
+    processes = [
+        ctx.Process(
+            target=_process_message,
+            args=(
+                os.environ["TEST_DATABASE_URL"],
+                barrier,
+                queue,
+                "same" if same_request else str(i),
+                before.state_revision,
+                with_evidence,
+            ),
+        )
+        for i in range(2)
+    ]
+    try:
+        for process in processes:
+            process.start()
+        result = [queue.get(timeout=40) for _ in processes]
+        for process in processes:
+            process.join(timeout=20)
+            assert process.exitcode == 0
+        assert sum(r[0] == "ok" for r in result) == (2 if same_request else 1)
+        assert all(r[2] == {} for r in result)
+        restored = service.get_case("S00154")
+        assert restored.revision == before.state_revision + (2 if with_evidence else 1)
+        assert [(m.sequence, m.text) for m in restored.messages if m.origin == "LIVE"] == [
+            (1, "面霜 process request")
+        ]
+        restored_state = service.checkpoints.load("S00154")
+        assert len(restored_state.evidence) == len(before.evidence) + int(with_evidence)
+        assert restored_state.evidence[: len(before.evidence)] == before.evidence
+    finally:
+        for process in processes:
+            if process.is_alive():
+                process.terminate()
+                process.join(timeout=10)
+        queue.close()
+
+
+def test_pg_official_history_respects_persisted_cutoff_and_never_upserts_live(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    from backend.app.persistence.models import ConsumerRow, ConversationSessionRow, MessageRow
+    from backend.app.services.message_errors import MessageError
+
+    service = message_service(postgres_sessions)
+    state = service.checkpoints.load("S00154")
+    evidence = [
+        e.model_copy(
+            update={
+                "metadata": {
+                    **e.metadata,
+                    "official_data": True,
+                    "official_message_sequence_cutoff": 1,
+                }
+            }
+        )
+        for e in state.evidence
+    ]
+    official = state.model_copy(
+        update={"evidence": evidence, "state_revision": state.state_revision + 1}
+    )
+    service.checkpoints.save(official, expected_revision=state.state_revision)
+    now = datetime.now(UTC)
+    with postgres_sessions.begin() as session:
+        if session.get(ConsumerRow, state.consumer_id) is None:
+            session.add(ConsumerRow(consumer_id=state.consumer_id, explicit_preferences=[]))
+            session.flush()
+        session.add(
+            ConversationSessionRow(
+                session_id=state.case_id,
+                consumer_id=state.consumer_id,
+                shop="synthetic",
+                scene_major="synthetic",
+                scene_minor="synthetic",
+                scenario=None,
+                started_at=now,
+                order_ids=[],
+                ticket_ids=[],
+            )
+        )
+        session.flush()
+        for i in (1, 2):
+            session.add(
+                MessageRow(
+                    message_id=f"history-{i}",
+                    session_id=state.case_id,
+                    sequence=i,
+                    sent_at=now,
+                    consumer_id=state.consumer_id,
+                    role="买家",
+                    sender="synthetic",
+                    text=f"known original {i}",
+                    content_type="文本",
+                    image_path=None,
+                    order_id=None,
+                    ticket_id=None,
+                )
+            )
+    view = service.get_case("S00154")
+    assert [(m.id, m.text, m.origin) for m in view.messages] == [
+        ("history-1", "known original 1", "OFFICIAL")
+    ]
+    assert view.message_history.historical_complete
+    with pytest.raises(MessageError) as collision:
+        service.ingest_message(
+            "S00154", message="different", message_id="history-1", expected_revision=view.revision
+        )
+    assert collision.value.code == "MESSAGE_ID_CONFLICT"
+    assert service.model_service is not None and service.model_service.calls == []
+
+
+def test_pg_missing_message_table_returns_explicit_service_error(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    from sqlalchemy import text
+
+    from backend.app.services.message_errors import MessageError
+
+    service = message_service(postgres_sessions)
+    # Rename temporarily in one transaction; restore even if the assertion fails.
+    with postgres_sessions.begin() as session:
+        session.execute(text("ALTER TABLE case_inbound_messages RENAME TO unavailable_messages"))
+    try:
+        with pytest.raises(MessageError) as error:
+            service.get_case("S00154")
+        assert error.value.code == "MESSAGE_PERSISTENCE_UNAVAILABLE"
+    finally:
+        with postgres_sessions.begin() as session:
+            session.execute(
+                text("ALTER TABLE unavailable_messages RENAME TO case_inbound_messages")
+            )
+
+
+def test_pg_additive_migration_downgrade_preserves_old_snapshot_and_refuses_data_loss(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    from alembic import command
+    from alembic.config import Config
+
+    service = message_service(postgres_sessions)
+    before = service.checkpoints.load("S00154")
+    config = Config("alembic.ini")
+    command.downgrade(config, "20260924_0002")
+    assert service.checkpoints.load("S00154") == before
+    command.upgrade(config, "head")
+    service.ingest_message(
+        "S00154", message="preserve", message_id="no-drop", expected_revision=before.state_revision
+    )
+    with pytest.raises(RuntimeError, match="Refusing downgrade"):
+        command.downgrade(config, "20260924_0002")
+    assert service.get_case("S00154").messages[-1].text == "preserve"
+
+
+def test_pg_committed_replay_does_not_repeat_real_readonly_tool_entries(
+    postgres_sessions: sessionmaker[Session],
+) -> None:
+    from backend.tests.fixtures import initial_state
+
+    service = message_service(postgres_sessions, True)
+    from backend.app.domain.gaps import evaluate_p0_gaps
+
+    initial = initial_state()
+    initial = initial.model_copy(
+        update={"evidence": [], "evidence_gaps": evaluate_p0_gaps(initial.case_id, [])}
+    )
+    service.checkpoints.save(initial)
+    first = service.ingest_message(
+        initial.case_id,
+        message="面霜",
+        message_id="tool-once",
+        expected_revision=initial.state_revision,
+    )
+    counts = dict(service.workflow.tools.execution_counts)
+    assert counts.get("get_order_history", 0) == 1
+    assert service.model_service is not None and len(service.model_service.calls) == 1
+    service.model_service = None
+    replay = service.ingest_message(
+        initial.case_id,
+        message="面霜",
+        message_id="tool-once",
+        expected_revision=initial.state_revision,
+    )
+    assert replay.message_receipt is not None and replay.message_receipt.replayed
+    assert replay.revision == first.revision
+    assert service.workflow.tools.execution_counts == counts

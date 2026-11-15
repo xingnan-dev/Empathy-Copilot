@@ -1,9 +1,10 @@
 """Accepted raw messages are distinct from extracted Evidence and State JSON."""
 
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Self
+from unicodedata import category
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class InboundMessage(BaseModel):
@@ -22,7 +23,7 @@ class InboundMessage(BaseModel):
     @field_validator("message_id")
     @classmethod
     def valid_id(cls, value: str) -> str:
-        if not value.strip() or any(c.isspace() or ord(c) < 32 or ord(c) == 127 for c in value):
+        if not value.strip() or any(c.isspace() or category(c) == "Cc" for c in value):
             raise ValueError("invalid message identity")
         return value
 
@@ -32,3 +33,13 @@ class InboundMessage(BaseModel):
         if not value.strip():
             raise ValueError("message is blank")
         return value
+
+    @model_validator(mode="after")
+    def coherent_receipt(self) -> Self:
+        if self.accepted_revision <= self.request_revision:
+            raise ValueError("accepted revision must advance")
+        if self.received_at.tzinfo is None or self.received_at.utcoffset() is None:
+            raise ValueError("received_at must be timezone aware")
+        if len(set(self.evidence_ids)) != len(self.evidence_ids):
+            raise ValueError("duplicate evidence reference")
+        return self

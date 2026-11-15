@@ -1,0 +1,12 @@
+*
+!.gitignore
+!report.json
+!message.json
+!no-evidence.json
+!unavailable.json
+!approval.json
+!conflict.json
+!outage.json
+!db-failure.json
+!commit-uncertain.json
+!message-conflict.json

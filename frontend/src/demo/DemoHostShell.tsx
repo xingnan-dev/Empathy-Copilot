@@ -1,42 +1,36 @@
 import { MessageSquareText, Search, ShoppingBag } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ResoniquePlugin } from '../plugin/ResoniquePlugin'
 import { currentServiceRecordEvidence } from '../presentation/caseTruth'
+import { CaseApiError } from '../api/client'
 import { useCaseRuntime } from '../runtime/CaseRuntime'
 
 const contacts = ['蒋a**', '林c**', '周e**', '杨c**']
-
-type OfficialMessageRole = '买家' | '客服'
-
-interface HostMessage {
-  id: string
-  role: OfficialMessageRole
-  sender: string
-  contentType: '文本' | '图片'
-  content: string
-  time: string
-  compact?: boolean
-}
-
-const hostMessages: HostMessage[] = [
-  { id: '94422222481506.PNM', role: '买家', sender: '蒋a**', contentType: '文本', content: '你们这产品啥情况！我用了面霜整张脸肿了，今天去医院挂了皮肤科……', time: '16:20' },
-  { id: '26089175581339.PNM', role: '客服', sender: '测试美妆旗舰店:薇薇', contentType: '文本', content: '非常抱歉，您的情况我们高度重视。请先遵医嘱治疗，方便的话请上传相关材料……', time: '16:21' },
-  { id: '25581855302692.PNM', role: '买家', sender: '蒋a**', contentType: '图片', content: 'Medical material uploaded', time: '16:21' },
-  { id: '25330006295860.PNM', role: '客服', sender: '测试美妆旗舰店:薇薇', contentType: '文本', content: '资料已收到，正在为您升级至专项处理。', time: '16:22', compact: true },
-]
-
-function messageClassName(message: HostMessage) {
-  if (message.contentType === '图片') return 'message message--attachment message--centered'
-  return `message ${message.role === '买家' ? 'message--consumer' : 'message--agent'}${message.compact ? ' message--compact' : ''}`
-}
 
 export function DemoHostShell() {
   const { caseView, ingestMessage, processingMessage } = useCaseRuntime()
   const hasServiceRecord = currentServiceRecordEvidence(caseView).length > 0
   const [message, setMessage] = useState('')
-  const [sentMessage, setSentMessage] = useState<string | null>(null)
+  const sending = useRef(false)
   const [messageError, setMessageError] = useState<string | null>(null)
-  const send = async () => { const content = message.trim(); if (!content) return; setMessageError(null); try { await ingestMessage(content); setSentMessage(content); setMessage('') } catch { setMessageError('Model understanding unavailable. Please retry.') } }
+  const send = async () => {
+    if (sending.current || !message.trim()) return
+    sending.current = true; setMessageError(null)
+    try { await ingestMessage(message); setMessage('') }
+    catch (reason) {
+      const code = reason instanceof CaseApiError ? reason.code : 'UNKNOWN'
+      const feedback: Record<string, string> = {
+        MODEL_UNAVAILABLE: 'Model understanding unavailable. Message was not accepted. Please retry.',
+        STATE_CONFLICT: 'Case updated elsewhere. Message was not accepted. Refresh and check before retrying.',
+        MESSAGE_ID_CONFLICT: 'Message identity was used for different content. Refresh and check history.',
+        MESSAGE_PERSISTENCE_UNAVAILABLE: 'Message was not accepted: storage unavailable. Please retry.',
+        MESSAGE_COMMIT_UNCERTAIN: 'Message receipt is unconfirmed. Retry the original request or refresh and check history.',
+        BACKEND_UNAVAILABLE: 'Message receipt is unconfirmed. Retry the original request or refresh and check history.',
+      }
+      setMessageError(feedback[code] ?? (reason instanceof CaseApiError ? reason.message : 'Message receipt is unconfirmed. Refresh and check history.'))
+    } finally { sending.current = false }
+  }
+
   return (
     <div className="demo-page antialiased">
       <header className="demo-topbar"><div><span className="host-logo">Q</span><strong>Customer Service Workspace</strong></div><span>Demo host context</span></header>
@@ -51,11 +45,16 @@ export function DemoHostShell() {
           <section className="host-product"><div><ShoppingBag size={18} /></div><span><small>Current order</small><strong>Firming Gift Set</strong><em>¥1,398</em></span></section>
           <div className="service-context"><span>Service context</span><i />Order verified{hasServiceRecord && <><i />Service record linked</>}</div>
           <div className="host-date">11 May 2026</div>
-          {hostMessages.slice(0, 3).map((item) => <div className={messageClassName(item)} data-message-id={item.id} data-role={item.role} data-sender={item.sender} key={item.id}>{item.contentType === '图片' ? <><span><MessageSquareText size={18} /></span><div><strong>{item.content}</strong><small>Image attachment · consumer provided</small></div></> : <><p>{item.content}</p><time>{item.time}</time></>}</div>)}
-          {hasServiceRecord && <div className="host-event"><i /><span>Service record linked to this conversation</span><time>16:22</time></div>}
-          {hostMessages.slice(3).map((item) => <div className={messageClassName(item)} data-message-id={item.id} data-role={item.role} data-sender={item.sender} key={item.id}><p>{item.content}</p><time>{item.time}</time></div>)}
-          {sentMessage && <div className="message message--consumer"><p>{sentMessage}</p><time>Now</time></div>}
-          {messageError && <div className="host-event"><i /><span>{messageError}</span><time>Now</time></div>}
+          {caseView.messages.map(item => {
+            const time = item.received_at ?? item.sent_at
+            const label = item.origin === 'LIVE' ? 'Newly received' : item.origin === 'OFFICIAL' ? 'Historical record' : 'Historical demo fixture'
+            return <div className={item.content_type === 'IMAGE' ? 'message message--attachment message--centered' : `message ${item.role === 'CONSUMER' ? 'message--consumer' : item.role === 'AGENT' ? 'message--agent' : 'message--unknown'}`}
+              data-message-id={item.id} data-origin={item.origin} data-role={item.role} key={`${item.origin}:${item.id}`}>
+              {item.content_type === 'IMAGE' && <span><MessageSquareText size={18} /></span>}
+              <div><small>{label} · {item.role}</small><p style={{ whiteSpace: 'pre-wrap' }}>{item.text}</p><time>{time ? new Date(time).toLocaleString() : 'Time unavailable'}</time></div>
+            </div>
+          })}
+          {messageError && <div className="host-event" role="alert"><i /><span>{messageError}</span><time>Now</time></div>}
           <div className="host-composer"><input aria-label="Consumer message" value={message} onChange={(event) => setMessage(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void send() }} placeholder="Consumer message for understanding…" /><button type="button" disabled={processingMessage} onClick={() => void send()}>{processingMessage ? 'Reading…' : 'Send'}</button></div>
         </main>
         <ResoniquePlugin />

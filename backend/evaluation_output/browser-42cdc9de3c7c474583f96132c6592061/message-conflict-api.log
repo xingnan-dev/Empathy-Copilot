@@ -1,0 +1,15 @@
+INFO:     Started server process [17176]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:62251 (Press CTRL+C to quit)
+INFO:     127.0.0.1:57306 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57316 - "OPTIONS /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57317 - "OPTIONS /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57316 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57317 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57321 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57321 - "POST /api/cases/S00154/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57317 - "OPTIONS /api/cases/S00154/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57316 - "POST /api/cases/S00154/messages HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:57321 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57321 - "GET /api/cases/S00154 HTTP/1.1" 200 OK
