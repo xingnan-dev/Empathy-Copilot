@@ -81,6 +81,19 @@ Competition Enhancement 1 is complete. The deterministic, read-only `ServiceStra
 
 ## Current work
 
+- **最新已完成交付：消息持久化及浏览器验收修复已完成、已合并 main**。
+  沟通区批准后，[PR #5](https://github.com/xingnan-dev/Empathy-Copilot/pull/5)于2026-11-15使用merge commit
+  `2d0707f1dcded5c313c58da0ac22092b9a420e40`合并，完整保留九个实现、验收、设计及补订提交至
+  `428849ce5543b3b46b1a710832f6874461a810b7`；开发分支保留。
+  合并前最新合成提交`59ce94d9d9e7e50d498baeba709b3b106dff7232`的[PR检查](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43706753218)
+  与合并后实际main的[push CI](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43707162075)
+  backend、postgres、frontend均通过，未绕过保护。
+  原“刷新部分通过”记录、后续Chrome九模式90断言及原文溯源补验均保留，见[W4](W4_DELIVERY.md)。
+  **部署前须备份并执行`20261115_0003`迁移**（`python -m alembic upgrade head`）；已有消息时降级拒绝删表。
+  本轮仅合并与文档交付，未操作业务数据库、未部署、未创建发布标签。
+  minimatch依赖风险、官方数据授权/隐私、真实Qwen/官方工作簿、镜像CVE及其他浏览器验证边界继续开放。
+  以下阶段记录保留当时状态，当前结论以上述合并记录为准。
+
 - **Completed maintenance:** Frontend dependency fixes from `codex/frontend-dependency-fixes`,
   starting from latest main `2a1fee8b26d10ab2251a4e731d006a6f3b54ec42`;
   compatible Vite/CSS/ESLint fixes passed communication-area static review;
