@@ -185,3 +185,7 @@ Do not call full E2E accepted solely from green CI. Raw-message persistence/disp
 ### Message persistence design pending review (2026-11-15)
 
 Owner confirmed raw chat refresh gap. [Minimal design](phases/PHASE_MESSAGE_PERSISTENCE.md) proposes a distinct inbound-message table and transaction-bound checkpoint adapter, preserving official history and E3.2 boundaries. Design only: no product/dependency/migration changes implemented. PR #5 stays unmerged; browser scripts, screenshots and partial acceptance results retained. Implementation waits for communication-area review.
+
+### 消息持久化修复实施中
+
+规格17ac624已通过沟通区评审，按M1–M6实施；PR #5不合并，既有浏览器部分通过证据保留。
