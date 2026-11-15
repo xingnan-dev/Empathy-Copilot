@@ -221,3 +221,89 @@ Edge/Firefox/Safari、移动设备、镜像CVE及完整W3不在本轮新增验�
 代码/工具提交e8e8e31的[真实CI运行](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43698686487)
 backend41秒、postgres53秒、frontend42秒全部通过；本地mypy105文件通过。
 文档收尾另行提交并等待最新PR检查，不以此替代上述部分通过的验收结论。
+
+## 消息持久化修复实施与验收（2026-11-15，待沟通区评审）
+
+规格17ac624获批准后按M1–M6实施；起点/远端源均17ac624，main仍bb4916a，工作区干净。
+继续PR #5，不合并、不移动标签。原browser-0880及其“刷新部分通过”记录保留不变，本节是新增结果。
+负责人确认：Evidence.metadata.original_message保留原有溯源；关系表作为聊天展示/幂等权威来源，
+State不新增聊天数组。设计中“原文仅在关系表”已作这一澄清，没有删除证据字段。
+
+| 任务 | 实际实现范围 |
+| --- | --- |
+| M1 | CaseInboundMessageRow及20261115_0003新增表迁移，案件+消息复合身份、序号唯一、角色/版本/长度约束；不修改官方messages表 |
+| M2 | TransactionBoundCheckpointStore复用现有校验/CAS，外层事务独占提交；普通PostgresCheckpointStore仍逐次提交。事务适配器可见中间flush，其他连接不可见 |
+| M3 | 原文/角色/接收时间/顺序/证据引用与工作流checkpoint整体提交；无Evidence也revision+1，step/question/事件和人工原因不变。模型在事务外，锁内二次重放/CAS，独立workflow及只读工具守卫，不替换共享对象 |
+| M4 | messages/message_history/message_receipt投影，GET同一REPEATABLE READ快照；模型503、存储503、未确认503、冲突409分别表达。保留旧State schema1；官方按持久化cutoff、历史重复序号标不完整、未知角色不伪装；旧样本已有LIVE时不重建 |
+| M5 | 移除私有成功气泡，服务端清单替换；原文不trim、同文不同ID不合并、origin/id作key，历史/新增分段标记。Send/Enter重入保护，失败/未确认保留原请求ID与原revision，无localStorage |
+| M6 | 单元/API、真实PG回滚/双连接/跨进程/提交回执丢失/迁移回退与普通store及E3.2回归；真实Chrome扩展九模式，数据库消息行/State/页面逐项对照 |
+
+实现提交分组：a7b91f9（M1–M2，首轮真实PG2项通过）；f22b6f6（M3–M4，7项PG及本地/类型检查通过）；
+ff61ec7（M5–M6及原始新证据）。最后的历史重复序号完整性标记另有针对性PG17项复核通过。
+实验报告starting_commit=f22b6f6为执行时起点；包含所执行源码与新脚本的提交为ff61ec7。
+最后前端仅移除了eslint指出的等价catch-rethrow，相关前端检查重跑通过；不把父提交号冒充运行时已有最终提交。
+
+### 后端与数据库验证
+
+最终命令：`python -m pytest -m "not qwen" -rs --tb=short --junitxml=.../tests.xml`，
+使用本轮唯一tmpfs PostgreSQL16容器、专用message_test和随机loopback端口，无业务卷。
+[最终JUnit](../backend/evaluation_output/message-complete-39185dfb90664ee09717c06918d3c8b4/tests.xml)、
+[日志](../backend/evaluation_output/message-complete-39185dfb90664ee09717c06918d3c8b4/tests.log)：
+**246通过、27跳过、1 deselected、零失败**，25.98秒；27项为官方工作簿依赖，真实Qwen按标记未执行。
+Ruff和mypy110文件通过；前端6项测试、typecheck/lint/build通过，依赖版本未再变更。
+
+PG覆盖：插入失败后消息/Evidence/中间checkpoint全部回滚；成功重放先于终态/模型缺失检查；
+同ID改内容拒绝；无Evidence counters/history/人工暂停不变；同ID重放/不同ID竞争使用真实双连接，
+并用spawn的两个独立进程分别验证有/无Evidence，只有获胜方写入且保留一条序号。
+另用实际首次get_order_history=1的样本证明重放不重复模型或工具，不以零调用样本替代。
+提交不确定通过真实事务已commit后的OperationalError注入，GET及原POST重放确认唯一消息；
+这是回执异常模拟，不声称真实拔网测试。旧格式/审批/调查续接/恢复及普通store原有回归包含在完整测试内；
+未重复独立W3故障矩阵，原证据仍有效于其原范围。
+
+### 新浏览器证据
+
+[最终报告](../backend/evaluation_output/browser-42cdc9de3c7c474583f96132c6592061/report.json)：
+本机Chrome157.0.8103.50、Playwright1.65.1、Node24.16.0/npm11.13.0，实际前端与单worker API，
+九个独立临时数据库。全部为脚本自动控制真实浏览器，非手工点击、非网络mock；90项脚本断言。
+每个模式有*-messages.json关系行、*-checkpoint.json、CaseView/console/请求JSON、截图和trace；
+调度器断言原文、角色、顺序、id/evidence_ids及revision一致，并验证Evidence源指向原message_id。
+
+| 原验收路径 | 修复后结果 |
+| --- | --- |
+| 1 加载/来源/缺口/状态 | 通过；历史样本明确DEMO_FIXTURE，不读官方工作簿 |
+| 2 消息接收 | 有Evidence及无Evidence均成功；无模型503且不写入，重试仍用原ID |
+| 3 审批/重复/旧revision | 通过；真实双击一次审批，陈旧UI冲突提示可读；消息陈旧revision也不误报模型失败 |
+| 4 刷新恢复 | 通过；有/无Evidence原文均恢复，同文不同ID两条、序号递增，历史四条不重复；原文关系行与页面对应 |
+| 5 断开重启 | 通过；确认旧API退出后重启同库，Retry恢复原文、角色、顺序及来源关联 |
+| 6 console/network | 无未捕获pageerror；预期模型/DB503、冲突409、故意断连均记录，不宣称零错误请求 |
+
+额外真实UI模式db-failure/commit-uncertain/message-conflict覆盖准确反馈；未确认后原ID重放200且replayed=true，
+库中仍一条消息。可重复命令仍为 `python scripts/run_browser_acceptance.py`，需要空闲5173以匹配既有CORS。
+[有Evidence原文](../backend/evaluation_output/browser-42cdc9de3c7c474583f96132c6592061/message-same-text.png)、
+[无Evidence原文](../backend/evaluation_output/browser-42cdc9de3c7c474583f96132c6592061/no-evidence-same-text.png)、
+[重启恢复](../backend/evaluation_output/browser-42cdc9de3c7c474583f96132c6592061/outage-reconnected.png)、
+[提交不确定后重放](../backend/evaluation_output/browser-42cdc9de3c7c474583f96132c6592061/commit-uncertain-failure-feedback.png)。
+模型仅使用已有FakeModelProvider（固定候选/空候选），不冒充真实Qwen；入站表、真实API及领域工作流未mock。
+
+### 中途失败与处理
+
+失败原始结果保留，不覆盖为成功：message-final-1a8d4acc的2个并发测试错把有Evidence的两次转换预期为+1，
+修正断言为该fixture的+2；message-verified-115aa78a合成官方样本缺Consumer父行，补齐真实外键前提；
+message-releasecheck-b110fc72首次查询样本原已带订单Evidence，未实际执行工具，改成确实缺订单的独立样本后通过。
+browser-2edab238在PostgreSQL临时初始化socket已就绪、最终TCP尚未就绪时createdb失败，
+改用pg_isready -h127.0.0.1检测最终服务器，后续轮通过。先前日志/JSON编码、Ruff/mypy及前端lint发现的问题均修正；
+后端改变旧“无Evidence不保存”测试预期是批准的行为变更，不是忽略失败。早期重复截图/trace本地忽略，结构化摘要和失败日志保留。
+
+### 迁移、回滚与边界
+
+部署新前后端前先停写、备份数据库，运行 `python -m alembic upgrade head` 到20261115_0003。
+新增表不改旧State schema1，不回填或从Evidence补造历史；缺表返回明确服务不可用，不退回丢消息路径。
+迁移已测试从空库升级及降回0002再升级，旧checkpoint不变；存在已接收消息时downgrade明确拒绝删表。
+回滚必须停写并保留新增原文/来源备份，恢复到匹配代码与数据库版本；禁止直接删表/删字段后继续接收消息。
+未知历史返回UNAVAILABLE，重复历史序号标不完整，截止范围无法确认不展示后续官方消息；官方导入器不写LIVE表。
+模型/工具在未提交并发或整体回滚后可能重复调用，不承诺外部exactly-once；已提交重放不再调用。
+本轮未提供鉴权、通用消息编辑/删除/分页、保留期限策略或生产发布，原文授权/隐私仍需负责人管理。
+剩余minimatch、真实Qwen/官方数据/镜像CVE/跨浏览器等未验证范围保留。未改ui-prototype，无发布标签或部署流程。
+所有本次Chrome与服务退出，独立标签容器移除，数据库tmpfs随之清理；原有业务容器保留。
+
+代码提交ff61ec7的[实际CI运行](https://github.com/xingnan-dev/Empathy-Copilot/actions/runs/43705360330)中backend、postgres、frontend均通过；最后完整性标记修复及文档提交仍等待其最新PR检查，不以旧提交结果替代。

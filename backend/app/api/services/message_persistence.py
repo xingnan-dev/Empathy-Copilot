@@ -124,7 +124,7 @@ class MessagePersistence:
                     )
                 view.message_history = MessageHistoryView(
                     historical_source="OFFICIAL",
-                    historical_complete=bool(rows)
+                    historical_complete=len(rows) == cutoff
                     and set(r.sequence for r in rows) == set(range(1, cutoff + 1)),
                 )
         else:

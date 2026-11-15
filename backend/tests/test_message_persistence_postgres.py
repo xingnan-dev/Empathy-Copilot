@@ -456,6 +456,26 @@ def test_pg_official_history_respects_persisted_cutoff_and_never_upserts_live(
         )
     assert collision.value.code == "MESSAGE_ID_CONFLICT"
     assert service.model_service is not None and service.model_service.calls == []
+    with postgres_sessions.begin() as session:
+        session.add(
+            MessageRow(
+                message_id="history-duplicate",
+                session_id=state.case_id,
+                sequence=1,
+                sent_at=now,
+                consumer_id=state.consumer_id,
+                role="unknown",
+                sender="synthetic",
+                text="explicit duplicate sequence",
+                content_type="文本",
+                image_path=None,
+                order_id=None,
+                ticket_id=None,
+            )
+        )
+    partial = service.get_case("S00154")
+    assert not partial.message_history.historical_complete
+    assert any(m.role == "UNKNOWN" for m in partial.messages)
 
 
 def test_pg_missing_message_table_returns_explicit_service_error(

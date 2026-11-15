@@ -1,7 +1,7 @@
-# 消费者消息持久化最小修复设计（待沟通区评审）
+# 消费者消息持久化最小修复设计（已评审）
 
 2026-11-15；设计依据为PR #5提交43132af及既有浏览器记录，唯一推荐方案如下。
-本轮只设计，不改产品代码、依赖、迁移或合并PR；浏览器截图、脚本及路径4部分通过结论保留。
+17ac624设计轮只改文档；后续负责人批准M1–M6实施。实际实现与新验收见[W4交付记录](../W4_DELIVERY.md)；原浏览器部分通过证据保留，PR仍不合并。
 
 ## 事实与选择
 
@@ -42,7 +42,7 @@ text保留Unicode原文，1–4000字符且必须含非空白；expected_revisio
 跨案件同message_id独立合法，Evidence关联始终按case_id+source_id判断，不以全局source_id联接。
 新增消息不可被官方导入器更新；无更新/删除消息接口，本阶段不提供保留期限或批量删除功能。
 
-State schema_version仍为1，原字段不变；原文仅在关系表，防止双份事实不一致。
+State schema_version仍为1，原字段不变，不新增聊天数组。经负责人本轮确认，既有Evidence.metadata.original_message保留作为证据溯源；消息关系表是聊天展示与幂等的权威来源，不从Evidence重建聊天历史。原“原文仅在关系表”表述据此澄清。
 新入站Evidence保持CONSUMER_REPORTED和CONSUMER_MESSAGE原语义：source_id=message_id，case_id相同，
 observed_at使用received_at；不能将接收时间当成症状或使用时间。
 最终事务校验evidence_ids全部存在于最终State，并指向本消息；无Evidence消息不创建伪Evidence。

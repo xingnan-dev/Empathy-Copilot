@@ -186,6 +186,11 @@ Do not call full E2E accepted solely from green CI. Raw-message persistence/disp
 
 Owner confirmed raw chat refresh gap. [Minimal design](phases/PHASE_MESSAGE_PERSISTENCE.md) proposes a distinct inbound-message table and transaction-bound checkpoint adapter, preserving official history and E3.2 boundaries. Design only: no product/dependency/migration changes implemented. PR #5 stays unmerged; browser scripts, screenshots and partial acceptance results retained. Implementation waits for communication-area review.
 
-### 消息持久化修复实施中
+### 消息持久化修复：已实施，待沟通区评审
 
 规格17ac624已通过沟通区评审，按M1–M6实施；PR #5不合并，既有浏览器部分通过证据保留。
+
+M1–M6实现与本地验收结果见[W4新增记录](W4_DELIVERY.md)：246通过/27官方数据跳过/1真实Qwen排除，
+真实Chrome九模式90断言，原刷新缺口的新结果通过；旧部分通过记录不改写。
+负责人已确认保留Evidence.metadata.original_message作为既有溯源，消息表为展示/幂等权威来源，State不新增聊天数组。
+提交a7b91f9、f22b6f6、ff61ec7及后续交付记录更新PR #5；不合并、不发布。上线先备份/迁移，含消息降级拒绝删表；剩余授权、隐私、minimatch和外部输入边界保留。
