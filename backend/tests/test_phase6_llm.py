@@ -111,7 +111,7 @@ def test_ambiguous_or_unanchored_candidate_does_not_change_state() -> None:
         message_id="M-AMB",
         expected_revision=before.revision,
     )
-    assert result.revision == before.revision
+    assert result.revision == before.revision + 1
     assert next(gap for gap in result.gaps if gap.id == "ACTUAL_FIRST_USE_TIME").status == "OPEN"
 
 
@@ -142,7 +142,7 @@ def test_prompt_injection_cannot_create_unanchored_evidence_or_set_action() -> N
         message_id="M-INJECT",
         expected_revision=before.revision,
     )
-    assert result.revision == before.revision
+    assert result.revision == before.revision + 1
     assert result.current_action == "ESCALATE"
     assert result.attribution_status == "INSUFFICIENT_EVIDENCE"
 

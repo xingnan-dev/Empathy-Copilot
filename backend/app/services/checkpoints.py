@@ -1,8 +1,10 @@
 """Checkpoint persistence contract and development in-memory implementation."""
 
+from threading import RLock
 from typing import Protocol
 
 from backend.app.domain.agent import InvestigationState
+from backend.app.domain.inbound_message import InboundMessage
 
 
 class StateConflictError(RuntimeError):
@@ -10,9 +12,7 @@ class StateConflictError(RuntimeError):
 
 
 class CheckpointStore(Protocol):
-    def save(
-        self, state: InvestigationState, *, expected_revision: int | None = None
-    ) -> None: ...
+    def save(self, state: InvestigationState, *, expected_revision: int | None = None) -> None: ...
 
     def load(self, case_id: str) -> InvestigationState: ...
 
@@ -24,10 +24,10 @@ class InMemoryCheckpointStore:
 
     def __init__(self) -> None:
         self._states: dict[str, str] = {}
+        self.message_records: dict[tuple[str, str], InboundMessage] = {}
+        self.message_lock = RLock()
 
-    def save(
-        self, state: InvestigationState, *, expected_revision: int | None = None
-    ) -> None:
+    def save(self, state: InvestigationState, *, expected_revision: int | None = None) -> None:
         if expected_revision is not None and state.case_id in self._states:
             current = InvestigationState.model_validate_json(self._states[state.case_id])
             if current.state_revision != expected_revision:
